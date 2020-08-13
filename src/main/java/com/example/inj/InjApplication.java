@@ -1,0 +1,29 @@
+package com.example.inj;
+
+import com.example.inj.readingStrategy.strategy.ReadingStrategy;
+import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import java.io.IOException;
+import java.text.ParseException;
+
+
+@SpringBootApplication
+public class InjApplication {
+
+    @Autowired
+    DataManipulateExcel dataManipulate;
+
+    public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
+
+        ConfigurableApplicationContext ack= SpringApplication.run(InjApplication.class, args);
+        DataManipulateExcel dataManipulate= ack.getBean("dataManipulateExcel", DataManipulateExcel.class);
+        dataManipulate.dataToExcel();
+        ack.close();
+    }
+
+}

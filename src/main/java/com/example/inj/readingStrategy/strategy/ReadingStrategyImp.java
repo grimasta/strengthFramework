@@ -1,0 +1,616 @@
+package com.example.inj.readingStrategy.strategy;
+
+
+import com.example.inj.attributes.AttributesField;
+import com.example.inj.attributes.SelectAttributes;
+import com.example.inj.commitBuilder.TryCommitDetails;
+import com.example.inj.commitBuilder.TryFileDetails;
+import com.example.inj.commitRepository.CommitDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
+
+//Bug 001: Committed as part of the file that is committed alone.
+@Component
+public class ReadingStrategyImp implements ReadingStrategy {
+    private Logger logger = Logger.getLogger(this.getClass());
+
+    private HashMap<Integer, String> dictionary = new HashMap<>();
+
+    Table<String, String, Map<String, List<Object>>> readableMappingN= HashBasedTable.create();
+    Table<String, String, Map<Integer, List<Object>>> readableMappingSameN= HashBasedTable.create();//Bug 001: Committed as part of the file that is committed alone.
+
+
+
+    private HashMap<String, String> dictionaryString= new LinkedHashMap<>();
+    Table<String, String, Map<Integer, List<Object>>> readableMappingFinal=HashBasedTable.create();
+
+
+    @Override
+    public  Table<String, String, Map<Integer, List<Object>>> parseData() throws IOException, ParseException {
+
+        ArrayList<String> jsonArray;
+
+        //parser settings
+        BeanListProcessor<AttributesField> rowProcessor = new BeanListProcessor<>(AttributesField.class);
+        CsvParserSettings parserSettings = new CsvParserSettings();
+        parserSettings.setRowProcessor(rowProcessor);
+
+
+        parserSettings.setHeaderExtractionEnabled(true);
+        //setting the headers as additions and deletions are two same column name
+        parserSettings.setHeaders("id", "branch", "message", "parent_id", "author", "authored_at", "committer", "committed_at", "Cadditions", "Cdeletions"
+                , "changed_files", "is_bug_linked , sd", "is_fix_related", "is_bug_fixing", "is_refactoring",
+                "file_path", "previous_file_path", "additions", "deletions", "file_id");
+        //Select Attributes from enum
+        parserSettings.selectFields(SelectAttributes.values());
+        CsvParser parser = new CsvParser(parserSettings);
+
+        /*Parse the excel based on date
+        parser.beginParsing(new FileReader(new File("C:\\Users\\Carnoll\\Desktop\\IBM Project Details\\CSV Files\\gcc.csv")));
+        int count=0;
+        String[] row;
+        List<AttributesField> beanss= new ArrayList<>();
+        while((row=parser.parseNext())!= null)
+        {
+            AttributesField af=rowProcessor.createBean(row, parser.getContext());
+            row=af.getCommitted_at().split(" ");
+            if(row[0].compareTo("2013-11-13") <=0)  //Hardcode the date: return a.compareTo(d) * d.compareTo(b) > 0;
+            {
+                beanss.add(af);
+            }
+        }
+       Parse the excel based on date*/
+
+        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\yetus.csv")));
+
+        List<AttributesField> beans = rowProcessor.getBeans();
+        ListIterator<AttributesField> listIterator = beans.listIterator();
+        while (listIterator.hasNext()) {
+            AttributesField af = listIterator.next();
+            CommitDetails cm = new CommitDetails(af.getId());
+            cm.createCommitHashMap(af.getId());
+
+
+            TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
+
+            TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
+        }
+
+
+        Iterator builderIterator = TryFileDetails.getFileDetailsPojoHashMap().entrySet().iterator();
+        while (builderIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) builderIterator.next();
+
+        }
+
+        Iterator builderIterator2 = TryFileDetails.getFileIdHashMap().entrySet().iterator();
+        //Print all the commits associated with file_id with builder class
+        while (builderIterator2.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) builderIterator2.next();
+        }
+
+        jsonArray = convertJson(beans);
+        System.out.println("Table Mapping");
+        //createTableMapping(TryFileDetails.getFileDetailsPojoHashMap()).cellSet().stream().forEach(e->System.out.print(e));
+        Table<String, String, Map<Integer, List<Object>>> tablMap= createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
+        //tablMap.cellSet().forEach(e-> System.out.println(e));
+        return tablMap;
+
+    }
+
+
+
+    /* convertJson function will convert the List input to JSON output using Jackson Json API */
+    @Override
+    public ArrayList<String> convertJson(List<AttributesField> attf) throws IOException {
+        ListIterator<AttributesField> itr = attf.listIterator();
+        ArrayList<String> jsonArray = new ArrayList<>();
+
+        while (itr.hasNext()) {
+            //Create ObjectMapper
+            ObjectMapper mapper = new ObjectMapper();
+            //Convert Object to JSON string
+            String jsonFormat = mapper.writeValueAsString(itr.next());
+            jsonArray.add(jsonFormat);
+        }
+        return jsonArray;
+    }
+
+    //Method to create and populate data structure using GuavaTable
+    public Table<String, String, Map<Integer, List<Object>>> createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> tryHashMap) throws ParseException {
+        Table<TryFileDetails, TryFileDetails, Map<Integer, List<Object>>> fileTableMapping
+                = HashBasedTable.create();
+        List<String> fileIds = new ArrayList<>();
+        Table<String, String, Map<Integer, List<Object>>> readableMapping = HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> readableMapping2 = HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> readableMapping3 = HashBasedTable.create();
+        //Check4 is created to capture the commitID
+        Table<String, String, Map<String, List<Object>>> readableMappingCheck4= HashBasedTable.create();
+        //For each commit we will have list of file objects
+        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet = tryHashMap.entrySet().iterator();
+        //Integer for occurence and List of changes
+        Map<Integer, List<Object>> scalarVector = new HashMap<>();
+        Map<String, List<Object>> scalarVectorCheck4= new HashMap<>();
+        int count2 = 0;
+        int count1 = 0;
+        //Start: Bug 001: Committed as part of the file that is committed alone.
+        int caCount=0;
+        int cadd=0;
+        Table<String, String, Map<String, List<Object>>> readableMappingSame = HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo= HashBasedTable.create();
+        Map<String, List<Object>> scalarVectorSame = new HashMap<>();
+        Map<String, List<Object>> scalarVectorSameTwo = new HashMap<>();
+        Map<String, List<Object>> scalarVectorCheckSame= new LinkedHashMap<>();
+        List<Object> sameObj= new LinkedList<>();
+        for(CommitDetails row: tryHashMap.keySet())
+        {
+            List<TryFileDetails> sameFile= new LinkedList<>();
+            sameFile= tryHashMap.get(row);
+
+            if(sameFile.size()==1)
+            {
+                TryFileDetails tf= sameFile.get(0);
+                cadd= Integer.parseInt(tf.getAddition()) + Integer.parseInt(tf.getDeletion());
+                caCount++;
+
+                //1. buggy
+
+                sameObj.add(0);
+                //2. non-buggy
+                sameObj.add(0);
+                // 3. How many lines of Fi is changed
+                sameObj.add(cadd);
+                // 4. How many lines of Fj is changed
+                sameObj.add(cadd);
+                // 5. Average number of lines changed in a particular commit
+                sameObj.add(cadd);
+                // 6. Minimum number of lines changed in a particular commit
+                sameObj.add(cadd);
+                // 7. Maximum number of lines changed in a particular commit
+                sameObj.add(cadd);
+                // 8. Median of lines changed in a particular commit
+                sameObj.add(0.0);
+                // 9. Percentile of Fi in a particular commit
+                sameObj.add(0.0);
+                // 10. Percentile of Fj in a particular commit
+                sameObj.add(0.0);
+                // 11. Date of committed file Fj
+                sameObj.add(tf.getDate());
+                //12.
+                sameObj.add("RRRR");
+                //13. Buggy List Fi
+                sameObj.add(tf.isBugFixing());
+                //14. Number of lines in a commit has modified
+                sameObj.add(Integer.parseInt(tf.getCaddition()));
+                //15. Number of lines in a commit is deleted
+                sameObj.add(Integer.parseInt(tf.getCdeletion()));
+                //16. BugFixing Or Not
+                sameObj.add(tf.isBugFixing());
+
+
+                scalarVectorSame.put(tf.getCommitId(), sameObj);
+
+                if(readableMappingSame.contains(tf.getFileId(),tf.getFileId()))
+                {
+                   scalarVectorSameTwo = readableMappingSame.get(tf.getFileId(),tf.getFileId());
+                   scalarVectorSame.putAll(scalarVectorSameTwo);
+                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
+                }
+                else {
+                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
+                }
+                scalarVectorSame= new LinkedHashMap<>();
+                scalarVectorSameTwo= new LinkedHashMap<>();
+                sameObj= new LinkedList<>();
+            }
+
+        }
+
+        //End: Bug 001: Committed as part of the file that is committed alone.
+
+        //Populating and Creating the data structure with "X" for the (FN,FN)
+        while (entrySet.hasNext()) {
+            //Iterator on FileDetails of HashMap
+            Iterator<TryFileDetails> listIterator = entrySet.next().getValue().iterator();
+            while (listIterator.hasNext()) {
+                TryFileDetails tfd = listIterator.next();
+                if (!fileIds.contains(tfd.getFileId())) {
+                    fileIds.add(tfd.getFileId());
+                    fileTableMapping.put(tfd, tfd, scalarVector);
+
+                    readableMapping.put(tfd.getFileId(), tfd.getFileId(), scalarVector);
+
+
+                }
+            }
+        }
+
+
+        //Removal of redundancy
+        Iterator<String> columnReadableItr;
+        Iterator<String> rowReadableItr = readableMapping.rowKeySet().iterator();
+        String fileRow = "";
+        String fileColumn = "";
+        List<Object> list = new ArrayList<>();
+        list.add("C");
+
+        int i = 0;
+        int buggy;
+        int nonbuggy;
+        int linesChangedFi = 0;
+        int linesChangedFj = 0;
+        int avgLinesChangedCi = 0;
+        int FileCount = 0;
+        int lines = 0;
+        int index = 0;
+        double percentileFi = 0;
+        double percentileFj = 0;
+        List<Integer> sortedListLineChanged = new ArrayList<>();
+        double median = 0;
+
+
+        while (rowReadableItr.hasNext()) {
+            fileRow = rowReadableItr.next();
+            columnReadableItr = readableMapping.columnKeySet().iterator();
+            while (columnReadableItr.hasNext()) {
+                fileColumn = columnReadableItr.next();
+                if (!fileRow.equals(fileColumn) &&
+                        ((!readableMapping2.contains(fileRow, fileColumn) || !readableMapping2.contains(fileColumn, fileRow)))) {
+                    readableMapping2.put(fileRow, fileColumn, scalarVector);
+                    count1++;
+                } else {
+                    count2++;
+                }
+            }
+        }
+
+
+        rowReadableItr = readableMapping2.rowKeySet().iterator();
+
+        //Creating Sparse Vector using HashMap
+        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet1;
+
+        int columnInside=0;
+        int rowInside=0;
+        int iDic=-1;
+        while (rowReadableItr.hasNext()) {
+            String rtfd = rowReadableItr.next();
+
+            columnReadableItr = readableMapping.columnKeySet().iterator();
+
+            while (columnReadableItr.hasNext()) {
+                String ctfd = columnReadableItr.next();
+                List<TryFileDetails> tfd = new ArrayList<>();
+                entrySet1 = tryHashMap.entrySet().iterator();
+                scalarVector = new HashMap<>();
+                scalarVectorCheck4= new HashMap<>();
+                i = 0;
+                String commitIdForAB="";
+                buggy = 0; //Number of times it appear as a buggy commit in a commit details
+                nonbuggy = 0; //Number of times it appear as a non-buggy commit
+
+                if (!rtfd.equals(ctfd))
+                {
+
+                    while (entrySet1.hasNext()) {
+                        tfd = entrySet1.next().getValue();
+                        Iterator<TryFileDetails> itrTfd = tfd.listIterator();
+                        List<Object> buggyList = new ArrayList<>();
+                        int rowAppear = 0;
+                        int colAppear = 0;
+                        avgLinesChangedCi = 0;
+                        FileCount = 0;
+                        sortedListLineChanged.clear();
+                        linesChangedFi = 0;
+                        linesChangedFj = 0;
+                        boolean rtfdBugFixing = false;
+                        boolean ctfdBugFixing = false;
+                        columnInside=0;
+                        rowInside=0;
+                        String date = null;
+                        int bugFi=0;
+                        int cAddition=0;
+                        int cDeletion=0;
+                        boolean bug= false;
+                        boolean nonBug= true;
+                        //Improvising
+
+                        //Traversing against the list of a particular commit
+                        while (itrTfd.hasNext()) {
+                            TryFileDetails ttffd = itrTfd.next();
+                            index = 0;
+
+                            cAddition= Integer.parseInt(ttffd.getCaddition());
+                            cDeletion= Integer.parseInt(ttffd.getCdeletion());
+                            //Average number of lines changed in a particular commit
+                            avgLinesChangedCi = avgLinesChangedCi + Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                            FileCount++;
+                            //Average number of lines changed in a particular commit
+
+                            lines = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+
+                            {
+                                //Minimum lines changed in a particular commit
+                                sortedListLineChanged.add(lines);
+                                //Minimum lines changed in a particular commit
+
+                            }
+
+
+                            if (ttffd.getFileId().equals(rtfd)) {
+                                rowAppear++;
+                                rowInside++;
+
+                                linesChangedFi = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                                if (!ttffd.isBugFixing()) {
+                                    rtfdBugFixing = true;
+                                }
+                            }
+                            if (ttffd.getFileId().equals(ctfd)) {
+                                colAppear++;
+                                columnInside++;
+                                date=ttffd.getDate();
+
+                                //How many lines of Fj is changed
+                                linesChangedFj = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                                if (!ttffd.isBugFixing()) {
+                                    ctfdBugFixing = true;
+                                }
+                            }
+
+                            commitIdForAB=ttffd.getCommitId();
+                        }
+
+                        if ((rowAppear != 0 && colAppear != 0)) {
+
+                            if (rtfdBugFixing && ctfdBugFixing) {
+
+                                ++nonbuggy;
+                                nonBug= true;
+
+                            } else if (!ctfdBugFixing && !ctfdBugFixing) {
+
+                                ++buggy;
+                                ++bugFi;
+                                bug=true;
+                            }
+                        }
+
+                        //Average number of lines changed in a particular commit
+                        avgLinesChangedCi = (int) avgLinesChangedCi / FileCount;
+                        //Average number of lines changed in a particular commit
+
+                        //Minimum lines and Maximum lines changed in a particular commit
+                        Collections.sort(sortedListLineChanged);
+
+                        {
+                            //Median of a sorted list
+                            if (sortedListLineChanged.size() % 2 == 0) {
+                                median = (double) (sortedListLineChanged.get(((sortedListLineChanged.size() - 1) / 2)) + Math.abs(sortedListLineChanged.get((sortedListLineChanged.size()) / 2))) / 2.0;
+                            } else {
+                                median = (double) (sortedListLineChanged.get(sortedListLineChanged.size() / 2));
+                            }
+                            //Median of a sorted list
+                        }
+                        //Minimum lines and Maximum lines changed in a particular commit
+
+                        //percentile of Fi in a sortedList
+                        index = sortedListLineChanged.indexOf(linesChangedFi);
+
+                        percentileFi = ((float) (index + 1) / (sortedListLineChanged.size())) * 100;
+                        //percentile of Fi in a sortedList
+
+                        //percentile of Fj in a sortedList
+                        index = sortedListLineChanged.indexOf(linesChangedFj);
+                        percentileFj = ((float) (index + 1) / (sortedListLineChanged.size())) * 100;
+                        //percentile of Fj in a sortedList
+
+                        if (((buggy != 0) || (nonbuggy != 0)) && (rowInside!=0 && columnInside !=0))
+                        {
+
+                            //System.out.println("Hey I am here");
+                            //1.
+                            buggyList.add(buggy);
+                            //2.
+                            buggyList.add(nonbuggy);
+                            // 3. How many lines of Fi is changed
+                            buggyList.add(linesChangedFi);
+                            // 4. How many lines of Fj is changed
+                            buggyList.add(linesChangedFj);
+                            // 5. Average number of lines changed in a particular commit
+                            buggyList.add(avgLinesChangedCi);
+                            // 6. Minimum number of lines changed in a particular commit
+                            buggyList.add(sortedListLineChanged.get(0));
+                            // 7. Maximum number of lines changed in a particular commit
+                            buggyList.add(sortedListLineChanged.get((sortedListLineChanged.size() - 1)));
+                            // 8. Median of lines changed in a particular commit
+                            buggyList.add(median);
+                            // 9. Percentile of Fi in a particular commit
+                            buggyList.add(percentileFi);
+                            // 10. Percentile of Fj in a particular commit
+                            buggyList.add(percentileFj);
+                            // 11. Date of committed file Fj
+                            buggyList.add(date);
+                            //12.
+                            buggyList.add("RRRR");
+                            //13. Buggy List Fi
+                            buggyList.add(bugFi);
+                            //14. Number of lines in a commit has modified
+                            buggyList.add(cAddition);
+                            //15. Number of lines in a commit is deleted
+                            buggyList.add(cDeletion);
+                            //16. BugFixing Or Not
+                            buggyList.add(bug);
+
+                            scalarVector.put(i, buggyList);
+                            scalarVectorCheck4.put(commitIdForAB, buggyList);
+                            dictionary.put(i,commitIdForAB);
+                            dictionaryString.put(date,commitIdForAB);
+
+                        }
+                        i = i + 1;
+
+                    }
+                    if (!scalarVector.isEmpty()) {
+                        //Sorting a map for the function
+                        List<Map.Entry<Integer, List<Object>>> listSort= new LinkedList<>(scalarVector.entrySet());
+                        Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
+
+                        //scalarVector.clear();
+                        scalarVector= new LinkedHashMap<>();
+
+                        for (Map.Entry<Integer, List<Object>> stu : listSort) {
+                            //System.out.println("Key" + stu.getKey() + "value" +stu.getValue());
+                            scalarVector.put(stu.getKey(), stu.getValue());
+                        }
+
+                        readableMapping3.put(rtfd, ctfd, scalarVector);
+
+                    }
+                    //Start-Repeated for check 4
+                    if (!scalarVectorCheck4.isEmpty()) {
+                        //Sorting a map for the function
+                        List<Map.Entry<String, List<Object>>> listSort= new LinkedList<>(scalarVectorCheck4.entrySet());
+                        Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
+
+                        scalarVectorCheck4= new LinkedHashMap<>();
+
+                        for (Map.Entry<String, List<Object>> stu : listSort) {
+
+                            scalarVectorCheck4.put(stu.getKey(), stu.getValue());
+                        }
+
+                        readableMappingCheck4.put(rtfd, ctfd, scalarVectorCheck4);
+                    }
+                    //End-Repeated Check 4
+
+
+                }
+                //Start: Bug 001: Committed as part of the file that is committed alone.
+                else
+                {
+                    //readableMappingSameTwo it will contain the records of file that are committed alone
+                    if(readableMappingSame.contains(rtfd,ctfd))
+                    {
+                       {
+                            Map<String, List<Object>> fixMap= readableMappingSame.get(rtfd, ctfd);
+                            Map<Integer, List<Object>> doubFix= new LinkedHashMap<>();
+                            for(String k: fixMap.keySet())
+                            {
+                                doubFix.put(iDic, fixMap.get(k));
+                                String date= (String) fixMap.get(k).get(10);
+                                dictionary.put(iDic,k);
+                                dictionaryString.put(date,k);
+                                //readableMapping3.put(rtfd, ctfd, doubFix);
+                                readableMappingSameTwo.put(rtfd,ctfd,doubFix);
+                                iDic--;
+                            }
+
+                           //readableMappingCheck4.put(rtfd,ctfd, fixMap);
+
+
+                        }
+                        //Map<Integer, List<Object>> scalVec= readableMapping3.get(rtfd, ctfd);
+                        Map<Integer, List<Object>> scalVec= readableMappingSameTwo.get(rtfd, ctfd);
+                        List<Map.Entry<Integer, List<Object>>> listSort= new LinkedList<>(scalVec.entrySet());
+                        Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
+
+                        //Sort the values
+                        scalVec= new LinkedHashMap<>();
+
+                        for (Map.Entry<Integer, List<Object>> stu : listSort) {
+                            //System.out.println("Key" + stu.getKey() + "value" +stu.getValue());
+                            scalVec.put(stu.getKey(), stu.getValue());
+
+                        }
+                        //readableMapping3.put(rtfd, ctfd, scalVec);
+                        readableMappingSameTwo.put(rtfd,ctfd,scalVec);
+
+                        scalVec= new LinkedHashMap<>();
+
+                    }
+
+                }
+                //End:Bug 001: Committed as part of the file that is committed alone.
+
+
+            }
+
+        }
+
+        setDictionary(dictionary);
+        setReadableMapping(readableMapping3);
+        setReadableMappingSameN(readableMappingSameTwo);
+
+        System.out.println("READING MAPPING -3 ");
+        System.out.println("  ,   " + readableMapping3.cellSet().toString());
+        System.out.println("READING MAPPING -Same ");
+        System.out.println("  ,   " + readableMappingSameTwo.cellSet().toString());
+        //System.exit(0);
+        /*System.out.println("This is Dictionary");
+        dictionary.entrySet().stream().forEach(e-> System.out.print(" , " + e));
+        System.out.println("This is Dictionary String");
+        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
+        System.exit(0);*/
+        readableMappingFinal.putAll(readableMapping3);
+        readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
+        return  readableMapping3; //returning the table
+    }
+
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameN() {
+        return readableMappingSameN;
+    }
+
+    public void setReadableMappingSameN(Table<String, String, Map<Integer, List<Object>>> readableMappingSameN) {
+        this.readableMappingSameN = readableMappingSameN;
+    }
+
+    public Table<String, String, Map<String, List<Object>>> getReadableMappingN() {
+        return readableMappingN;
+    }
+
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMapping() {
+        return readableMappingFinal;
+    }
+
+    public void setReadableMapping(Table<String, String, Map<Integer, List<Object>>> readableMapping) {
+        readableMappingFinal = readableMapping;
+    }
+
+
+    public void setReadableMappingN(Table<String, String, Map<String, List<Object>>> readableMappingN) {
+        this.readableMappingN = readableMappingN;
+    }
+
+    public HashMap<String, String> getDictionaryString() {
+        return dictionaryString;
+    }
+
+    public void setDictionaryString(HashMap<String, String> dictionaryString) {
+        this.dictionaryString = dictionaryString;
+    }
+
+    public HashMap<Integer, String> getDictionary() {
+        return dictionary;
+    }
+
+    public void setDictionary(HashMap<Integer, String> dictionary) {
+        this.dictionary = dictionary;
+    }
+
+
+}
+
+
