@@ -45,15 +45,20 @@ public class DataManipulateExcel {
     Map<String, List<String>> yearMapPair = new LinkedHashMap<>();
     //This will contain the segment width of each sample
     Map<String, Integer> segmentWidth = new LinkedHashMap<>();
+    //This will contain the vector of segments along
+    Map<String, Map<String,List<Object>>> vectorMapGlobal= new LinkedHashMap<>();
+    //This will contain the vector of segments in different format
+    Map<String, List<List<Object>>> vectorFinalMapGlobal = new LinkedHashMap<>();
+
 
 
     /*
-       Case-1 Number of times the file A&B are co-committed
-       Case-2 Number of time (A&B) are co-committed/ Number of time A is committed globally
-       Case-3 Time difference when A&B are co-commited in a consecutive commit/ Count Difference
-       Case-4 Number of lines of A has modified/Total number of lines in the commit has modified, excluding A&B
-       Case-5 Number of lines of B has modified/Number of lines of the commit(except A&B)
-        */
+           Case-1 Number of times the file A&B are co-committed
+           Case-2 Number of time (A&B) are co-committed/ Number of time A is committed globally
+           Case-3 Time difference when A&B are co-commited in a consecutive commit/ Count Difference
+           Case-4 Number of lines of A has modified/Total number of lines in the commit has modified, excluding A&B
+           Case-5 Number of lines of B has modified/Number of lines of the commit(except A&B)
+            */
     public void dataToExcel() throws IOException, ParseException, InvalidFormatException {
 
 
@@ -1527,6 +1532,10 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         setAccumulatedSt(finalStrengthSorted); //Setting the final Strength of file including the file that is committed alone
 
     }
+    /*
+    createVector() function is responsible for creating vector of desired segment. The segment width
+    is obtained from createSegmentWidth function.
+     */
 
     public void createVector() {
         Map<String, Float> accStrength;
@@ -1589,6 +1598,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
             }
         }
+        setVectorMapGlobal(vectorMap);
+        setVectorFinalMapGlobal(vectorFinalMap);
         System.out.println("Vector Map");
         vectorMap.entrySet().stream().forEach(e-> System.out.println(" , " + e));
         System.out.println("Vector Final Map");
@@ -1682,6 +1693,54 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         setSegmentWidth(meanMap);
     }
 
+    /*createRandomSample will create the starting point of the samples and put it in the list and make
+    it available for machine learning algorithm.
+    */
+    public void createRandomSample(){
+        Map<String, Map<String, List<Object>>> vectorMap= getVectorMapGlobal();
+        Map<String, List<Object>> vectorListMap;
+        Map<String, List<List<Object>>> vectorFinalMap= getVectorFinalMapGlobal();
+        List<List<Object>> vectorFinalList= new LinkedList<>();
+        Map<String, List<List<Object>>> vectorSampling= new LinkedHashMap<>();
+        List<List<Object>> vectorSamplingList= new LinkedList<>();
+        List<String> vectorList = null;
+        Random random = new Random();
+        int value;
+        int size=0;
+        int noOfSegment=5;
+        int i=0;
+
+        for(String file: vectorMap.keySet())
+        {
+             vectorListMap= vectorMap.get(file);
+             vectorList.addAll(vectorListMap.keySet());
+             size= vectorList.size();
+             vectorFinalList=vectorFinalMap.get(file);
+            // Obtain a number between [0 - 49], if random.nextInt(50).
+
+             if(noOfSegment > vectorList.size() ) {
+                 value = random.nextInt(vectorList.size());
+                 while (value <= (size - noOfSegment)) {
+                     value = random.nextInt(vectorList.size());
+                 }
+                 while (i < noOfSegment) {
+                     vectorSamplingList.add(vectorFinalList.get(value));
+                     value++;
+                     i++;
+                 }
+             }
+             else
+             {
+                 vectorSamplingList.addAll(vectorFinalList);
+             }
+
+            vectorSampling.put(file,vectorSamplingList);
+            vectorSamplingList= new LinkedList<>();
+            vectorFinalList= new LinkedList<>();
+        }
+
+
+    }
     public Map<String, Map<String, Float>> getAccumulatedSt() {
         return accumulatedSt;
     }
@@ -1730,6 +1789,22 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         this.segmentWidth = segmentWidth;
     }
 
+
+    public Map<String, Map<String, List<Object>>> getVectorMapGlobal() {
+        return vectorMapGlobal;
+    }
+
+    public void setVectorMapGlobal(Map<String, Map<String, List<Object>>> vectorMapGlobal) {
+        this.vectorMapGlobal = vectorMapGlobal;
+    }
+
+    public Map<String, List<List<Object>>> getVectorFinalMapGlobal() {
+        return vectorFinalMapGlobal;
+    }
+
+    public void setVectorFinalMapGlobal(Map<String, List<List<Object>>> vectorFinalMapGlobal) {
+        this.vectorFinalMapGlobal = vectorFinalMapGlobal;
+    }
       /*
     This function will fill out the series of 0,1,0 values based on below
     criteria:
