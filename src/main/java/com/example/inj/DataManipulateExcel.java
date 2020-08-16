@@ -8,6 +8,7 @@ import com.google.common.collect.Table;
 import javafx.util.Pair;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.joda.time.Interval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
@@ -41,7 +43,8 @@ public class DataManipulateExcel {
     Map<String, List<String>> yearMapGlobalSame = new LinkedHashMap<>();
     //It contains the dates when the file is co-committed with another file --yearMapPair
     Map<String, List<String>> yearMapPair = new LinkedHashMap<>();
-
+    //This will contain the segment width of each sample
+    Map<String, Integer> segmentWidth = new LinkedHashMap<>();
 
 
     /*
@@ -263,16 +266,15 @@ public class DataManipulateExcel {
         Map<String, Map<String, Float>> implementDecay = implementDecayInStrengthSecond(globalDecay, overallStrength);
         //System.exit(0);
         setAccumulatedSt(implementDecay);
-        finalStrengthSingleFile();
+        finalStrengthSingleFile(); // Includes Pair as well Single file
         createSegmentWidth();
-        insertIntoExcel(implementDecay);
-
+        calculateSlopeUsingSimpleRegression(10);
+        createVector();
         System.out.println("END OF PROGRAM");
 
-        //System.out.println("ACC STRENGTH" + getAccumulatedSt());
 
-        //calculateSlopeFunctionParameters("27c1b0d5-3e41-11ea-90dd-482ae32cf5b4", 10, getAccumulatedSt());
-        //calculateChange(getAccumulatedSt());
+        //insertIntoExcel(implementDecay);
+        //calculateChange(getAccumulatedSt()); //To fill out series, not required as
     }
 
     /*
@@ -565,7 +567,6 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 Collections.sort(yearCount);
                 yearMap.put(row, yearCount);
             }
-
 
 
         }
@@ -1369,16 +1370,16 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
     }
 
+
     /*
-    This function will calculate the parameters of calculateSlope function
-     */
+    This function is responsible to calculate the slope with given segment width
+    */
 
-    public void calculateSlopeFunctionParameters(String fileId, int segmentWidth, Map<String, Map<String, Float>> acStren) {
-        calculateSlopeUsingSimpleRegression(segmentWidth, fileId, acStren);
-    }
-
-    public void calculateSlopeUsingSimpleRegression(int segmentWidth, String fileId, Map<String, Map<String, Float>> acStren) {
-        Map<String, Float> accStrength = acStren.get(fileId);
+    public void calculateSlopeUsingSimpleRegression(int segmentWidth) {
+        Map<String, Float> accStrength;
+        Map<String, Integer> segmentWidths = getSegmentWidth();
+        int segmentWid = 0;
+        Map<String, Map<String, Float>> acStren = getAccumulatedSt();
         Map<String, Map<String, Map<String, Double>>> slope = new LinkedHashMap<>();
         Map<String, Map<String, Double>> slopeStartDate = new LinkedHashMap<>();
         Map<String, Double> slopeEndDate = new LinkedHashMap<>();
@@ -1391,7 +1392,6 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         List<Double> yList = new LinkedList<>();
         Double[][] xy = new Double[0][];
         for (String file : acStren.keySet()) {
-            //if(file.equals(fileId))
             {
                 SimpleRegression simpleRegression = new SimpleRegression(true);
                 accStrength = acStren.get(file);
@@ -1399,9 +1399,10 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 Collections.sort(timeStamp);
                 max = timeStamp.size();
                 i = 0;
+                segmentWid = segmentWidths.get(file);
                 while (i < max) {
 
-                    segmentI = i + segmentWidth;
+                    segmentI = i + segmentWid;
                     if (!(segmentI < max)) {
                         segmentI = max;
                     }
@@ -1422,7 +1423,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
                     System.out.println(" The slope" + simpleRegression.getSlope());*/
                     slopeEndDate.put(timeStamp.get(i - 1), simpleRegression.getSlope());
-                    slopeStartDate.put(timeStamp.get(i - segmentWidth), slopeEndDate);
+                    slopeStartDate.put(timeStamp.get(i - segmentWid), slopeEndDate);
                     slopeEndDate = new LinkedHashMap<>();
                     simpleRegression.clear();
                     xList = new LinkedList<>();
@@ -1438,7 +1439,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             }
         }
         System.out.println("Hash Map Slope");
-        slope.entrySet().stream().forEach(e -> System.out.print(e));
+        slope.entrySet().stream().forEach(e -> System.out.print(" , " + e));
     }
 
     /*
@@ -1461,7 +1462,275 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
     }
 
+
     /*
+    finalStrengthSingleFile()-This function will calculate the strength of file even if the file is
+    committed alone, for initial phase if file is committed alone we are just tracking the commit from the
+    previous value without any decay.
+    Created to resolve the : Bug 001: Committed as part of the file that is committed alone.
+     */
+    public void finalStrengthSingleFile() {
+        Map<String, Map<String, Float>> finalStrength = getAccumulatedSt();
+        Table<String, String, Map<Integer, List<Object>>> readMappingSame = readingStrategyImp.getReadableMappingSameN();
+        Map<String, Map<String, Map<Integer, List<Object>>>> readMapMap = readMappingSame.rowMap();
+        Map<Integer, List<Object>> readMapVal = new LinkedHashMap<>();
+        Map<String, Float> finalStrVal = new LinkedHashMap<>();
+        Map<String, List<String>> readMapString = new LinkedHashMap<>();
+        List<String> readMap = new LinkedList<>();
+        List<String> finalStr = new LinkedList<>();
+        Map<String, Float> finalMap = new LinkedHashMap<>();
+        Map<String, List<String>> yearMapAloneSame = new LinkedHashMap<>();
+        List<String> yearMapAloneListSame = new LinkedList<>();
+        Map<String, Float> finalSubStrengthSorted = new TreeMap<>();
+        Map<String, Map<String, Float>> finalStrengthSorted = new TreeMap<>();
+        if (!finalStrength.isEmpty()) {
+            for (String rowStr : finalStrength.keySet()) {
+                if (readMappingSame.containsRow(rowStr)) {
+                    readMapVal = readMappingSame.get(rowStr, rowStr);
+                    for (Integer key : readMapVal.keySet()) {
+                        readMap.add((String) readMapVal.get(key).get(10));
+                    }
+                    Collections.sort(readMap);
+                    finalStrVal = finalStrength.get(rowStr);
+                    finalStr.addAll(finalStrVal.keySet());
+                    TreeSet<String> finalSetStr = new TreeSet<>();
+                    Collections.sort(finalStr);
+                    finalSetStr.addAll(finalStr);
+                    Iterator readMapItr = readMap.iterator();
+                    while (readMapItr.hasNext()) {
+                        String val = (String) readMapItr.next();
+                        String newVal = finalSetStr.floor(val);
+                        Float str = finalStrVal.get(newVal);
+                        finalStrVal.putIfAbsent(val, str);
+
+
+                    }
+
+                    finalStrength.putIfAbsent(rowStr, finalStrVal);
+                    yearMapAloneSame.put(rowStr, readMap);
+                    finalMap = new LinkedHashMap<>();
+                }
+
+                readMap = new LinkedList<>();
+                finalStr = new LinkedList<>();
+            }
+        }
+
+        for (String key : finalStrength.keySet()) {
+            finalSubStrengthSorted.putAll(finalStrength.get(key));
+            finalStrengthSorted.put(key, finalSubStrengthSorted);
+            finalSubStrengthSorted = new TreeMap<>();
+        }
+        setYearMapGlobalSame(yearMapAloneSame);
+        System.out.println("Final Sorted Strength Including Sorted file");
+        finalStrengthSorted.entrySet().forEach(e -> System.out.println(" , " + e));
+        setAccumulatedSt(finalStrengthSorted); //Setting the final Strength of file including the file that is committed alone
+
+    }
+
+    public void createVector() {
+        Map<String, Float> accStrength;
+        Map<String, Integer> segmentWidths = getSegmentWidth();
+        Map<String, Map<String, Float>> acStren = getAccumulatedSt();
+        List<String> timeStamp = new LinkedList<>();
+        List<Object> xList = new LinkedList<>();
+        Map<String, Map<String,List<Object>>> vectorMap= new LinkedHashMap<>();
+        Map<String, List<Object>> vectorSubMap = new LinkedHashMap<>();
+        Map<String, List<List<Object>>> vectorFinalMap= new LinkedHashMap<>();
+        List<List<Object>> vectorDoubleList= new LinkedList<>();
+        String dateVal="";
+        int max = 0;
+        int i = 0;
+        int segmentI = 0;
+        int segmentWid = 0;
+        max = timeStamp.size();
+
+        for (String file : acStren.keySet()) {
+            {
+
+                accStrength = acStren.get(file);
+                timeStamp.addAll(accStrength.keySet());
+                Collections.sort(timeStamp);
+                max = timeStamp.size();
+                i = 0;
+                segmentWid = segmentWidths.get(file);
+
+                while (i < max) {
+
+                    segmentI = i + segmentWid;
+                    if (!(segmentI < max)) {
+                        segmentI = max;
+                    }
+                    dateVal=timeStamp.get(i);
+                    xList.add(dateVal);
+                    while (i < segmentI) {
+                        xList.add((double) accStrength.get(timeStamp.get(i)));
+                        i++;
+                    }
+                    if(i<max)
+                    {
+                        xList.add((double) accStrength.get(timeStamp.get(i)));
+                    }
+                    else
+                    {
+                        xList.add((double)-1);
+                    }
+
+                    vectorSubMap.put(dateVal,xList);
+                    vectorDoubleList.add(xList);
+                    xList = new LinkedList<>();
+                }
+                vectorFinalMap.put(file,vectorDoubleList );
+                vectorMap.put(file,vectorSubMap);
+                timeStamp = new LinkedList<>();
+                vectorSubMap = new LinkedHashMap<>();
+                vectorDoubleList= new LinkedList<>();
+
+
+            }
+        }
+        System.out.println("Vector Map");
+        vectorMap.entrySet().stream().forEach(e-> System.out.println(" , " + e));
+        System.out.println("Vector Final Map");
+        vectorFinalMap.entrySet().stream().forEach(e-> System.out.println(" ," + e));
+    }
+
+    /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
+    file is committed between the intervals, like t1, t4, t8, t12. Whereas, global clock tick from t1,
+    t2, t3, t4, t5, t6, t7... t12.
+    TD1: t4-t1
+    TD2: t8-t4
+    TD3: t12-t8
+    Mean of (TD1, TD2, TD3) will be the segment width.
+    */
+    public void createSegmentWidth() throws ParseException {
+        Map<String, List<String>> yearMapPairSame = getYearMapPair();
+        Map<String, List<String>> yearMapAloneSame = getYearMapGlobalSame();
+        List<String> commitYear = new LinkedList<>();
+        Map<String, List<String>> commitYearMap = new LinkedHashMap<>();
+
+        for (String row : yearMapPairSame.keySet()) {
+            for (String col : yearMapAloneSame.keySet()) {
+                if (row.equals(col)) {
+                    commitYear.addAll(yearMapAloneSame.get(row));
+                }
+
+            }
+
+            commitYear.addAll(yearMapPairSame.get(row));
+            Collections.sort(commitYear);
+            commitYearMap.put(row, commitYear);
+            commitYear = new LinkedList<>();
+
+        }
+
+       /* System.out.println(" For Pair");
+        yearMapPairSame.entrySet().stream().forEach(e-> System.out.print(e));
+        System.out.println(" For Alone");
+        yearMapAloneSame.entrySet().stream().forEach(e-> System.out.print(e));
+        System.out.println(" Together");
+        commitYearMap.entrySet().stream().forEach(e-> System.out.print(e));*/
+
+        String prev = "";
+        String next = "";
+        List<Long> meanString = new LinkedList<>();
+        int sub = 0;
+        Map<String, Integer> meanMap = new LinkedHashMap<>();
+        Date prevDate = null;
+        Date nextDate = null;
+        long difference_In_Time = 0;
+        long difference_In_Hours = 0;
+        Double avg = 0.0;
+
+
+        for (String commitKey : commitYearMap.keySet()) {
+            commitYear.addAll(commitYearMap.get(commitKey));
+            Iterator<String> commitItera = commitYear.iterator();
+            if (commitYear.size() > 1) {
+                for (int i = 0; i < commitYear.size(); i++) {
+                    prev = commitYear.get(i);
+                    i++;
+                    if (i < commitYear.size()) {
+                        next = commitYear.get(i);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        prevDate = sdf.parse(prev);
+                        nextDate = sdf.parse(next);
+                        difference_In_Time = nextDate.getTime() - prevDate.getTime();
+                        difference_In_Hours = (difference_In_Time
+                                / (1000 * 60 * 60))
+                                % 24;
+                        //System.out.println(" row " + commitKey +" prev " + prevDate + " next " + nextDate  + "difference_In_Hours " + difference_In_Hours);
+
+                    }
+                    i--;
+                    meanString.add(difference_In_Hours);
+                    difference_In_Hours = 0;
+
+                }
+                avg = meanString.stream().mapToLong(i -> i).average().getAsDouble();
+
+            }
+
+            meanMap.put(commitKey, (int) Math.round(avg));
+            commitYear = new LinkedList<>();
+            meanString = new LinkedList<>();
+        }
+
+
+        System.out.println(" Mean Map ");
+        meanMap.entrySet().stream().forEach(e -> System.out.print(" , " + e));
+        setSegmentWidth(meanMap);
+    }
+
+    public Map<String, Map<String, Float>> getAccumulatedSt() {
+        return accumulatedSt;
+    }
+
+    public void setAccumulatedSt(Map<String, Map<String, Float>> accumulatedSt) {
+        this.accumulatedSt = accumulatedSt;
+    }
+
+    public Map<String, List<Map<String, Map<String, Float>>>> getSlopes() {
+        return slopes;
+    }
+
+    public void setSlopes(Map<String, List<Map<String, Map<String, Float>>>> slopes) {
+        this.slopes = slopes;
+    }
+
+    public List<String> getCommitSchedule() {
+        return commitSchedule;
+    }
+
+    public void setCommitSchedule(List<String> commitSchedule) {
+        this.commitSchedule = commitSchedule;
+    }
+
+    public Map<String, List<String>> getYearMapGlobalSame() {
+        return yearMapGlobalSame;
+    }
+
+    public void setYearMapGlobalSame(Map<String, List<String>> yearMapGlobalSame) {
+        this.yearMapGlobalSame = yearMapGlobalSame;
+    }
+
+    public Map<String, List<String>> getYearMapPair() {
+        return yearMapPair;
+    }
+
+    public void setYearMapPair(Map<String, List<String>> yearMapPair) {
+        this.yearMapPair = yearMapPair;
+    }
+
+    public Map<String, Integer> getSegmentWidth() {
+        return segmentWidth;
+    }
+
+    public void setSegmentWidth(Map<String, Integer> segmentWidth) {
+        this.segmentWidth = segmentWidth;
+    }
+
+      /*
     This function will fill out the series of 0,1,0 values based on below
     criteria:
     If Previous Value is greater Smalller then Next
@@ -1581,149 +1850,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             fis.close();
         }
     }
-    /*
-    finalStrengthSingleFile()-This function will calculate the strength of file even if the file is
-    committed alone, for initial phase if file is committed alone we are just tracking the commit from the
-    previous value without any decay.
-    Created to resolve the : Bug 001: Committed as part of the file that is committed alone.
-     */
-    public void finalStrengthSingleFile(){
-        Map<String, Map<String, Float>> finalStrength= getAccumulatedSt();
-        Table<String, String, Map<Integer, List<Object>>> readMappingSame=readingStrategyImp.getReadableMappingSameN();
-        Map<String, Map<String, Map<Integer,List<Object>>>> readMapMap= readMappingSame.rowMap();
-        Map<Integer, List<Object>> readMapVal= new LinkedHashMap<>();
-        Map<String, Float> finalStrVal= new LinkedHashMap<>();
-        Map<String, List<String>> readMapString= new LinkedHashMap<>();
-        List<String> readMap= new LinkedList<>();
-        List<String> finalStr= new LinkedList<>();
-        Map<String, Float> finalMap= new LinkedHashMap<>();
-        Map<String, List<String>> yearMapAloneSame= new LinkedHashMap<>();
-        List<String> yearMapAloneListSame = new LinkedList<>();
-        if(!finalStrength.isEmpty())
-        {
-            for(String rowStr: finalStrength.keySet())
-            {
-              if(readMappingSame.containsRow(rowStr))
-              {
-                  readMapVal=readMappingSame.get(rowStr,rowStr);
-                  for(Integer key: readMapVal.keySet())
-                  {
-                      readMap.add((String) readMapVal.get(key).get(10));
-                  }
-                  Collections.sort(readMap);
-                  finalStrVal=finalStrength.get(rowStr);
-                  finalStr.addAll(finalStrVal.keySet());
-                  TreeSet<String> finalSetStr= new TreeSet<>();
-                  Collections.sort(finalStr);
-                  finalSetStr.addAll(finalStr);
-                  Iterator readMapItr= readMap.iterator();
-                  while(readMapItr.hasNext())
-                  {
-                      String val= (String) readMapItr.next();
-                      String newVal= finalSetStr.floor(val);
-                      Float str=finalStrVal.get(newVal);
-                      finalStrVal.putIfAbsent(val,str);
 
-
-                  }
-
-                  finalStrength.putIfAbsent(rowStr,finalStrVal);
-                  yearMapAloneSame.put(rowStr, readMap);
-                  finalMap=new LinkedHashMap<>();
-              }
-
-                readMap= new LinkedList<>();
-                finalStr= new LinkedList<>();
-            }
-        }
-
-
-        setYearMapGlobalSame(yearMapAloneSame);
-        System.out.println("Final Strength Including alone file");
-        finalStrength.entrySet().forEach(e-> System.out.println(" , " +e));
-
-    }
-
-    /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
-    file is committed between the intervals, like t1, t4, t8, t12. Whereas, global clock tick from t1,
-    t2, t3, t4, t5, t6, t7... t12.
-    TD1: t4-t1
-    TD2: t8-t4
-    TD3: t12-t8
-    Mean of (TD1, TD2, TD3) will be the segment width.
-    */
-    public void createSegmentWidth(){
-        Map<String, List<String>> yearMapPairSame= getYearMapPair();
-        Map<String, List<String>> yearMapAloneSame=getYearMapGlobalSame();
-        List<String> commitYear= new LinkedList<>();
-        Map<String, List<String>> commitYearMap= new LinkedHashMap<>();
-
-        for(String row: yearMapPairSame.keySet())
-        {
-            for(String col: yearMapAloneSame.keySet())
-            {
-                if(row.equals(col))
-                {
-                    commitYear.addAll(yearMapAloneSame.get(row));
-                }
-
-            }
-
-            commitYear.addAll(yearMapPairSame.get(row));
-            Collections.sort(commitYear);
-            commitYearMap.put(row, commitYear);
-            commitYear= new LinkedList<>();
-
-        }
-
-        System.out.println(" For Pair");
-        yearMapPairSame.entrySet().stream().forEach(e-> System.out.print(e));
-        System.out.println(" For Alone");
-        yearMapAloneSame.entrySet().stream().forEach(e-> System.out.print(e));
-        System.out.println(" Together");
-        commitYearMap.entrySet().stream().forEach(e-> System.out.print(e));
-
-    }
-
-    public Map<String, Map<String, Float>> getAccumulatedSt() {
-        return accumulatedSt;
-    }
-
-    public void setAccumulatedSt(Map<String, Map<String, Float>> accumulatedSt) {
-        this.accumulatedSt = accumulatedSt;
-    }
-
-    public Map<String, List<Map<String, Map<String, Float>>>> getSlopes() {
-        return slopes;
-    }
-
-    public void setSlopes(Map<String, List<Map<String, Map<String, Float>>>> slopes) {
-        this.slopes = slopes;
-    }
-
-    public List<String> getCommitSchedule() {
-        return commitSchedule;
-    }
-
-    public void setCommitSchedule(List<String> commitSchedule) {
-        this.commitSchedule = commitSchedule;
-    }
-
-    public Map<String, List<String>> getYearMapGlobalSame() {
-        return yearMapGlobalSame;
-    }
-
-    public void setYearMapGlobalSame(Map<String, List<String>> yearMapGlobalSame) {
-        this.yearMapGlobalSame = yearMapGlobalSame;
-    }
-
-    public Map<String, List<String>> getYearMapPair() {
-        return yearMapPair;
-    }
-
-    public void setYearMapPair(Map<String, List<String>> yearMapPair) {
-        this.yearMapPair = yearMapPair;
-    }
 
 }
 
