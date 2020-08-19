@@ -46,10 +46,9 @@ public class DataManipulateExcel {
     //This will contain the segment width of each sample
     Map<String, Integer> segmentWidth = new LinkedHashMap<>();
     //This will contain the vector of segments along
-    Map<String, Map<String,List<Object>>> vectorMapGlobal= new LinkedHashMap<>();
+    Map<String, Map<String, List<Object>>> vectorMapGlobal = new LinkedHashMap<>();
     //This will contain the vector of segments in different format
     Map<String, List<List<Object>>> vectorFinalMapGlobal = new LinkedHashMap<>();
-
 
 
     /*
@@ -273,8 +272,9 @@ public class DataManipulateExcel {
         setAccumulatedSt(implementDecay);
         finalStrengthSingleFile(); // Includes Pair as well Single file
         createSegmentWidth();
-        calculateSlopeUsingSimpleRegression(10);
+        //calculateSlopeUsingSimpleRegression(10);
         createVector();
+        createRandomSample();
         System.out.println("END OF PROGRAM");
 
 
@@ -1543,16 +1543,19 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         Map<String, Map<String, Float>> acStren = getAccumulatedSt();
         List<String> timeStamp = new LinkedList<>();
         List<Object> xList = new LinkedList<>();
-        Map<String, Map<String,List<Object>>> vectorMap= new LinkedHashMap<>();
+        Map<String, Map<String, List<Object>>> vectorMap = new LinkedHashMap<>();
         Map<String, List<Object>> vectorSubMap = new LinkedHashMap<>();
-        Map<String, List<List<Object>>> vectorFinalMap= new LinkedHashMap<>();
-        List<List<Object>> vectorDoubleList= new LinkedList<>();
-        String dateVal="";
+        Map<String, List<List<Object>>> vectorFinalMap = new LinkedHashMap<>();
+        List<List<Object>> vectorDoubleList = new LinkedList<>();
+        String dateVal = "";
         int max = 0;
         int i = 0;
         int segmentI = 0;
         int segmentWid = 0;
         max = timeStamp.size();
+        Map<String, Map<String, Boolean>> booleanFix = readingStrategyImp.getReadableBugFixing();
+        Map<String, Boolean> booleanSubFix = new LinkedHashMap<>();
+        String anDate = "";
 
         for (String file : acStren.keySet()) {
             {
@@ -1570,30 +1573,37 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                     if (!(segmentI < max)) {
                         segmentI = max;
                     }
-                    dateVal=timeStamp.get(i);
+                    dateVal = timeStamp.get(i);
                     xList.add(dateVal);
                     while (i < segmentI) {
                         xList.add((double) accStrength.get(timeStamp.get(i)));
                         i++;
                     }
-                    if(i<max)
-                    {
-                        xList.add((double) accStrength.get(timeStamp.get(i)));
-                    }
-                    else
-                    {
-                        xList.add((double)-1);
+                    if (i < max) {
+                        xList.add((double) accStrength.get(timeStamp.get(i))); //First Date value of next segemnt
+                        anDate = timeStamp.get(i);
+                        xList.add(anDate);
+                        booleanSubFix = booleanFix.get(file);
+
+                        TreeSet<String> dateVals = new TreeSet<>();
+                        dateVals.addAll(booleanSubFix.keySet());
+                        anDate = dateVals.ceiling(anDate);
+                        xList.add(booleanSubFix.get(anDate));
+
+                    } else {
+                        xList.add((double) -1);
+                        xList.add(null);
                     }
 
-                    vectorSubMap.put(dateVal,xList);
+                    vectorSubMap.put(dateVal, xList);
                     vectorDoubleList.add(xList);
                     xList = new LinkedList<>();
                 }
-                vectorFinalMap.put(file,vectorDoubleList );
-                vectorMap.put(file,vectorSubMap);
+                vectorFinalMap.put(file, vectorDoubleList);
+                vectorMap.put(file, vectorSubMap);
                 timeStamp = new LinkedList<>();
                 vectorSubMap = new LinkedHashMap<>();
-                vectorDoubleList= new LinkedList<>();
+                vectorDoubleList = new LinkedList<>();
 
 
             }
@@ -1601,9 +1611,9 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         setVectorMapGlobal(vectorMap);
         setVectorFinalMapGlobal(vectorFinalMap);
         System.out.println("Vector Map");
-        vectorMap.entrySet().stream().forEach(e-> System.out.println(" , " + e));
+        vectorMap.entrySet().stream().forEach(e -> System.out.println(" , " + e));
         System.out.println("Vector Final Map");
-        vectorFinalMap.entrySet().stream().forEach(e-> System.out.println(" ," + e));
+        vectorFinalMap.entrySet().stream().forEach(e -> System.out.println(" ," + e));
     }
 
     /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
@@ -1696,51 +1706,110 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
     /*createRandomSample will create the starting point of the samples and put it in the list and make
     it available for machine learning algorithm.
     */
-    public void createRandomSample(){
-        Map<String, Map<String, List<Object>>> vectorMap= getVectorMapGlobal();
+    public void createRandomSample() {
+        Map<String, Map<String, List<Object>>> vectorMap = getVectorMapGlobal();
         Map<String, List<Object>> vectorListMap;
-        Map<String, List<List<Object>>> vectorFinalMap= getVectorFinalMapGlobal();
-        List<List<Object>> vectorFinalList= new LinkedList<>();
-        Map<String, List<List<Object>>> vectorSampling= new LinkedHashMap<>();
-        List<List<Object>> vectorSamplingList= new LinkedList<>();
-        List<String> vectorList = null;
+        Map<String, List<List<Object>>> vectorFinalMap = getVectorFinalMapGlobal();
+        List<List<Object>> vectorFinalList = new LinkedList<>();
+        Map<String, List<List<Object>>> vectorSampling = new LinkedHashMap<>();
+        List<List<Object>> vectorSamplingList = new LinkedList<>();
+        List<String> vectorList = new LinkedList<>();
+        Map<String, List<List<Object>>> vectorCleanFinalMap = new LinkedHashMap<>();
+        List<List<Object>> vectorCleanSamplingList = new LinkedList<>();
+        List<Object> vectorCleanList = new LinkedList<>();
         Random random = new Random();
         int value;
-        int size=0;
-        int noOfSegment=5;
-        int i=0;
+        int size = 0;
+        int noOfSample = 5;
+        int i = 0;
+        int sub = 0;
 
-        for(String file: vectorMap.keySet())
-        {
-             vectorListMap= vectorMap.get(file);
-             vectorList.addAll(vectorListMap.keySet());
-             size= vectorList.size();
-             vectorFinalList=vectorFinalMap.get(file);
-            // Obtain a number between [0 - 49], if random.nextInt(50).
+        for (String file : vectorMap.keySet()) {
+            vectorListMap = vectorMap.get(file);
+            SimpleRegression simpleRegression = new SimpleRegression(true);
+            if (!vectorListMap.isEmpty()) {
+                vectorList.addAll(vectorListMap.keySet());
+                size = vectorList.size();
+                vectorFinalList = vectorFinalMap.get(file);
+                // Obtain a number between [0 - 49], if random.nextInt(50).
+                if (noOfSample < vectorList.size()) {
+                    value = random.nextInt(vectorList.size());
 
-             if(noOfSegment > vectorList.size() ) {
-                 value = random.nextInt(vectorList.size());
-                 while (value <= (size - noOfSegment)) {
-                     value = random.nextInt(vectorList.size());
-                 }
-                 while (i < noOfSegment) {
-                     vectorSamplingList.add(vectorFinalList.get(value));
-                     value++;
-                     i++;
-                 }
-             }
-             else
-             {
-                 vectorSamplingList.addAll(vectorFinalList);
-             }
+                    sub = (size - noOfSample);
+                    boolean k = (value <= (size - noOfSample));
 
-            vectorSampling.put(file,vectorSamplingList);
-            vectorSamplingList= new LinkedList<>();
-            vectorFinalList= new LinkedList<>();
+                    while (value > (size - noOfSample)) {
+                        value = random.nextInt(vectorList.size());
+
+                    }
+                    while (i < noOfSample) {
+                        //System.out.println(" I don't want you " + value);
+                        vectorSamplingList.add(vectorFinalList.get(value));
+
+                        value++;
+                        i++;
+                    }
+                } else {
+                    vectorSamplingList.addAll(vectorFinalList);
+                }
+                //LOGIC TO ADD SLOPE
+                for (int k = 0; k < vectorSamplingList.size(); k++) {
+                    List<Object> abc = vectorSamplingList.get(k);
+
+                    for (int m = 1; m < abc.size() - 2; m++) {
+                        simpleRegression.addData(m, (double) abc.get(m));
+
+                    }
+                    double slope = simpleRegression.getSlope();
+                    vectorSamplingList.get(k).add(slope);
+                    if (slope <= 0.0) {
+                        vectorSamplingList.get(k).add("D");
+                    } else {
+                        vectorSamplingList.get(k).add("U");
+                    }
+
+                    simpleRegression.clear();
+                    abc = new LinkedList<>();
+                }
+                //LOGIC TO ADD SLOPE
+
+
+                vectorSampling.put(file, vectorSamplingList);
+                vectorSamplingList = new LinkedList<>();
+                vectorFinalList = new LinkedList<>();
+                vectorList = new LinkedList<>();
+                i = 0;
+            }
         }
+        System.out.println("Vector Sampling");
+        vectorSampling.entrySet().stream().forEach(e -> System.out.println("  , " + e));
+
+        for (String file : vectorSampling.keySet()) {
+             List<List<Object>> vectorSampleDoubleList= new LinkedList<>();
+            vectorSampleDoubleList.addAll(vectorSampling.get(file));
+            for (int is = 0; is < vectorSampleDoubleList.size(); is++) {
+                List<Object> insideBoolean = new LinkedList<>();
+                insideBoolean.addAll(vectorSampleDoubleList.get(is));
+                vectorCleanList.add(insideBoolean.get(0));
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 2));
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 1));
+                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 3));
+                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 4));
+
+                vectorCleanSamplingList.add(vectorCleanList);
+                vectorCleanList = new LinkedList<>();
+            }
+
+            vectorCleanFinalMap.put(file, vectorCleanSamplingList);
+            vectorCleanSamplingList= new LinkedList<>();
+        }
+
+        System.out.println("Vector Clean Sampling");
+        vectorCleanFinalMap.entrySet().stream().forEach(e -> System.out.println("  , " + e));
 
 
     }
+
     public Map<String, Map<String, Float>> getAccumulatedSt() {
         return accumulatedSt;
     }

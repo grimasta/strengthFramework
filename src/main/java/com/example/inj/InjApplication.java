@@ -21,6 +21,10 @@ public class InjApplication {
     public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
 
         ConfigurableApplicationContext ack= SpringApplication.run(InjApplication.class, args);
+        long heapMaxSize = Runtime.getRuntime().maxMemory();
+        // To print the JVM Heap Size
+        System.out.println("Heap Size: " + heapMaxSize);
+        //System.exit(0);
         DataManipulateExcel dataManipulate= ack.getBean("dataManipulateExcel", DataManipulateExcel.class);
         dataManipulate.dataToExcel();
         ack.close();

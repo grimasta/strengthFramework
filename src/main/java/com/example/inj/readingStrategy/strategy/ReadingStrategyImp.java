@@ -14,6 +14,7 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+import sun.awt.image.ImageWatched;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,17 +29,17 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
     private HashMap<Integer, String> dictionary = new HashMap<>();
 
-    Table<String, String, Map<String, List<Object>>> readableMappingN= HashBasedTable.create();
-    Table<String, String, Map<Integer, List<Object>>> readableMappingSameN= HashBasedTable.create();//Bug 001: Committed as part of the file that is committed alone.
+    Table<String, String, Map<String, List<Object>>> readableMappingN = HashBasedTable.create();
+    Table<String, String, Map<Integer, List<Object>>> readableMappingSameN = HashBasedTable.create();//Bug 001: Committed as part of the file that is committed alone.
+    Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
 
 
-
-    private HashMap<String, String> dictionaryString= new LinkedHashMap<>();
-    Table<String, String, Map<Integer, List<Object>>> readableMappingFinal=HashBasedTable.create();
+    private HashMap<String, String> dictionaryString = new LinkedHashMap<>();
+    Table<String, String, Map<Integer, List<Object>>> readableMappingFinal = HashBasedTable.create();
 
 
     @Override
-    public  Table<String, String, Map<Integer, List<Object>>> parseData() throws IOException, ParseException {
+    public Table<String, String, Map<Integer, List<Object>>> parseData() throws IOException, ParseException {
 
         ArrayList<String> jsonArray;
 
@@ -104,12 +105,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
         jsonArray = convertJson(beans);
         System.out.println("Table Mapping");
         //createTableMapping(TryFileDetails.getFileDetailsPojoHashMap()).cellSet().stream().forEach(e->System.out.print(e));
-        Table<String, String, Map<Integer, List<Object>>> tablMap= createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
+        Table<String, String, Map<Integer, List<Object>>> tablMap = createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
         //tablMap.cellSet().forEach(e-> System.out.println(e));
         return tablMap;
 
     }
-
 
 
     /* convertJson function will convert the List input to JSON output using Jackson Json API */
@@ -137,32 +137,30 @@ public class ReadingStrategyImp implements ReadingStrategy {
         Table<String, String, Map<Integer, List<Object>>> readableMapping2 = HashBasedTable.create();
         Table<String, String, Map<Integer, List<Object>>> readableMapping3 = HashBasedTable.create();
         //Check4 is created to capture the commitID
-        Table<String, String, Map<String, List<Object>>> readableMappingCheck4= HashBasedTable.create();
+        Table<String, String, Map<String, List<Object>>> readableMappingCheck4 = HashBasedTable.create();
         //For each commit we will have list of file objects
         Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet = tryHashMap.entrySet().iterator();
         //Integer for occurence and List of changes
         Map<Integer, List<Object>> scalarVector = new HashMap<>();
-        Map<String, List<Object>> scalarVectorCheck4= new HashMap<>();
+        Map<String, List<Object>> scalarVectorCheck4 = new HashMap<>();
         int count2 = 0;
         int count1 = 0;
         //Start: Bug 001: Committed as part of the file that is committed alone.
-        int caCount=0;
-        int cadd=0;
+        int caCount = 0;
+        int cadd = 0;
         Table<String, String, Map<String, List<Object>>> readableMappingSame = HashBasedTable.create();
-        Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo= HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo = HashBasedTable.create();
         Map<String, List<Object>> scalarVectorSame = new HashMap<>();
         Map<String, List<Object>> scalarVectorSameTwo = new HashMap<>();
-        Map<String, List<Object>> scalarVectorCheckSame= new LinkedHashMap<>();
-        List<Object> sameObj= new LinkedList<>();
-        for(CommitDetails row: tryHashMap.keySet())
-        {
-            List<TryFileDetails> sameFile= new LinkedList<>();
-            sameFile= tryHashMap.get(row);
+        Map<String, List<Object>> scalarVectorCheckSame = new LinkedHashMap<>();
+        List<Object> sameObj = new LinkedList<>();
+        for (CommitDetails row : tryHashMap.keySet()) {
+            List<TryFileDetails> sameFile = new LinkedList<>();
+            sameFile = tryHashMap.get(row);
 
-            if(sameFile.size()==1)
-            {
-                TryFileDetails tf= sameFile.get(0);
-                cadd= Integer.parseInt(tf.getAddition()) + Integer.parseInt(tf.getDeletion());
+            if (sameFile.size() == 1) {
+                TryFileDetails tf = sameFile.get(0);
+                cadd = Integer.parseInt(tf.getAddition()) + Integer.parseInt(tf.getDeletion());
                 caCount++;
 
                 //1. buggy
@@ -202,18 +200,16 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                 scalarVectorSame.put(tf.getCommitId(), sameObj);
 
-                if(readableMappingSame.contains(tf.getFileId(),tf.getFileId()))
-                {
-                   scalarVectorSameTwo = readableMappingSame.get(tf.getFileId(),tf.getFileId());
-                   scalarVectorSame.putAll(scalarVectorSameTwo);
+                if (readableMappingSame.contains(tf.getFileId(), tf.getFileId())) {
+                    scalarVectorSameTwo = readableMappingSame.get(tf.getFileId(), tf.getFileId());
+                    scalarVectorSame.putAll(scalarVectorSameTwo);
+                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
+                } else {
                     readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
                 }
-                else {
-                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
-                }
-                scalarVectorSame= new LinkedHashMap<>();
-                scalarVectorSameTwo= new LinkedHashMap<>();
-                sameObj= new LinkedList<>();
+                scalarVectorSame = new LinkedHashMap<>();
+                scalarVectorSameTwo = new LinkedHashMap<>();
+                sameObj = new LinkedList<>();
             }
 
         }
@@ -282,9 +278,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
         //Creating Sparse Vector using HashMap
         Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet1;
 
-        int columnInside=0;
-        int rowInside=0;
-        int iDic=-1;
+        int columnInside = 0;
+        int rowInside = 0;
+        int iDic = -1;
         while (rowReadableItr.hasNext()) {
             String rtfd = rowReadableItr.next();
 
@@ -295,14 +291,13 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 List<TryFileDetails> tfd = new ArrayList<>();
                 entrySet1 = tryHashMap.entrySet().iterator();
                 scalarVector = new HashMap<>();
-                scalarVectorCheck4= new HashMap<>();
+                scalarVectorCheck4 = new HashMap<>();
                 i = 0;
-                String commitIdForAB="";
+                String commitIdForAB = "";
                 buggy = 0; //Number of times it appear as a buggy commit in a commit details
                 nonbuggy = 0; //Number of times it appear as a non-buggy commit
 
-                if (!rtfd.equals(ctfd))
-                {
+                if (!rtfd.equals(ctfd)) {
 
                     while (entrySet1.hasNext()) {
                         tfd = entrySet1.next().getValue();
@@ -317,14 +312,14 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         linesChangedFj = 0;
                         boolean rtfdBugFixing = false;
                         boolean ctfdBugFixing = false;
-                        columnInside=0;
-                        rowInside=0;
+                        columnInside = 0;
+                        rowInside = 0;
                         String date = null;
-                        int bugFi=0;
-                        int cAddition=0;
-                        int cDeletion=0;
-                        boolean bug= false;
-                        boolean nonBug= true;
+                        int bugFi = 0;
+                        int cAddition = 0;
+                        int cDeletion = 0;
+                        boolean bug = false;
+                        boolean nonBug = true;
                         //Improvising
 
                         //Traversing against the list of a particular commit
@@ -332,8 +327,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             TryFileDetails ttffd = itrTfd.next();
                             index = 0;
 
-                            cAddition= Integer.parseInt(ttffd.getCaddition());
-                            cDeletion= Integer.parseInt(ttffd.getCdeletion());
+                            cAddition = Integer.parseInt(ttffd.getCaddition());
+                            cDeletion = Integer.parseInt(ttffd.getCdeletion());
                             //Average number of lines changed in a particular commit
                             avgLinesChangedCi = avgLinesChangedCi + Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
                             FileCount++;
@@ -361,7 +356,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             if (ttffd.getFileId().equals(ctfd)) {
                                 colAppear++;
                                 columnInside++;
-                                date=ttffd.getDate();
+                                date = ttffd.getDate();
 
                                 //How many lines of Fj is changed
                                 linesChangedFj = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
@@ -370,7 +365,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                                 }
                             }
 
-                            commitIdForAB=ttffd.getCommitId();
+                            commitIdForAB = ttffd.getCommitId();
                         }
 
                         if ((rowAppear != 0 && colAppear != 0)) {
@@ -378,13 +373,13 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             if (rtfdBugFixing && ctfdBugFixing) {
 
                                 ++nonbuggy;
-                                nonBug= true;
+                                nonBug = true;
 
                             } else if (!ctfdBugFixing && !ctfdBugFixing) {
 
                                 ++buggy;
                                 ++bugFi;
-                                bug=true;
+                                bug = true;
                             }
                         }
 
@@ -417,8 +412,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         percentileFj = ((float) (index + 1) / (sortedListLineChanged.size())) * 100;
                         //percentile of Fj in a sortedList
 
-                        if (((buggy != 0) || (nonbuggy != 0)) && (rowInside!=0 && columnInside !=0))
-                        {
+                        if (((buggy != 0) || (nonbuggy != 0)) && (rowInside != 0 && columnInside != 0)) {
 
                             //System.out.println("Hey I am here");
                             //1.
@@ -456,8 +450,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                             scalarVector.put(i, buggyList);
                             scalarVectorCheck4.put(commitIdForAB, buggyList);
-                            dictionary.put(i,commitIdForAB);
-                            dictionaryString.put(date,commitIdForAB);
+                            dictionary.put(i, commitIdForAB);
+                            dictionaryString.put(date, commitIdForAB);
 
                         }
                         i = i + 1;
@@ -465,11 +459,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
                     }
                     if (!scalarVector.isEmpty()) {
                         //Sorting a map for the function
-                        List<Map.Entry<Integer, List<Object>>> listSort= new LinkedList<>(scalarVector.entrySet());
+                        List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalarVector.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
                         //scalarVector.clear();
-                        scalarVector= new LinkedHashMap<>();
+                        scalarVector = new LinkedHashMap<>();
 
                         for (Map.Entry<Integer, List<Object>> stu : listSort) {
                             //System.out.println("Key" + stu.getKey() + "value" +stu.getValue());
@@ -482,10 +476,10 @@ public class ReadingStrategyImp implements ReadingStrategy {
                     //Start-Repeated for check 4
                     if (!scalarVectorCheck4.isEmpty()) {
                         //Sorting a map for the function
-                        List<Map.Entry<String, List<Object>>> listSort= new LinkedList<>(scalarVectorCheck4.entrySet());
+                        List<Map.Entry<String, List<Object>>> listSort = new LinkedList<>(scalarVectorCheck4.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
-                        scalarVectorCheck4= new LinkedHashMap<>();
+                        scalarVectorCheck4 = new LinkedHashMap<>();
 
                         for (Map.Entry<String, List<Object>> stu : listSort) {
 
@@ -499,36 +493,33 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                 }
                 //Start: Bug 001: Committed as part of the file that is committed alone.
-                else
-                {
+                else {
                     //readableMappingSameTwo it will contain the records of file that are committed alone
-                    if(readableMappingSame.contains(rtfd,ctfd))
-                    {
-                       {
-                            Map<String, List<Object>> fixMap= readableMappingSame.get(rtfd, ctfd);
-                            Map<Integer, List<Object>> doubFix= new LinkedHashMap<>();
-                            for(String k: fixMap.keySet())
-                            {
+                    if (readableMappingSame.contains(rtfd, ctfd)) {
+                        {
+                            Map<String, List<Object>> fixMap = readableMappingSame.get(rtfd, ctfd);
+                            Map<Integer, List<Object>> doubFix = new LinkedHashMap<>();
+                            for (String k : fixMap.keySet()) {
                                 doubFix.put(iDic, fixMap.get(k));
-                                String date= (String) fixMap.get(k).get(10);
-                                dictionary.put(iDic,k);
-                                dictionaryString.put(date,k);
+                                String date = (String) fixMap.get(k).get(10);
+                                dictionary.put(iDic, k);
+                                dictionaryString.put(date, k);
                                 //readableMapping3.put(rtfd, ctfd, doubFix);
-                                readableMappingSameTwo.put(rtfd,ctfd,doubFix);
+                                readableMappingSameTwo.put(rtfd, ctfd, doubFix);
                                 iDic--;
                             }
 
-                           //readableMappingCheck4.put(rtfd,ctfd, fixMap);
+                            //readableMappingCheck4.put(rtfd,ctfd, fixMap);
 
 
                         }
                         //Map<Integer, List<Object>> scalVec= readableMapping3.get(rtfd, ctfd);
-                        Map<Integer, List<Object>> scalVec= readableMappingSameTwo.get(rtfd, ctfd);
-                        List<Map.Entry<Integer, List<Object>>> listSort= new LinkedList<>(scalVec.entrySet());
+                        Map<Integer, List<Object>> scalVec = readableMappingSameTwo.get(rtfd, ctfd);
+                        List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalVec.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
                         //Sort the values
-                        scalVec= new LinkedHashMap<>();
+                        scalVec = new LinkedHashMap<>();
 
                         for (Map.Entry<Integer, List<Object>> stu : listSort) {
                             //System.out.println("Key" + stu.getKey() + "value" +stu.getValue());
@@ -536,9 +527,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                         }
                         //readableMapping3.put(rtfd, ctfd, scalVec);
-                        readableMappingSameTwo.put(rtfd,ctfd,scalVec);
+                        readableMappingSameTwo.put(rtfd, ctfd, scalVec);
 
-                        scalVec= new LinkedHashMap<>();
+                        scalVec = new LinkedHashMap<>();
 
                     }
 
@@ -558,6 +549,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
         System.out.println("  ,   " + readableMapping3.cellSet().toString());
         System.out.println("READING MAPPING -Same ");
         System.out.println("  ,   " + readableMappingSameTwo.cellSet().toString());
+        IsBugFixing();
+        //System.exit(0);
         //System.exit(0);
         /*System.out.println("This is Dictionary");
         dictionary.entrySet().stream().forEach(e-> System.out.print(" , " + e));
@@ -566,7 +559,55 @@ public class ReadingStrategyImp implements ReadingStrategy {
         System.exit(0);*/
         readableMappingFinal.putAll(readableMapping3);
         readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
-        return  readableMapping3; //returning the table
+        return readableMapping3; //returning the table
+    }
+
+    public void IsBugFixing() {
+        Table<String, String, Map<Integer, List<Object>>> readableMappingPair = getReadableMapping();
+        Table<String, String, Map<Integer, List<Object>>> readableMappingSame = getReadableMappingSameN();
+        Map<Integer, List<Object>> readSubRow = new LinkedHashMap<>();
+        List<Object> obj = new LinkedList<>();
+        Map<String, Map<String, Boolean>> outp = new LinkedHashMap<>();
+        Map<String, Boolean> subOut = new LinkedHashMap<>();
+        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingPairMap = readableMappingPair.rowMap();
+        Map<String, Map<Integer, List<Object>>> readableMappingPairSubMap = new LinkedHashMap<>();
+        for (String row : readableMappingPairMap.keySet()) {
+            readableMappingPairSubMap = readableMappingPairMap.get(row);
+
+            for (String col : readableMappingPairSubMap.keySet()) {
+                readSubRow = readableMappingPairSubMap.get(col);
+                for (int i : readSubRow.keySet()) {
+                    obj = readSubRow.get(i);
+                    if (!subOut.containsKey((String) obj.get(10))) {
+                        subOut.put((String) obj.get(10), (Boolean) obj.get(15));
+                    }
+                    obj = new LinkedList<>();
+                }
+
+
+                readSubRow = new LinkedHashMap<>();
+                if (readableMappingSame.contains(row, row)) {
+                    readSubRow = readableMappingSame.get(row, row);
+                    for (int i : readSubRow.keySet()) {
+                        obj = readSubRow.get(i);
+                        if (!subOut.containsKey((String) obj.get(10))) {
+                            subOut.put((String) obj.get(10), (Boolean) obj.get(15));
+                        }
+                        obj = new LinkedList<>();
+                    }
+                }
+
+            }
+
+            outp.put(row, subOut);
+            readSubRow = new LinkedHashMap<>();
+            subOut = new LinkedHashMap<>();
+
+        }
+       /* System.out.println(" Bug Fixing Commit and their relation ");
+        outp.entrySet().stream().forEach(e -> System.out.println(" , " + e));*/
+        setReadableBugFixing(outp);
+
     }
 
     public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameN() {
@@ -609,6 +650,15 @@ public class ReadingStrategyImp implements ReadingStrategy {
     public void setDictionary(HashMap<Integer, String> dictionary) {
         this.dictionary = dictionary;
     }
+
+    public Map<String, Map<String, Boolean>> getReadableBugFixing() {
+        return readableBugFixing;
+    }
+
+    public void setReadableBugFixing(Map<String, Map<String, Boolean>> readableBugFixing) {
+        this.readableBugFixing = readableBugFixing;
+    }
+
 
 
 }
