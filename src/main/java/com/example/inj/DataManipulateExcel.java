@@ -1706,7 +1706,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
     /*createRandomSample will create the starting point of the samples and put it in the list and make
     it available for machine learning algorithm.
     */
-    public void createRandomSample() {
+    public void createRandomSample() throws IOException {
         Map<String, Map<String, List<Object>>> vectorMap = getVectorMapGlobal();
         Map<String, List<Object>> vectorListMap;
         Map<String, List<List<Object>>> vectorFinalMap = getVectorFinalMapGlobal();
@@ -1785,7 +1785,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         vectorSampling.entrySet().stream().forEach(e -> System.out.println("  , " + e));
 
         for (String file : vectorSampling.keySet()) {
-             List<List<Object>> vectorSampleDoubleList= new LinkedList<>();
+            List<List<Object>> vectorSampleDoubleList = new LinkedList<>();
             vectorSampleDoubleList.addAll(vectorSampling.get(file));
             for (int is = 0; is < vectorSampleDoubleList.size(); is++) {
                 List<Object> insideBoolean = new LinkedList<>();
@@ -1793,19 +1793,66 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 vectorCleanList.add(insideBoolean.get(0));
                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 2));
                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 1));
-                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 3));
-                 vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 4));
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 3));
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 4));
 
                 vectorCleanSamplingList.add(vectorCleanList);
                 vectorCleanList = new LinkedList<>();
             }
 
             vectorCleanFinalMap.put(file, vectorCleanSamplingList);
-            vectorCleanSamplingList= new LinkedList<>();
+            vectorCleanSamplingList = new LinkedList<>();
         }
 
         System.out.println("Vector Clean Sampling");
         vectorCleanFinalMap.entrySet().stream().forEach(e -> System.out.println("  , " + e));
+
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        Workbook wb = null;
+        Sheet sh = null;
+        try {
+            fis = new FileInputStream("Output.xlsx");
+            wb = WorkbookFactory.create(fis);
+            sh = wb.getSheet("Yetus_Output");
+
+            int k = 1;
+            for (String row : vectorCleanFinalMap.keySet()) {
+                List<List<Object>> vectorCl = vectorCleanFinalMap.get(row);
+                Iterator<List<Object>> vectorClIter = vectorCl.iterator();
+
+                Row rowExcel = sh.createRow(k);
+                k++;
+                String finalValues = "";
+                while (vectorClIter.hasNext()) {
+                    List<Object> vecListIt = vectorClIter.next();
+                    Iterator<Object> vecItr = vecListIt.iterator();
+                    String values = "";
+                    while (vecItr.hasNext()) {
+                        values = values + vecItr.next() + ",";
+
+                    }
+                    values = values.substring(0, values.length() - 1);
+                    values = "[" + values + "]";
+
+                    finalValues = finalValues + values + ",";
+                }
+                finalValues = finalValues.substring(0, finalValues.length() - 1);
+                finalValues = "[" + finalValues + "]";
+                //System.out.println(" row " + row + " finalValues " + finalValues);
+                Cell cell = rowExcel.createCell(0);
+                cell.setCellValue(row);
+                Cell cell1  = rowExcel.createCell(1);
+                cell1.setCellValue(finalValues);
+                fos = new FileOutputStream("Output.xlsx");
+                wb.write(fos);
+            }
+        } catch (Exception e) {
+          System.out.println("Unable to Insert");
+        }finally{
+            fis.close();
+            wb.close();
+        }
 
 
     }
