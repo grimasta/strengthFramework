@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
+//Bug 002: Committed as part of commitID to be added in the sample data
 @Component("dataManipulateExcel")
 public class DataManipulateExcel {
 
@@ -1539,6 +1540,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
     public void createVector() {
         Map<String, Float> accStrength;
+        HashMap<String, String> dictionaryString= readingStrategyImp.getDictionaryString(); //Bug 002: Committed as part of commitID to be added in the sample data
         Map<String, Integer> segmentWidths = getSegmentWidth();
         Map<String, Map<String, Float>> acStren = getAccumulatedSt();
         List<String> timeStamp = new LinkedList<>();
@@ -1575,6 +1577,10 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                     }
                     dateVal = timeStamp.get(i);
                     xList.add(dateVal);
+                    //Start: Bug 002: Committed as part of commitID to be added in the sample data
+                    if(dictionaryString.containsKey(dateVal))
+                        xList.add(dictionaryString.get(dateVal));
+                    //End:  Bug 002: Committed as part of commitID to be added in the sample data
                     while (i < segmentI) {
                         xList.add((double) accStrength.get(timeStamp.get(i)));
                         i++;
@@ -1583,6 +1589,10 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                         xList.add((double) accStrength.get(timeStamp.get(i))); //First Date value of next segemnt
                         anDate = timeStamp.get(i);
                         xList.add(anDate);
+                        //Start: Bug 002: Committed as part of commitID to be added in the sample data
+                        if(dictionaryString.containsKey(anDate))
+                            xList.add(dictionaryString.get(anDate));
+                        //End:  Bug 002: Committed as part of commitID to be added in the sample data
                         booleanSubFix = booleanFix.get(file);
 
                         TreeSet<String> dateVals = new TreeSet<>();
@@ -1614,6 +1624,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         vectorMap.entrySet().stream().forEach(e -> System.out.println(" , " + e));
         System.out.println("Vector Final Map");
         vectorFinalMap.entrySet().stream().forEach(e -> System.out.println(" ," + e));
+
     }
 
     /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
@@ -1756,7 +1767,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 for (int k = 0; k < vectorSamplingList.size(); k++) {
                     List<Object> abc = vectorSamplingList.get(k);
 
-                    for (int m = 1; m < abc.size() - 2; m++) {
+                    for (int m = 2; m < abc.size() - 3; m++) //Bug 002: Committed as part of commitID to be added in the sample data
+                    {
                         simpleRegression.addData(m, (double) abc.get(m));
 
                     }
@@ -1784,6 +1796,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         System.out.println("Vector Sampling");
         vectorSampling.entrySet().stream().forEach(e -> System.out.println("  , " + e));
 
+
         for (String file : vectorSampling.keySet()) {
             List<List<Object>> vectorSampleDoubleList = new LinkedList<>();
             vectorSampleDoubleList.addAll(vectorSampling.get(file));
@@ -1791,11 +1804,12 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 List<Object> insideBoolean = new LinkedList<>();
                 insideBoolean.addAll(vectorSampleDoubleList.get(is));
                 vectorCleanList.add(insideBoolean.get(0));
-                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 2));
-                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 1));
-                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 3));
-                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 4));
-
+                vectorCleanList.add(insideBoolean.get(1));//Bug 002: Committed as part of commitID to be added in the sample data
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 2)); //For slope value
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 1)); //For slope notation
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 3)); //For bugFixing Commit or not
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 5)); //For commit ID //Bug 002: Committed as part of commitID to be added in the sample data
+                vectorCleanList.add(insideBoolean.get(insideBoolean.size() - 4)); //For commitDate corresponsing to commit ID
                 vectorCleanSamplingList.add(vectorCleanList);
                 vectorCleanList = new LinkedList<>();
             }
@@ -1806,7 +1820,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
         System.out.println("Vector Clean Sampling");
         vectorCleanFinalMap.entrySet().stream().forEach(e -> System.out.println("  , " + e));
-
+/*
         FileInputStream fis = null;
         FileOutputStream fos = null;
         Workbook wb = null;
@@ -1814,7 +1828,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         try {
             fis = new FileInputStream("Output.xlsx");
             wb = WorkbookFactory.create(fis);
-            sh = wb.getSheet("Yetus_Output");
+            sh = wb.getSheet("genview_output");
 
             int k = 1;
             for (String row : vectorCleanFinalMap.keySet()) {
@@ -1852,7 +1866,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         }finally{
             fis.close();
             wb.close();
-        }
+        }*/
 
 
     }

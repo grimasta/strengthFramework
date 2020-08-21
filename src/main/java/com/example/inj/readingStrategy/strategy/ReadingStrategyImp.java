@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
+//Bug 002: Committed as part of commitID to be added in the sample data
 @Component
 public class ReadingStrategyImp implements ReadingStrategy {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -544,12 +545,19 @@ public class ReadingStrategyImp implements ReadingStrategy {
         setDictionary(dictionary);
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
+        setDictionaryString(dictionaryString); //Bug 002: Committed as part of commitID to be added in the sample data
+        IsBugFixing();
+        System.out.println("Dictionary String");
+        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
 
-        System.out.println("READING MAPPING -3 ");
+       /* System.out.println("READING MAPPING -3 ");
         System.out.println("  ,   " + readableMapping3.cellSet().toString());
         System.out.println("READING MAPPING -Same ");
-        System.out.println("  ,   " + readableMappingSameTwo.cellSet().toString());
-        IsBugFixing();
+        System.out.println("  ,   " + readableMappingSameTwo.cellSet().toString());*/
+        /*System.out.println("Dictionary String");
+        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
+        System.exit(0);*/
+
         //System.exit(0);
         //System.exit(0);
         /*System.out.println("This is Dictionary");
