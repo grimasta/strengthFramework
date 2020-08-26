@@ -11,14 +11,14 @@ public class TryFileDetails {
 
     private String fileId;
     private String commitId;
-    private String addition;
-    private String deletion;
+    private int addition;
+    private int deletion;
     private CommitDetails commit;
     private boolean bugFixing;
     private String date;
     //Start: Added new attribute
-    private String Caddition;
-    private String Cdeletion;
+    private int Caddition;
+    private int Cdeletion;
     //End: Added new attribute
 
     public String getDate() {
@@ -92,34 +92,34 @@ public class TryFileDetails {
         this.commitId = commitId;
     }
 
-    public String getAddition() {
+    public int getAddition() {
         return addition;
     }
 
-    public void setAddition(String addition) {
+    public void setAddition(int addition) {
         this.addition = addition;
     }
 
-    public String getDeletion() {
+    public int getDeletion() {
         return deletion;
     }
 
-    public void setDeletion(String deletion) {
+    public void setDeletion(int deletion) {
         this.deletion = deletion;
     }
-    public String getCaddition() {
+    public int getCaddition() {
         return Caddition;
     }
 
-    public void setCaddition(String caddition) {
+    public void setCaddition(int caddition) {
         this.Caddition = caddition;
     }
 
-    public String getCdeletion() {
+    public int getCdeletion() {
         return Cdeletion;
     }
 
-    public void setCdeletion(String cdeletion) {
+    public void setCdeletion(int cdeletion) {
         this.Cdeletion = cdeletion;
     }
 
@@ -145,24 +145,24 @@ public class TryFileDetails {
     {
         private String fileId;
         private String commitId;
-        private String addition;
-        private String deletion;
+        private int addition;
+        private int deletion;
         private String commitAt;
         //private CommitDetails commit;
         private boolean bugFixing;
         //Start: Added New Attribute
-        private String Cadditions;
-        private String Cdeletion;
+        private int Cadditions;
+        private int Cdeletion;
         //End: Added New Attribute
 
         //Start: Added New Attribute
-        public TryFileDetailsBuilder setCaddition(String caddition) {
+        public TryFileDetailsBuilder setCaddition(int caddition) {
             this.Cadditions = caddition;
             return this;
         }
 
 
-        public TryFileDetailsBuilder setCdeletion(String cdeletion) {
+        public TryFileDetailsBuilder setCdeletion(int cdeletion) {
             this.Cdeletion = cdeletion;
             return this;
         }
@@ -172,12 +172,12 @@ public class TryFileDetails {
             this.commitId = commitId;
         }
 
-        public TryFileDetailsBuilder setAddition(String addition) {
+        public TryFileDetailsBuilder setAddition(int addition) {
             this.addition = addition;
             return this;
         }
 
-        public TryFileDetailsBuilder setDeletion(String deletion) {
+        public TryFileDetailsBuilder setDeletion(int deletion) {
             this.deletion = deletion;
             return this;
         }

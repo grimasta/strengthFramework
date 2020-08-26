@@ -23,6 +23,7 @@ import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
+//Bug 003: Explicity using garbage Collector
 @Component("dataManipulateExcel")
 public class DataManipulateExcel {
 
@@ -192,11 +193,16 @@ public class DataManipulateExcel {
 
 
         Map<String, Map<String, Float>> overallStrength;
-        Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMapss;
+        //Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMapss;
 
         overallStrength = accumulatedStrength(pairStrengthMap, excelYearMap, globalDecayMap.getKey(), globalDecayMap.getValue());
         System.out.println("Overall Strength");
         //overallStrength.entrySet().forEach(e -> System.out.println(e));
+
+        //Start: Bug 003: Explicity using garbage Collector
+        pairStrengthMap= null;
+        excelYearMap=null;
+        //End:Bug 003: Explicity using garbage Collector
 
 
 //Commenting to avoid second time excel insertion.
@@ -455,41 +461,6 @@ public class DataManipulateExcel {
 
 
                     overallStrengthDateMap.put(row, overallStrengthMap);
-                    //Start: Bug 001: Committed as part of the file that is committed alone.
-
-                  /*  Map<String, Float> accumulatedHashMapRowSame = new LinkedHashMap<>();
-                    List<String> overallSameKeys = new LinkedList<>();
-                    Set<String> overallSetKeys = new TreeSet<>();
-                    Iterator<String> listItSame = null;
-                    String newKey = "";
-                    float newVal = 0.0f;
-                    float prevVal = 0.0f;
-                    String prevKey = "";
-                    if (yearMapSameInside.containsKey(row)) {
-                        overallSameKeys.addAll( overallStrengthDateMap.get(row).keySet());
-                        Collections.sort(overallSameKeys);
-                        overallSetKeys.addAll(overallSameKeys);
-                        System.out.println("Set Keys Row " + row);
-                        overallSetKeys.stream().forEach(e-> System.out.print(e));
-                        yearMapSameListInside = yearMapSameInside.get(row);
-                        Collections.sort(yearMapSameListInside);
-                        listItSame = yearMapSameListInside.iterator();
-                        while (listItSame.hasNext()) {
-                            newKey = listItSame.next();
-                            prevKey = ((TreeSet<String>) overallSetKeys).floor(newKey);
-                            prevVal = overallStrengthMap.get(prevKey);
-                            System.out.println( "row "+ row +" prevKey " + prevKey + " prevVal " + prevVal +" newKey " + newKey  );
-                            accumulatedHashMapRowSame.put(newKey, prevVal);
-                        }
-
-                        accumulatedHashMapSame.put(row, accumulatedHashMapRowSame);
-                        accumulatedHashMapRowSame = new LinkedHashMap<>();
-                        overallSameKeys = new LinkedList<>();
-                        overallSetKeys = new TreeSet<>();
-                        yearMapSameListInside = new LinkedList<>();
-                    }*/
-
-                    //End: Bug 001: Committed as part of the file that is committed alone.
 
 
                 }
@@ -503,7 +474,22 @@ public class DataManipulateExcel {
         overallStrengthDateMap.entrySet().stream().forEach(e -> System.out.print(e));
         //globalDecayRowUpdate.entrySet().stream().forEach(e-> System.out.println("Global Decay " + e));
         //System.exit(0);
+        /*Start: Bug 003: Explicity using garbage Collector */
+           countExistenceColumn=null;
+           countColumn = null;
+           columnPairs = null;
+           globalDecayUpdateColumn=null;
+           globalDecayRowUpdate=null;
+           pairStrengthMapSecond=null;
+           globalDecay=null;
+           pairStrengthMap=null;
+           excelYearMap=null;
+           globalDecayMap=null;
+           yearMapCount=null;
+         /*End:  Bug 003: Explicity using garbage Collector */
+
         return overallStrengthDateMap;
+
 
     }
 
@@ -652,6 +638,18 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
         }
         setYearMapPair(yearMap);
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        abc=null;
+        timeSlotAccumulate=null;
+        timeFull = null;
+        cellMap = null;
+        timeSlot=null;
+        yearCount=null;
+        columnGlobalDecay=null;
+        dateGlobalDecay=null;
+        yearMapIterator=null;
+
+        /*End:  Bug 003: Explicity using garbage Collector */
         return new Pair(globalDecay, yearMap);
 
     }
@@ -748,6 +746,13 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         //outputTable1.cellSet().stream().forEach(e -> System.out.print("CASE-2 : " +e));
         //outputTable1.rowMap().get("27c1b0a5-3e41-11ea-851b-482ae32cf5b4").entrySet().stream().forEach(e -> System.out.print("CASE-2 : " +e));
         System.out.println();
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        abc=null;
+        outputTable=null;
+        finalMap=null;
+        finalMap2=null;
+        finalList=null;
+        /*End:  Bug 003: Explicity using garbage Collector */
         return outputTable1;
     }
 
@@ -891,6 +896,17 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         commitExcelxyzs.entrySet().stream().forEach(e -> System.out.println("CASE1  : " + e)); //For Excel
         System.out.println();
         System.exit(0);*/
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        yearMapExcel33=null;
+        commitExcelmaps=null;
+        commitFinalMaps=null;
+        yearMapExcel33=null;
+        commitFinalMaps=null;
+        guvaTable=null;
+        xyz=null;
+        yearMap=null;
+
+        /*End:  Bug 003: Explicity using garbage Collector */
 
         return new Pair(commitExcelxyzs, yearMapExcel3);
     }
@@ -919,7 +935,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         float calA = 0;
         float calB = 0;
         String dates = "";
-        Map<String, Float> linesModifiedA = new LinkedHashMap<>();
+       /* Map<String, Float> linesModifiedA = new LinkedHashMap<>();*/
         Map<Integer, Map<String, Float>> linesModifiedAAP = new LinkedHashMap<>(); //For Excel
         Map<String, Map<Integer, Map<String, Float>>> linesAAP = new LinkedHashMap<>(); //For Excel
         Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesAAAP = new LinkedHashMap<>(); //For Excel
@@ -928,7 +944,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         Map<String, Map<Integer, Map<String, Float>>> linesBBP = new LinkedHashMap<>(); //For Excel
         Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesBBBP = new LinkedHashMap<>(); //For Excel
 
-        Map<String, Float> linesModifiedB = new LinkedHashMap<>();
+        /*Map<String, Float> linesModifiedB = new LinkedHashMap<>();*/
         Map<String, Map<String, Map<Integer, List<Object>>>> pqr = abc.rowMap();
 
         for (String row : pqr.keySet()) {
@@ -961,39 +977,51 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                     if (cAddition != 0) {
                         calA = (float) ((float) modifiedLinesA / (float) cAddition);
                         calB = ((float) modifiedLinesB / (float) cAddition);
-                        linesModifiedA.put(dates, calA);
+                       /* linesModifiedA.put(dates, calA);*/
                         linesModifiedAA.put(dates, calA); //For Excel
                         linesModifiedAAP.put(key, linesModifiedAA); //For Excel
-                        linesModifiedB.put(dates, calB);
+                        /*linesModifiedB.put(dates, calB);*/
                         linesModifiedBB.put(dates, calB); //For Excel
                         linesModifiedBBP.put(key, linesModifiedBB); //For Excel
                     }
 
 
                 }
-                linesAA.put(c, linesModifiedA);
+                /*linesAA.put(c, linesModifiedA);*/
                 linesAAP.put(c, linesModifiedAAP); //For Excel
-                linesBB.put(c, linesModifiedB);
+                /*linesBB.put(c, linesModifiedB);*/
                 linesBBP.put(c, linesModifiedBBP); //For Excel
 
                 //Clean it
-                linesModifiedA = new LinkedHashMap<>();
-                linesModifiedB = new LinkedHashMap<>();
+               /* linesModifiedA = new LinkedHashMap<>();
+                linesModifiedB = new LinkedHashMap<>();*/
                 linesModifiedAAP = new LinkedHashMap<>(); //For Excel
                 linesModifiedBBP = new LinkedHashMap<>(); //For Excel
             }
 
-            linesModifyAA.put(row, linesAA);
-            linesModifyBB.put(row, linesBB);
+         /*   linesModifyAA.put(row, linesAA);
+            linesModifyBB.put(row, linesBB);*/
             linesAAAP.put(row, linesAAP); //For Excel
             linesBBBP.put(row, linesBBP); //For Excel
 
-            linesAA = new LinkedHashMap<>();
-            linesBB = new LinkedHashMap<>();
+          /*  linesAA = new LinkedHashMap<>();
+            linesBB = new LinkedHashMap<>();*/
             linesAAP = new LinkedHashMap<>(); //For excel;
             linesBBP = new LinkedHashMap<>(); //For Excel
         }
 
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        linesAAP=null;
+        linesModifiedAAP=null;
+        linesModifyAA = null;
+        linesModifyBB = null;
+        linesBB = null;
+        linesAA = null;
+        xyz = null;
+        hm = null;
+        linesModifiedBBP=null;
+        linesBBP=null;
+        /*End:  Bug 003: Explicity using garbage Collector */
 
         return new Pair(linesAAAP, linesBBBP);
 
@@ -1087,6 +1115,15 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         //System.out.println("Start: Aggregate Time Difference");
         //timeDiff3.entrySet().stream().forEach(e->System.out.println("CASE 5" + e));
         //System.out.println();
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        mapPair=null;
+        excelxyzz = null;
+        timeDifferenceAggregate = null;
+        timeDiff3 = null;
+        timeDifferenceAggregateColumn =null;
+        excelxyzz = null;
+        excelxyzz1 = null;
+        /*End:  Bug 003: Explicity using garbage Collector */
         return timeDifferenceAggregate2;
     }
 
@@ -1109,7 +1146,12 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         /*Map<String, Map<String, Float>> abc = calculateGlobalDecay(finalCommitDates, accumulatedStrength);
         implementDecayInStrength(abc, accumulatedStrength);
         System.exit(0);*/
+        /*Start:  Bug 003: Explicity using garbage Collector */
+        accumulatedStrength=null;
+        accumulatedStrengthCol=null;
+        /*End:  Bug 003: Explicity using garbage Collector */
         setCommitSchedule(finalCommitDates);
+
         return finalCommitDates;
     }
 
@@ -1531,6 +1573,26 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         System.out.println("Final Sorted Strength Including Sorted file");
         finalStrengthSorted.entrySet().forEach(e -> System.out.println(" , " + e));
         setAccumulatedSt(finalStrengthSorted); //Setting the final Strength of file including the file that is committed alone
+        /*  Start:Bug 003: Explicity using garbage Collector */
+        finalStrength = null;
+        readMappingSame = null;
+         readMapMap = null;
+         readMapVal = null;
+        finalStrVal = null;
+       readMapString =null;
+       readMap =null;
+        finalStr = null;
+        finalMap = null;
+         yearMapAloneSame = null;
+         yearMapAloneListSame = null;
+         finalSubStrengthSorted = null;
+         finalStrengthSorted = null;
+
+
+
+        /* End: Bug 003: Explicity using garbage Collector */
+
+
 
     }
     /*
@@ -1582,8 +1644,16 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                         xList.add(dictionaryString.get(dateVal));
                     //End:  Bug 002: Committed as part of commitID to be added in the sample data
                     while (i < segmentI) {
-                        xList.add((double) accStrength.get(timeStamp.get(i)));
-                        i++;
+                        if(accStrength.containsKey(timeStamp.get(i))) {
+                            xList.add((double) accStrength.get(timeStamp.get(i)));
+                            i++;
+                        }
+                        else
+                        {
+                            System.out.println(i);
+                            xList.add((double) 0);
+                            i++;
+                        }
                     }
                     if (i < max) {
                         xList.add((double) accStrength.get(timeStamp.get(i))); //First Date value of next segemnt
@@ -1818,9 +1888,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             vectorCleanSamplingList = new LinkedList<>();
         }
 
-        System.out.println("Vector Clean Sampling");
-        vectorCleanFinalMap.entrySet().stream().forEach(e -> System.out.println("  , " + e));
-/*
+
+
         FileInputStream fis = null;
         FileOutputStream fos = null;
         Workbook wb = null;
@@ -1828,7 +1897,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         try {
             fis = new FileInputStream("Output.xlsx");
             wb = WorkbookFactory.create(fis);
-            sh = wb.getSheet("genview_output");
+            sh = wb.getSheet("kmymoney_output");
 
             int k = 1;
             for (String row : vectorCleanFinalMap.keySet()) {
@@ -1866,7 +1935,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         }finally{
             fis.close();
             wb.close();
-        }*/
+        }
 
 
     }
@@ -1935,126 +2004,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
     public void setVectorFinalMapGlobal(Map<String, List<List<Object>>> vectorFinalMapGlobal) {
         this.vectorFinalMapGlobal = vectorFinalMapGlobal;
     }
-      /*
-    This function will fill out the series of 0,1,0 values based on below
-    criteria:
-    If Previous Value is greater Smalller then Next
-    Then Next will have 1, and previous will have 0.
-    If ACCStrength is 0, then give the series name as 0.
-    If both previous and next are equal mark it as with same value.
-     */
 
-    public Map<String, Map<String, List<Float>>> calculateChange(Map<String, Map<String, Float>> acStren) throws IOException {
-
-        Map<String, Map<String, List<Float>>> mapOfScatter = new LinkedHashMap<>();
-        Map<String, List<Float>> mapofCol = new LinkedHashMap<>();
-        List<Float> abc = new LinkedList<>();
-        Map<String, Float> acMap = new LinkedHashMap<>();
-        List<String> dateList = new LinkedList<>();
-        String prevDateVal = "";
-        Float prevVal = 0.0f;
-        Float nextVal = 0.0f;
-        String nextDateVal = "";
-        Float insert = 0.0f;
-        for (String file : acStren.keySet()) {
-            acMap = acStren.get(file);
-            dateList.addAll(acMap.keySet());
-            Collections.sort(dateList);
-            System.out.println("Here is the list");
-            dateList.stream().forEach(e -> System.out.print(", " + e));
-            Iterator dateIterator = dateList.iterator();
-            for (int i = 0; i < dateList.size(); i++) {
-                prevDateVal = dateList.get(i);
-                prevVal = acMap.get(prevDateVal);
-                int man = i + 1;
-                if (man < dateList.size()) {
-                    i = i + 1;
-                    nextDateVal = dateList.get(man);
-                    nextVal = acMap.get(nextDateVal);
-                    i = i - 1;
-                }
-                if (prevVal < nextVal) {
-                    insert = 1.0f;
-                } else {
-                    insert = 0.0f;
-                }
-//            System.out.println("prevDateVal "+ prevDateVal + " nextDateVal " + nextDateVal +" prev " +  prevVal + " next " + nextVal + " Insert " + insert);
-                abc.add(nextVal);
-                abc.add(insert);
-                if (!nextDateVal.equals("")) {
-                    mapofCol.put(nextDateVal, abc);
-                }
-                abc = new LinkedList<>();
-            }
-
-            System.out.println("VAlue of mapofCol");
-            mapofCol.entrySet().stream().forEach(e -> System.out.print(" , " + e));
-
-            mapOfScatter.put(file, mapofCol);
-            mapofCol = new LinkedHashMap<>();
-            dateList = new LinkedList<>();
-
-        }
-        System.out.println("HERE IS MY SERIES");
-        mapOfScatter.entrySet().stream().forEach(e -> System.out.println(" , " + e));
-        //populateScatterPlot(acStren,mapOfScatter);
-        //System.exit(0);
-        return mapOfScatter;
-    }
-
-    public void populateScatterPlot(Map<String, Map<String, Float>> finalStrength, Map<String, Map<String, List<Float>>> mapOfScatter) throws IOException {
-
-        Map<String, List<Float>> mapofCol = new LinkedHashMap<>();
-        List<Float> abc = new LinkedList<>();
-
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        Workbook wb = null;
-        Sheet sh = null;
-        int i = 1;
-        Map<String, Float> finalColumnStrength = new LinkedHashMap<>();
-        Float value = 0.0f;
-
-        try {
-
-            fis = new FileInputStream("AccumulatedStrengthWithDecay.xlsx");
-            wb = WorkbookFactory.create(fis);
-            sh = wb.getSheet("Accumulated_Scatter");
-
-            for (String row : finalStrength.keySet()) {
-                mapofCol = mapOfScatter.get(row);
-                finalColumnStrength = finalStrength.get(row);
-                for (String column : finalColumnStrength.keySet()) {
-
-                    value = finalColumnStrength.get(column);
-                    Row rowExcel = sh.createRow(i);
-                    Cell cell = rowExcel.createCell(0);
-                    cell.setCellValue(row);
-                    cell = rowExcel.createCell(1);
-                    cell.setCellValue(column);
-                    cell = rowExcel.createCell(2);
-                    cell.setCellValue(value);
-                    if (mapofCol.containsKey(column)) {
-                        abc = mapofCol.get(column);
-                        cell = rowExcel.createCell(3);
-                        cell.setCellValue(abc.get(1));
-                    }
-
-                    fos = new FileOutputStream("AccumulatedStrengthWithDecay.xlsx");
-                    wb.write(fos);
-                    i++;
-                }
-                i++;
-            }
-        } catch (Exception e) {
-            System.out.println("Data is not inserted Properly into the excel");
-        } finally {
-            System.out.println("Successfully Inserted Data into excel");
-            wb.close();
-            fos.close();
-            fis.close();
-        }
-    }
 
 
 }

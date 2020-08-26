@@ -75,7 +75,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         }
        Parse the excel based on date*/
 
-        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\yetus.csv")));
+        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\k3b.csv")));
 
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
@@ -103,7 +103,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
             Map.Entry mapElement = (Map.Entry) builderIterator2.next();
         }
 
-        jsonArray = convertJson(beans);
+        //jsonArray = convertJson(beans);
         System.out.println("Table Mapping");
         //createTableMapping(TryFileDetails.getFileDetailsPojoHashMap()).cellSet().stream().forEach(e->System.out.print(e));
         Table<String, String, Map<Integer, List<Object>>> tablMap = createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
@@ -161,7 +161,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
             if (sameFile.size() == 1) {
                 TryFileDetails tf = sameFile.get(0);
-                cadd = Integer.parseInt(tf.getAddition()) + Integer.parseInt(tf.getDeletion());
+                cadd = tf.getAddition() + tf.getDeletion();
                 caCount++;
 
                 //1. buggy
@@ -192,9 +192,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 //13. Buggy List Fi
                 sameObj.add(tf.isBugFixing());
                 //14. Number of lines in a commit has modified
-                sameObj.add(Integer.parseInt(tf.getCaddition()));
+                sameObj.add(tf.getCaddition());
                 //15. Number of lines in a commit is deleted
-                sameObj.add(Integer.parseInt(tf.getCdeletion()));
+                sameObj.add(tf.getCdeletion());
                 //16. BugFixing Or Not
                 sameObj.add(tf.isBugFixing());
 
@@ -328,14 +328,14 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             TryFileDetails ttffd = itrTfd.next();
                             index = 0;
 
-                            cAddition = Integer.parseInt(ttffd.getCaddition());
-                            cDeletion = Integer.parseInt(ttffd.getCdeletion());
+                            cAddition = ttffd.getCaddition();
+                            cDeletion = ttffd.getCdeletion();
                             //Average number of lines changed in a particular commit
-                            avgLinesChangedCi = avgLinesChangedCi + Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                            avgLinesChangedCi = avgLinesChangedCi + ttffd.getAddition() + ttffd.getDeletion();
                             FileCount++;
                             //Average number of lines changed in a particular commit
 
-                            lines = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                            lines = ttffd.getAddition() + ttffd.getDeletion();
 
                             {
                                 //Minimum lines changed in a particular commit
@@ -349,7 +349,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                                 rowAppear++;
                                 rowInside++;
 
-                                linesChangedFi = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                                linesChangedFi = ttffd.getAddition() + ttffd.getDeletion();
                                 if (!ttffd.isBugFixing()) {
                                     rtfdBugFixing = true;
                                 }
@@ -360,7 +360,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                                 date = ttffd.getDate();
 
                                 //How many lines of Fj is changed
-                                linesChangedFj = Integer.parseInt(ttffd.getAddition()) + Integer.parseInt(ttffd.getDeletion());
+                                linesChangedFj = ttffd.getAddition() + ttffd.getDeletion();
                                 if (!ttffd.isBugFixing()) {
                                     ctfdBugFixing = true;
                                 }
@@ -472,6 +472,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         }
 
                         readableMapping3.put(rtfd, ctfd, scalarVector);
+                        listSort=null; //Start:Bug 003: Explicity using garbage Collector
 
                     }
                     //Start-Repeated for check 4
@@ -488,6 +489,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         }
 
                         readableMappingCheck4.put(rtfd, ctfd, scalarVectorCheck4);
+                        listSort=null; //Start:Bug 003: Explicity using garbage Collector
                     }
                     //End-Repeated Check 4
 
@@ -549,6 +551,24 @@ public class ReadingStrategyImp implements ReadingStrategy {
         IsBugFixing();
         System.out.println("Dictionary String");
         dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
+        readableMappingFinal.putAll(readableMapping3);
+        readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
+
+        /*Start:Bug 003: Explicity using garbage Collector*/
+        scalarVectorCheck4=null;
+        scalarVector= null;
+        readableMapping=null;
+        readableMapping2=null;
+        readableMappingSame=null;
+        readableMappingSameTwo=null;
+        //dictionaryString=null;
+        //dictionary=null;
+        readableMappingCheck4=null;
+        fileTableMapping=null;
+        entrySet=null;
+
+
+        /* End: Bug 003: Explicity using garbage Collector */
 
        /* System.out.println("READING MAPPING -3 ");
         System.out.println("  ,   " + readableMapping3.cellSet().toString());
@@ -565,8 +585,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         System.out.println("This is Dictionary String");
         dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
         System.exit(0);*/
-        readableMappingFinal.putAll(readableMapping3);
-        readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
+
         return readableMapping3; //returning the table
     }
 
@@ -615,6 +634,19 @@ public class ReadingStrategyImp implements ReadingStrategy {
        /* System.out.println(" Bug Fixing Commit and their relation ");
         outp.entrySet().stream().forEach(e -> System.out.println(" , " + e));*/
         setReadableBugFixing(outp);
+
+        /*Start:Bug 003: Explicity using garbage Collector*/
+        outp=null;
+        subOut=null;
+        readSubRow=null;
+        obj=null;
+        readableMappingPair=null;
+        readableMappingSame=null;
+        readSubRow=null;
+        readableMappingPairSubMap=null;
+        readableMappingPairMap=null;
+        /*End:Bug 003: Explicity using garbage Collector*/
+
 
     }
 

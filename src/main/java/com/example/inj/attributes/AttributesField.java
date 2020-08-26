@@ -9,9 +9,9 @@ public class AttributesField {
     String file_id;
     //Start: Added new attribute
     @Parsed
-    String Cadditions;
+    int Cadditions;
     @Parsed
-    String Cdeletions;
+    int Cdeletions;
     //End: Added new attribute
     @Parsed
     String author;
@@ -28,16 +28,16 @@ public class AttributesField {
     @Parsed
     String is_refactoring;
     @Parsed
-    String additions;
+    int additions;
     @Parsed
-    String deletions;
+    int deletions;
 
 
     public AttributesField() {
     }
 
-    public AttributesField(String id, String file_id, String additions, String deletions, String author, String committed_at, String is_bug_linked, String sd, String is_fix_related, boolean is_bug_fixing, String is_refactoring,
-                           String Cadditions, String Cdeletions ) {
+    public AttributesField(String id, String file_id, int additions, int deletions, String author, String committed_at, String is_bug_linked, String sd, String is_fix_related, boolean is_bug_fixing, String is_refactoring,
+                           int Cadditions, int Cdeletions ) {
         this.id = id;
         this.file_id = file_id;
         this.additions = additions;
@@ -65,11 +65,11 @@ public class AttributesField {
         this.file_id = file_id;
     }
 
-    public void setAdditions(String additions) {
+    public void setAdditions(int additions) {
         this.additions = additions;
     }
 
-    public void setDeletions(String deletions) {
+    public void setDeletions(int deletions) {
         this.deletions = deletions;
     }
 
@@ -109,11 +109,11 @@ public class AttributesField {
         return file_id;
     }
 
-    public String getAdditions() {
+    public int getAdditions() {
         return additions;
     }
 
-    public String getDeletions() {
+    public int getDeletions() {
         return deletions;
     }
 
@@ -146,16 +146,16 @@ public class AttributesField {
     }
 
     //Start: Added new attribute
-    public String getCadditions() {
+    public int getCadditions() {
         return Cadditions;
     }
-    public void setCadditions(String cadditions) {
+    public void setCadditions(int cadditions) {
         Cadditions = cadditions;
     }
-    public String getCdeletions() {
+    public int getCdeletions() {
         return Cdeletions;
     }
-    public void setCdeletions(String cdeletions) {
+    public void setCdeletions(int cdeletions) {
         Cdeletions = cdeletions;
     }
     //End: Added new attribute
