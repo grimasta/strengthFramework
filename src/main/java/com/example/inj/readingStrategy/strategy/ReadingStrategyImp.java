@@ -24,6 +24,7 @@ import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
+//Bug 003: Explicity using garbage Collector
 @Component
 public class ReadingStrategyImp implements ReadingStrategy {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -104,7 +105,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         }
 
         //jsonArray = convertJson(beans);
-        System.out.println("Table Mapping");
+         System.out.println("Table Mapping");
         //createTableMapping(TryFileDetails.getFileDetailsPojoHashMap()).cellSet().stream().forEach(e->System.out.print(e));
         Table<String, String, Map<Integer, List<Object>>> tablMap = createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
         //tablMap.cellSet().forEach(e-> System.out.println(e));
@@ -231,8 +232,13 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
                 }
+                tfd=null; //Bug 003: Explicity using garbage Collector
             }
+            listIterator=null; //Bug 003: Explicity using garbage Collector
         }
+        entrySet=null; //Bug 003: Explicity using garbage Collector
+
+
 
 
         //Removal of redundancy
@@ -369,6 +375,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             commitIdForAB = ttffd.getCommitId();
                         }
 
+                        itrTfd=null; //Bug 003: Explicity using garbage Collector
+
                         if ((rowAppear != 0 && colAppear != 0)) {
 
                             if (rtfdBugFixing && ctfdBugFixing) {
@@ -458,6 +466,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         i = i + 1;
 
                     }
+                    entrySet1=null; //Bug 003: Explicity using garbage Collector
                     if (!scalarVector.isEmpty()) {
                         //Sorting a map for the function
                         List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalarVector.entrySet());
@@ -541,18 +550,20 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
             }
+            columnReadableItr=null; //Bug 003: Explicity using garbage Collector
 
         }
+        rowReadableItr=null; //Bug 003: Explicity using garbage Collector
 
         setDictionary(dictionary);
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
         setDictionaryString(dictionaryString); //Bug 002: Committed as part of commitID to be added in the sample data
         IsBugFixing();
-        System.out.println("Dictionary String");
-        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
         readableMappingFinal.putAll(readableMapping3);
         readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
+
+        System.out.println("Generate");
 
         /*Start:Bug 003: Explicity using garbage Collector*/
         scalarVectorCheck4=null;

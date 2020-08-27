@@ -419,6 +419,7 @@ public class DataManipulateExcel {
                                             }
                                         }
                                     }
+                                    //pairIteratorTry=null;
                                     String prev = ((TreeSet<String>) pairTry).floor(firstDate);
                                     if (prev != null) {
                                         Iterator pairIterator = pairStrengthMap.get(row).get(val).iterator();
@@ -468,10 +469,10 @@ public class DataManipulateExcel {
             }
 
         }
-        /*System.out.println("Overall Strength for Same file");
-        accumulatedHashMapSame.entrySet().stream().forEach(e -> System.out.print(e));*/
-        System.out.println("Overall Strength for different file");
-        overallStrengthDateMap.entrySet().stream().forEach(e -> System.out.print(e));
+        System.out.println("Overall Strength for Same file");
+        //*accumulatedHashMapSame.entrySet().stream().forEach(e -> System.out.print(e));*/
+        /*System.out.println("Overall Strength for different file");
+        overallStrengthDateMap.entrySet().stream().forEach(e -> System.out.print(e));*/
         //globalDecayRowUpdate.entrySet().stream().forEach(e-> System.out.println("Global Decay " + e));
         //System.exit(0);
         /*Start: Bug 003: Explicity using garbage Collector */
@@ -649,6 +650,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         dateGlobalDecay=null;
         yearMapIterator=null;
 
+        System.out.println("Inside Pair Global Decay");
+
         /*End:  Bug 003: Explicity using garbage Collector */
         return new Pair(globalDecay, yearMap);
 
@@ -745,7 +748,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
         //outputTable1.cellSet().stream().forEach(e -> System.out.print("CASE-2 : " +e));
         //outputTable1.rowMap().get("27c1b0a5-3e41-11ea-851b-482ae32cf5b4").entrySet().stream().forEach(e -> System.out.print("CASE-2 : " +e));
-        System.out.println();
+        System.out.println("Inside Co-Committed Excel");
         /*Start:  Bug 003: Explicity using garbage Collector */
         abc=null;
         outputTable=null;
@@ -888,8 +891,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             commitExcelmaps = new LinkedHashMap<>();
             yearMapExcel33 = new HashMap<>();
         }
-     /*   System.out.println("Year Map With Change");
-        yearMapExcel3.entrySet().stream().forEach(e -> System.out.println(e)); //For Excel
+       System.out.println("Co-Committed ABCD");
+        /*yearMapExcel3.entrySet().stream().forEach(e -> System.out.println(e)); //For Excel
         //System.out.println();
         //System.out.println("#############################################################");
         //System.out.println("With Change");
@@ -1023,6 +1026,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         linesBBP=null;
         /*End:  Bug 003: Explicity using garbage Collector */
 
+        System.out.println("lines Modified AAP");
+
         return new Pair(linesAAAP, linesBBBP);
 
     }
@@ -1101,6 +1106,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                                     break;
                                 }
                             }
+                            iteratorAB=null; //Bug 003: Explicity using garbage Collector
                         }
                     }
                 }
@@ -1124,6 +1130,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         excelxyzz = null;
         excelxyzz1 = null;
         /*End:  Bug 003: Explicity using garbage Collector */
+        System.out.println("Time Difference Excel");
         return timeDifferenceAggregate2;
     }
 
@@ -1139,10 +1146,10 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             }
         }
         Collections.sort(finalCommitDates);
-        accumulatedStrength.entrySet().stream().forEach(e -> System.out.println("Accumulated Strength" + e));
+       /* accumulatedStrength.entrySet().stream().forEach(e -> System.out.println("Accumulated Strength" + e));
         System.out.println("Start Final Commit Date");
         finalCommitDates.stream().forEach(e -> System.out.print(" , " + e));
-        System.out.println("END Final Commit Date");
+        System.out.println("END Final Commit Date");*/
         /*Map<String, Map<String, Float>> abc = calculateGlobalDecay(finalCommitDates, accumulatedStrength);
         implementDecayInStrength(abc, accumulatedStrength);
         System.exit(0);*/
@@ -1151,6 +1158,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         accumulatedStrengthCol=null;
         /*End:  Bug 003: Explicity using garbage Collector */
         setCommitSchedule(finalCommitDates);
+        System.out.println("Commit Schedule");
 
         return finalCommitDates;
     }
@@ -1245,8 +1253,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             pairSet = new TreeSet<>();
             pairStrengthRevise = new LinkedHashMap<>();
         }
-
-        globalDecay.entrySet().stream().forEach(e -> System.out.println("Global Decay " + e));
+        System.out.println("Calculate Global Decay");
+        /*globalDecay.entrySet().stream().forEach(e -> System.out.println("Global Decay " + e));*/
         return globalDecay;
     }
 
@@ -1308,8 +1316,9 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
             finalStrength.put(row, finalRowStrength);
             finalRowStrength = new LinkedHashMap<>();
         }
-        System.out.println("Printing  Strength of Pair File");
-        finalStrength.entrySet().stream().forEach(e -> System.out.println(" , " + e));
+        /*System.out.println("Printing  Strength of Pair File");
+        finalStrength.entrySet().stream().forEach(e -> System.out.println(" , " + e));*/
+        System.out.println("implementDecayInStrengthSecond");
         return finalStrength;
     }
 
@@ -1486,8 +1495,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
             }
         }
-        System.out.println("Hash Map Slope");
-        slope.entrySet().stream().forEach(e -> System.out.print(" , " + e));
+        /*System.out.println("Hash Map Slope");
+        slope.entrySet().stream().forEach(e -> System.out.print(" , " + e));*/
     }
 
     /*
@@ -1505,8 +1514,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
     public void getSlopeBasedOnfileID(String fileId) {
         Map<String, List<Map<String, Map<String, Float>>>> fileSlope = dataManipulateExcel.getSlopes();
         List<Map<String, Map<String, Float>>> slope = fileSlope.get(fileId);
-        System.out.println("Slope of file ID " + fileId);
-        slope.stream().forEach(e -> System.out.println(" , " + e));
+        /*System.out.println("Slope of file ID " + fileId);
+        slope.stream().forEach(e -> System.out.println(" , " + e));*/
 
     }
 
@@ -1553,6 +1562,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
 
                     }
+                    readMapItr=null; //Bug 003: Explicity using garbage Collector
 
                     finalStrength.putIfAbsent(rowStr, finalStrVal);
                     yearMapAloneSame.put(rowStr, readMap);
@@ -1571,7 +1581,7 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         }
         setYearMapGlobalSame(yearMapAloneSame);
         System.out.println("Final Sorted Strength Including Sorted file");
-        finalStrengthSorted.entrySet().forEach(e -> System.out.println(" , " + e));
+        /*finalStrengthSorted.entrySet().forEach(e -> System.out.println(" , " + e));*/
         setAccumulatedSt(finalStrengthSorted); //Setting the final Strength of file including the file that is committed alone
         /*  Start:Bug 003: Explicity using garbage Collector */
         finalStrength = null;
@@ -1690,10 +1700,9 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         }
         setVectorMapGlobal(vectorMap);
         setVectorFinalMapGlobal(vectorFinalMap);
-        System.out.println("Vector Map");
-        vectorMap.entrySet().stream().forEach(e -> System.out.println(" , " + e));
-        System.out.println("Vector Final Map");
-        vectorFinalMap.entrySet().stream().forEach(e -> System.out.println(" ," + e));
+       System.out.println("Vector Map");
+
+
 
     }
 
@@ -1726,12 +1735,6 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
 
         }
 
-       /* System.out.println(" For Pair");
-        yearMapPairSame.entrySet().stream().forEach(e-> System.out.print(e));
-        System.out.println(" For Alone");
-        yearMapAloneSame.entrySet().stream().forEach(e-> System.out.print(e));
-        System.out.println(" Together");
-        commitYearMap.entrySet().stream().forEach(e-> System.out.print(e));*/
 
         String prev = "";
         String next = "";
@@ -1779,8 +1782,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
         }
 
 
-        System.out.println(" Mean Map ");
-        meanMap.entrySet().stream().forEach(e -> System.out.print(" , " + e));
+       System.out.println(" Mean Map ");
+
         setSegmentWidth(meanMap);
     }
 
@@ -1863,8 +1866,8 @@ Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-comm
                 i = 0;
             }
         }
-        System.out.println("Vector Sampling");
-        vectorSampling.entrySet().stream().forEach(e -> System.out.println("  , " + e));
+        System.out.println("createRandomSample");
+        //vectorSampling.entrySet().stream().forEach(e -> System.out.println("  , " + e));*/
 
 
         for (String file : vectorSampling.keySet()) {
