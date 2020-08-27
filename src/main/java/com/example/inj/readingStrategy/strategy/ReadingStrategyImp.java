@@ -41,9 +41,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
     @Override
-    public Table<String, String, Map<Integer, List<Object>>> parseData() throws IOException, ParseException {
+    public void parseData() throws IOException, ParseException {
 
-        ArrayList<String> jsonArray;
 
         //parser settings
         BeanListProcessor<AttributesField> rowProcessor = new BeanListProcessor<>(AttributesField.class);
@@ -91,25 +90,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
             TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
         }
 
-
-        Iterator builderIterator = TryFileDetails.getFileDetailsPojoHashMap().entrySet().iterator();
-        while (builderIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) builderIterator.next();
-
-        }
-
-        Iterator builderIterator2 = TryFileDetails.getFileIdHashMap().entrySet().iterator();
-        //Print all the commits associated with file_id with builder class
-        while (builderIterator2.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) builderIterator2.next();
-        }
-
-        //jsonArray = convertJson(beans);
-         System.out.println("Table Mapping");
-        //createTableMapping(TryFileDetails.getFileDetailsPojoHashMap()).cellSet().stream().forEach(e->System.out.print(e));
-        Table<String, String, Map<Integer, List<Object>>> tablMap = createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
-        //tablMap.cellSet().forEach(e-> System.out.println(e));
-        return tablMap;
+        System.out.println("Calling Table Mapping");
+        createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
 
     }
 
@@ -131,7 +113,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
     }
 
     //Method to create and populate data structure using GuavaTable
-    public Table<String, String, Map<Integer, List<Object>>> createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> tryHashMap) throws ParseException {
+    public void createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> tryHashMap) throws ParseException {
         Table<TryFileDetails, TryFileDetails, Map<Integer, List<Object>>> fileTableMapping
                 = HashBasedTable.create();
         List<String> fileIds = new ArrayList<>();
@@ -145,7 +127,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         //Integer for occurence and List of changes
         Map<Integer, List<Object>> scalarVector = new HashMap<>();
         Map<String, List<Object>> scalarVectorCheck4 = new HashMap<>();
-        int count2 = 0;
+        int count2=0;
         int count1 = 0;
         //Start: Bug 001: Committed as part of the file that is committed alone.
         int caCount = 0;
@@ -154,7 +136,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
         Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo = HashBasedTable.create();
         Map<String, List<Object>> scalarVectorSame = new HashMap<>();
         Map<String, List<Object>> scalarVectorSameTwo = new HashMap<>();
-        Map<String, List<Object>> scalarVectorCheckSame = new LinkedHashMap<>();
         List<Object> sameObj = new LinkedList<>();
         for (CommitDetails row : tryHashMap.keySet()) {
             List<TryFileDetails> sameFile = new LinkedList<>();
@@ -277,7 +258,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
                     count2++;
                 }
             }
+            columnReadableItr=null; //Bug 003: Explicity using garbage Collector
         }
+        rowReadableItr=null; //Bug 003: Explicity using garbage Collector
 
 
         rowReadableItr = readableMapping2.rowKeySet().iterator();
@@ -578,26 +561,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
         fileTableMapping=null;
         entrySet=null;
 
-
+        System.out.println("Mapping is generated");
         /* End: Bug 003: Explicity using garbage Collector */
 
-       /* System.out.println("READING MAPPING -3 ");
-        System.out.println("  ,   " + readableMapping3.cellSet().toString());
-        System.out.println("READING MAPPING -Same ");
-        System.out.println("  ,   " + readableMappingSameTwo.cellSet().toString());*/
-        /*System.out.println("Dictionary String");
-        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
-        System.exit(0);*/
-
-        //System.exit(0);
-        //System.exit(0);
-        /*System.out.println("This is Dictionary");
-        dictionary.entrySet().stream().forEach(e-> System.out.print(" , " + e));
-        System.out.println("This is Dictionary String");
-        dictionaryString.entrySet().stream().forEach(e-> System.out.print(" , " + e));
-        System.exit(0);*/
-
-        return readableMapping3; //returning the table
     }
 
     public void IsBugFixing() {
@@ -642,8 +608,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
             subOut = new LinkedHashMap<>();
 
         }
-       /* System.out.println(" Bug Fixing Commit and their relation ");
-        outp.entrySet().stream().forEach(e -> System.out.println(" , " + e));*/
         setReadableBugFixing(outp);
 
         /*Start:Bug 003: Explicity using garbage Collector*/
@@ -681,6 +645,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
         readableMappingFinal = readableMapping;
     }
 
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinal() {
+        return readableMappingFinal;
+    }
 
     public void setReadableMappingN(Table<String, String, Map<String, List<Object>>> readableMappingN) {
         this.readableMappingN = readableMappingN;

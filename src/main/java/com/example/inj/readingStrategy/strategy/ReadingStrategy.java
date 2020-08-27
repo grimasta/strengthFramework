@@ -14,7 +14,7 @@ import java.util.Map;
 
 public interface ReadingStrategy {
 
-    Table<String, String, Map<Integer, List<Object>>> parseData() throws IOException, ParseException;
+    void parseData() throws IOException, ParseException;
 
     ArrayList<String> convertJson(List<AttributesField> attf) throws IOException;
 
