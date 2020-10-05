@@ -15,12 +15,18 @@ import java.text.ParseException;
 @SpringBootApplication
 public class InjApplication {
 
-    @Autowired
+
     DataManipulateExcel dataManipulate;
 
-    public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
+    @Autowired
+    public void setDataManipulate(DataManipulateExcel dataManipulate) {
+        this.dataManipulate = dataManipulate;
+    }
 
-        ConfigurableApplicationContext ack= SpringApplication.run(InjApplication.class, args);
+    public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
+        try {
+            ConfigurableApplicationContext ack = SpringApplication.run(InjApplication.class, args);
+
         long heapMaxSize = Runtime.getRuntime().maxMemory();
         // To print the JVM Heap Size
         System.out.println("Heap Size: " + heapMaxSize);
@@ -28,6 +34,11 @@ public class InjApplication {
         DataManipulateExcel dataManipulate= ack.getBean("dataManipulateExcel", DataManipulateExcel.class);
         dataManipulate.dataToExcel();
         ack.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 package com.example.inj.readingStrategy.strategy;
 
-
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
@@ -14,7 +13,7 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
-import sun.awt.image.ImageWatched;
+
 
 import java.io.File;
 import java.io.FileReader;
@@ -25,7 +24,7 @@ import java.util.*;
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
 //Bug 003: Explicity using garbage Collector
-@Component
+@Component("reading")
 public class ReadingStrategyImp implements ReadingStrategy {
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -34,10 +33,27 @@ public class ReadingStrategyImp implements ReadingStrategy {
     Table<String, String, Map<String, List<Object>>> readableMappingN = HashBasedTable.create();
     Table<String, String, Map<Integer, List<Object>>> readableMappingSameN = HashBasedTable.create();//Bug 001: Committed as part of the file that is committed alone.
     Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
-
-
     private HashMap<String, String> dictionaryString = new LinkedHashMap<>();
     Table<String, String, Map<Integer, List<Object>>> readableMappingFinal = HashBasedTable.create();
+
+    private ReadingStrategyImp(){}
+
+    private static volatile ReadingStrategyImp instance;
+    public static ReadingStrategyImp getInstance(){
+        if(instance==null)
+        {
+            synchronized(ReadingStrategyImp.class)
+            {
+                if(instance==null)
+                {
+                    instance=new ReadingStrategyImp();
+                }
+            }
+
+        }
+        System.out.println("Instance " + instance);
+        return instance;
+    }
 
 
     @Override
@@ -75,7 +91,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         }
        Parse the excel based on date*/
 
-        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\k3b.csv")));
+        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\yetus.csv")));
 
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
@@ -110,6 +126,41 @@ public class ReadingStrategyImp implements ReadingStrategy {
             jsonArray.add(jsonFormat);
         }
         return jsonArray;
+    }
+
+    @Override
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI() {
+        return getReadableMappingSameN();
+    }
+
+/*    @Override
+    public Table<String, String, Map<String, List<Object>>> getReadableMappingNI() {
+        return getReadableMappingN();
+    }
+
+    @Override
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingI() {
+        return getReadableMapping();
+    }*/
+
+    @Override
+    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI() {
+        return getReadableMappingFinal();
+    }
+
+    @Override
+    public HashMap<String, String> getDictionaryStringI() {
+        return getDictionaryString();
+    }
+
+    @Override
+    public HashMap<Integer, String> getDictionaryI() {
+        return getDictionary();
+    }
+
+    @Override
+    public Map<String, Map<String, Boolean>> getReadableBugFixingI() {
+        return getReadableBugFixing();
     }
 
     //Method to create and populate data structure using GuavaTable
@@ -537,7 +588,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         }
         rowReadableItr=null; //Bug 003: Explicity using garbage Collector
-
         setDictionary(dictionary);
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
@@ -676,8 +726,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
     public void setReadableBugFixing(Map<String, Map<String, Boolean>> readableBugFixing) {
         this.readableBugFixing = readableBugFixing;
     }
-
-
 
 }
 

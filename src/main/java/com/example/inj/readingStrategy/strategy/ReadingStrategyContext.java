@@ -9,8 +9,14 @@ import java.text.ParseException;
 @Component
 public class ReadingStrategyContext {
 
-    @Autowired
+
     private ReadingStrategy readingStrategy;
+
+    @Autowired
+    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
+
+        this.readingStrategy = ReadingStrategyImp.getInstance();
+    }
 
     public void parsingStrategy() throws IOException, ParseException {
 
