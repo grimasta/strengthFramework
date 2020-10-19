@@ -1,7 +1,5 @@
 package com.example.inj;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +11,7 @@ import java.text.ParseException;
 
 
 @SpringBootApplication
-public class InjApplication {
+public class Strength {
 
 
     DataManipulateExcel dataManipulate;
@@ -25,7 +23,7 @@ public class InjApplication {
 
     public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
         try {
-            ConfigurableApplicationContext ack = SpringApplication.run(InjApplication.class, args);
+            ConfigurableApplicationContext ack = SpringApplication.run(Strength.class, args);
 
         long heapMaxSize = Runtime.getRuntime().maxMemory();
         // To print the JVM Heap Size
@@ -38,6 +36,7 @@ public class InjApplication {
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            System.out.println(e.getStackTrace());
         }
     }
 

@@ -4,7 +4,6 @@ import com.example.inj.model.Factory.AbstractPairFactory;
 import com.example.inj.model.Factory.FactoryProducer;
 import com.example.inj.model.Factory.PairFactory;
 import com.example.inj.model.Strength.AccumulatedStrength;
-import com.example.inj.model.Strength.PairStrength;
 import com.example.inj.model.Strength.PairStrengthIn;
 import com.example.inj.model.Strength.SingleFileStrength;
 import com.example.inj.model.decays.DecayImplementation;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
@@ -125,7 +123,7 @@ public class DataManipulateExcel {
 
 
         System.out.println("Pair Strength Map In");
-        pairStrength.getPairStrengthMapIn().entrySet().forEach(e-> System.out.print(e));
+        //pairStrength.getPairStrengthMapIn().entrySet().forEach(e-> System.out.print(e));
 
         //Todo: I am using the instance to get the values here, any better way of achieving this
         accumulatedStrength.calculateAccumulatedStrength(pairStrength.getPairStrengthMapIn(), pairStrength.getExcelYearMapsIn());
@@ -165,7 +163,7 @@ public class DataManipulateExcel {
         accumulatedStrength = null;
         accumulatedStrengthCol = null;
         /*End:  Bug 003: Explicity using garbage Collector */
-        System.out.println("Commit Schedule");
+        //System.out.println("Commit Schedule");
         return finalCommitDates;
     }
 

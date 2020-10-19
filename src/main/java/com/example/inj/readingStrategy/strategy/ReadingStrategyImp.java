@@ -51,7 +51,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
             }
 
         }
-        System.out.println("Instance " + instance);
+
         return instance;
     }
 
@@ -91,7 +91,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         }
        Parse the excel based on date*/
 
-        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\yetus.csv")));
+        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\konversation.csv")));
 
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
@@ -108,6 +108,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         System.out.println("Calling Table Mapping");
         createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
+       /* TryFileDetails.getFileDetailsPojoHashMap().entrySet().forEach(e-> System.out.println(e));
+        System.exit(0);*/
 
     }
 
@@ -659,6 +661,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         }
         setReadableBugFixing(outp);
+
+
 
         /*Start:Bug 003: Explicity using garbage Collector*/
         outp=null;
