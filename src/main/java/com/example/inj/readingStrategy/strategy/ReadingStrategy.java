@@ -33,6 +33,10 @@ public interface ReadingStrategy {
 
     Map<String, Map<String, Boolean>> getReadableBugFixingI();
 
+    Map<String, List<String>> getFileCommitsI();
+
+    //Map<String, List<String>> getFileCommitListI(); //Added as part of File with commitIDlist
+
 
 
 }

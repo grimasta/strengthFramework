@@ -24,6 +24,7 @@ import java.util.*;
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
 //Bug 003: Explicity using garbage Collector
+//Imp 004: File and it's associated commit details
 @Component("reading")
 public class ReadingStrategyImp implements ReadingStrategy {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -35,6 +36,15 @@ public class ReadingStrategyImp implements ReadingStrategy {
     Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
     private HashMap<String, String> dictionaryString = new LinkedHashMap<>();
     Table<String, String, Map<Integer, List<Object>>> readableMappingFinal = HashBasedTable.create();
+    Map<String, List<String>> fileCommits= new HashMap<>(); //Imp 004
+
+    public Map<String, List<String>> getFileCommits() {
+        return fileCommits;
+    }
+
+    public void setFileCommits(Map<String, List<String>> fileCommits) {
+        this.fileCommits = fileCommits;
+    }
 
     private ReadingStrategyImp(){}
 
@@ -91,7 +101,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
         }
        Parse the excel based on date*/
 
-        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\konversation.csv")));
+        //D:\Project_CSV_Files\result_computed_excel\Left
+
+        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\result_computed_excel\\Done\\elisa.csv")));
 
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
@@ -104,12 +116,12 @@ public class ReadingStrategyImp implements ReadingStrategy {
             TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
 
             TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
+
         }
 
         System.out.println("Calling Table Mapping");
         createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
-       /* TryFileDetails.getFileDetailsPojoHashMap().entrySet().forEach(e-> System.out.println(e));
-        System.exit(0);*/
+
 
     }
 
@@ -165,8 +177,14 @@ public class ReadingStrategyImp implements ReadingStrategy {
         return getReadableBugFixing();
     }
 
+    @Override
+    public Map<String, List<String>> getFileCommitsI() {
+        return getFileCommits();
+    }
+
     //Method to create and populate data structure using GuavaTable
     public void createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> tryHashMap) throws ParseException {
+
         Table<TryFileDetails, TryFileDetails, Map<Integer, List<Object>>> fileTableMapping
                 = HashBasedTable.create();
         List<String> fileIds = new ArrayList<>();
@@ -597,6 +615,45 @@ public class ReadingStrategyImp implements ReadingStrategy {
         IsBugFixing();
         readableMappingFinal.putAll(readableMapping3);
         readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
+
+        //Start: Imp 004: File and it's associated commit details
+        Map<String, Map<String, Map<Integer, List<Object>>>> mapMe=readableMappingFinal.rowMap();
+        for(String file_id: mapMe.keySet())
+        {
+            Set<String> commits= new TreeSet<>();
+            if(mapMe.containsKey(file_id)) {
+                Map<String, Map<Integer, List<Object>>> fileMap = mapMe.get(file_id);
+                for (String subFile : fileMap.keySet()) {
+                    if (fileMap.containsKey(subFile)) {
+                        Map<Integer, List<Object>> inside = fileMap.get(subFile);
+                        for (int dictKey : inside.keySet()) {
+                            if (dictionary.containsKey(dictKey)) {
+
+                                String value = dictionary.get(dictKey);
+                                commits.add(value);
+                            }
+                        }
+                    }
+
+                }
+            }
+            if(readableMappingSameTwo.contains(file_id,file_id)) {
+                Map<Integer, List<Object>> insideSameFile = readableMappingSameTwo.get(file_id, file_id);
+                for (int dictSameKey : insideSameFile.keySet()) {
+                    if (dictionary.containsKey(dictSameKey)) {
+                        String value = dictionary.get(dictSameKey);
+                        commits.add(value);
+                    }
+                }
+            }
+            fileCommits.put(file_id,new ArrayList<>(commits));
+        }
+        setFileCommits(fileCommits);
+        /*System.out.println("Newly Added feature");
+        fileCommits.entrySet().forEach(e-> System.out.print(e));*/
+
+        //End : Imp 004: File and it's associated commit details
+        //System.exit(0);
 
         System.out.println("Generate");
 
