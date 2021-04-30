@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#Ignore all xlsx files
+*.xlsx
+
+#Ignore all xlsx files
+*.txt

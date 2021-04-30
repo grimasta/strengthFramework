@@ -21,9 +21,6 @@ public interface ReadingStrategy {
 
     Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI();
 
-    //Table<String, String, Map<String, List<Object>>> getReadableMappingNI();
-
-    //Table<String, String, Map<Integer, List<Object>>> getReadableMappingI();
 
     Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI();
 
@@ -35,7 +32,8 @@ public interface ReadingStrategy {
 
     Map<String, List<String>> getFileCommitsI();
 
-    //Map<String, List<String>> getFileCommitListI(); //Added as part of File with commitIDlist
+    Map<String,String> getDictionaryTimeI();
+
 
 
 

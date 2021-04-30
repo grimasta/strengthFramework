@@ -11,6 +11,7 @@ import com.google.common.collect.Table;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import lombok.Data;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.*;
 //Bug 003: Explicity using garbage Collector
 //Imp 004: File and it's associated commit details
 @Component("reading")
+@Data
 public class ReadingStrategyImp implements ReadingStrategy {
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -35,6 +37,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
     Table<String, String, Map<Integer, List<Object>>> readableMappingSameN = HashBasedTable.create();//Bug 001: Committed as part of the file that is committed alone.
     Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
     private HashMap<String, String> dictionaryString = new LinkedHashMap<>();
+    HashMap<String, String> dictionaryTime = new HashMap<>(); //CommitID, Time
     Table<String, String, Map<Integer, List<Object>>> readableMappingFinal = HashBasedTable.create();
     Map<String, List<String>> fileCommits= new HashMap<>(); //Imp 004
 
@@ -100,11 +103,15 @@ public class ReadingStrategyImp implements ReadingStrategy {
             }
         }
        Parse the excel based on date*/
-
-        //D:\Project_CSV_Files\result_computed_excel\Left
-
-        parser.parse(new FileReader(new File("D:\\Project_CSV_Files\\result_computed_excel\\Done\\elisa.csv")));
-
+        //D:\Thesis-Analysis\Extras-Thesis\Project_CSV_Files\NON-RECONCILED-DATA
+        //D:\Thesis-Analysis\Extras-Thesis\Project_CSV_Files\Latest Excel_11_9_2020\Without_Merge_Reconciled\Done
+        try {
+            parser.parse(new FileReader(new File("D:\\Thesis-Analysis\\Extras-Thesis\\Project_CSV_Files\\Latest Excel_11_9_2020\\Without_Merge_Reconciled\\Done\\solid.csv")));
+        }
+        catch(Exception e)
+        {
+            System.out.println("File Not Found");
+        }
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
         while (listIterator.hasNext()) {
@@ -180,6 +187,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
     @Override
     public Map<String, List<String>> getFileCommitsI() {
         return getFileCommits();
+    }
+
+    @Override
+    public Map<String, String> getDictionaryTimeI() {
+        return getDictionaryTime();
     }
 
     //Method to create and populate data structure using GuavaTable
@@ -301,6 +313,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         List<Object> list = new ArrayList<>();
         list.add("C");
 
+
         int i = 0;
         int buggy;
         int nonbuggy;
@@ -336,6 +349,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         rowReadableItr = readableMapping2.rowKeySet().iterator();
 
+
+
         //Creating Sparse Vector using HashMap
         Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet1;
 
@@ -344,6 +359,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
         int iDic = -1;
         while (rowReadableItr.hasNext()) {
             String rtfd = rowReadableItr.next();
+
 
             columnReadableItr = readableMapping.columnKeySet().iterator();
 
@@ -360,7 +376,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                 if (!rtfd.equals(ctfd)) {
 
-                    while (entrySet1.hasNext()) {
+                    while(entrySet1.hasNext()) {
                         tfd = entrySet1.next().getValue();
                         Iterator<TryFileDetails> itrTfd = tfd.listIterator();
                         List<Object> buggyList = new ArrayList<>();
@@ -381,6 +397,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         int cDeletion = 0;
                         boolean bug = false;
                         boolean nonBug = true;
+                        boolean secondBug=false;
                         //Improvising
 
                         //Traversing against the list of a particular commit
@@ -404,6 +421,10 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                             }
 
+                            if(ttffd.getFileId().equals(rtfd))
+                            {
+                                secondBug=ttffd.isBugFixing();
+                            }
 
                             if (ttffd.getFileId().equals(rtfd)) {
                                 rowAppear++;
@@ -429,7 +450,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             commitIdForAB = ttffd.getCommitId();
                         }
 
-                        itrTfd=null; //Bug 003: Explicity using garbage Collector
+                        itrTfd = null; //Bug 003: Explicity using garbage Collector
 
                         if ((rowAppear != 0 && colAppear != 0)) {
 
@@ -475,7 +496,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         percentileFj = ((float) (index + 1) / (sortedListLineChanged.size())) * 100;
                         //percentile of Fj in a sortedList
 
-                        if (((buggy != 0) || (nonbuggy != 0)) && (rowInside != 0 && columnInside != 0)) {
+                        if (/*(buggy != 0) || (nonbuggy != 0)) &&*/ (rowInside != 0 && columnInside != 0)) {
 
                             //System.out.println("Hey I am here");
                             //1.
@@ -509,18 +530,19 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             //15. Number of lines in a commit is deleted
                             buggyList.add(cDeletion);
                             //16. BugFixing Or Not
-                            buggyList.add(bug);
+                            buggyList.add(secondBug);
 
                             scalarVector.put(i, buggyList);
                             scalarVectorCheck4.put(commitIdForAB, buggyList);
                             dictionary.put(i, commitIdForAB);
                             dictionaryString.put(date, commitIdForAB);
+                            dictionaryTime.put(commitIdForAB,date);
 
                         }
                         i = i + 1;
 
                     }
-                    entrySet1=null; //Bug 003: Explicity using garbage Collector
+                    entrySet1 = null; //Bug 003: Explicity using garbage Collector
                     if (!scalarVector.isEmpty()) {
                         //Sorting a map for the function
                         List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalarVector.entrySet());
@@ -535,7 +557,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         }
 
                         readableMapping3.put(rtfd, ctfd, scalarVector);
-                        listSort=null; //Start:Bug 003: Explicity using garbage Collector
+                        listSort = null; //Start:Bug 003: Explicity using garbage Collector
 
                     }
                     //Start-Repeated for check 4
@@ -552,7 +574,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         }
 
                         readableMappingCheck4.put(rtfd, ctfd, scalarVectorCheck4);
-                        listSort=null; //Start:Bug 003: Explicity using garbage Collector
+                        listSort = null; //Start:Bug 003: Explicity using garbage Collector
                     }
                     //End-Repeated Check 4
 
@@ -570,6 +592,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                                 String date = (String) fixMap.get(k).get(10);
                                 dictionary.put(iDic, k);
                                 dictionaryString.put(date, k);
+                                dictionaryTime.put(k,date);
                                 //readableMapping3.put(rtfd, ctfd, doubFix);
                                 readableMappingSameTwo.put(rtfd, ctfd, doubFix);
                                 iDic--;
@@ -604,14 +627,19 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
             }
-            columnReadableItr=null; //Bug 003: Explicity using garbage Collector
+            columnReadableItr = null; //Bug 003: Explicity using garbage Collector
+
 
         }
+
+        Map<String, Map<String, Map<String, List<Object>>>> printMap=  readableMappingCheck4.rowMap();
+
         rowReadableItr=null; //Bug 003: Explicity using garbage Collector
         setDictionary(dictionary);
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
         setDictionaryString(dictionaryString); //Bug 002: Committed as part of commitID to be added in the sample data
+        setDictionaryTime(dictionaryTime);
         IsBugFixing();
         readableMappingFinal.putAll(readableMapping3);
         readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
@@ -678,8 +706,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
     public void IsBugFixing() {
         Table<String, String, Map<Integer, List<Object>>> readableMappingPair = getReadableMapping();
         Table<String, String, Map<Integer, List<Object>>> readableMappingSame = getReadableMappingSameN();
-        Map<Integer, List<Object>> readSubRow = new LinkedHashMap<>();
-        List<Object> obj = new LinkedList<>();
+        Map<Integer, List<Object>> readSubRow = new HashMap<>();
+        List<Object> obj = new ArrayList<>();
         Map<String, Map<String, Boolean>> outp = new LinkedHashMap<>();
         Map<String, Boolean> subOut = new LinkedHashMap<>();
         Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingPairMap = readableMappingPair.rowMap();
@@ -691,36 +719,47 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 readSubRow = readableMappingPairSubMap.get(col);
                 for (int i : readSubRow.keySet()) {
                     obj = readSubRow.get(i);
+
+                    if (!subOut.containsKey((String) obj.get(10))) {
+                        subOut.put((String) obj.get(10), (Boolean) obj.get(15));
+                        /*if(row.equals("333f55df-1ed0-11eb-af13-482ae32cf5b4"));
+                        {
+                            System.out.println("Date "+  obj.get(10)+ " Boolean " + subOut.put((String) obj.get(10), (Boolean) obj.get(15)));
+                        }*/
+                    }
+                    obj = new ArrayList<>();
+                }
+            }
+
+            readSubRow = new HashMap<>();
+            if (readableMappingSame.contains(row, row)) {
+                readSubRow = readableMappingSame.get(row, row);
+                for (int i : readSubRow.keySet()) {
+                    obj = readSubRow.get(i);
                     if (!subOut.containsKey((String) obj.get(10))) {
                         subOut.put((String) obj.get(10), (Boolean) obj.get(15));
                     }
-                    obj = new LinkedList<>();
+                    obj = new ArrayList<>();
                 }
-
-
-                readSubRow = new LinkedHashMap<>();
-                if (readableMappingSame.contains(row, row)) {
-                    readSubRow = readableMappingSame.get(row, row);
-                    for (int i : readSubRow.keySet()) {
-                        obj = readSubRow.get(i);
-                        if (!subOut.containsKey((String) obj.get(10))) {
-                            subOut.put((String) obj.get(10), (Boolean) obj.get(15));
-                        }
-                        obj = new LinkedList<>();
-                    }
-                }
-
             }
 
+
             outp.put(row, subOut);
-            readSubRow = new LinkedHashMap<>();
+            readSubRow = new HashMap<>();
             subOut = new LinkedHashMap<>();
 
         }
+        /*outp.get("333f55df-1ed0-11eb-af13-482ae32cf5b4").entrySet().forEach(e-> System.out.print(e));
+        readableMappingPairMap.get("333f55df-1ed0-11eb-af13-482ae32cf5b4").entrySet().forEach(e-> System.out.print(e));
+        System.exit(0);*/
         setReadableBugFixing(outp);
 
+      /*  System.out.println("Bug Fixing Commit");
+        outp.entrySet().forEach(e-> System.out.print(e));*/
 
-
+        /*outp.entrySet().forEach(e->System.out.print(e));
+        System.exit(0);
+*/
         /*Start:Bug 003: Explicity using garbage Collector*/
         outp=null;
         subOut=null;

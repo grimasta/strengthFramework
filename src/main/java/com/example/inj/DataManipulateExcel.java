@@ -6,6 +6,10 @@ import com.example.inj.model.Factory.PairFactory;
 import com.example.inj.model.Strength.AccumulatedStrength;
 import com.example.inj.model.Strength.PairStrengthIn;
 import com.example.inj.model.Strength.SingleFileStrength;
+import com.example.inj.model.cases.TimeDifference;
+import com.example.inj.model.cases.prime.CoCommittedPrime;
+import com.example.inj.model.cases.prime.CommittedSoFar;
+import com.example.inj.model.cases.prime.WithoutCommitPrime;
 import com.example.inj.model.decays.DecayImplementation;
 import com.example.inj.model.decays.GlobalDecay;
 import com.example.inj.model.sampling.CreateSample;
@@ -25,11 +29,32 @@ import java.util.*;
 @Component("dataManipulateExcel")
 public class DataManipulateExcel {
 
+
+    TimeDifference timeDifference;
+
+    @Autowired
+    public void setTimeDifference(TimeDifference timeDifference) {
+        this.timeDifference = timeDifference;
+    }
+
     AccumulatedStrength accumulatedStrength;
 
     @Autowired
     public void setAccumulatedStrength(AccumulatedStrength accumulatedStrength) {
         this.accumulatedStrength = accumulatedStrength;
+    }
+
+    CoCommittedPrime coCommittedPrime;
+    @Autowired
+    public void setCoCommittedPrime(CoCommittedPrime coCommittedPrime) {
+        this.coCommittedPrime = coCommittedPrime;
+    }
+
+    WithoutCommitPrime withoutCommitPrime;
+
+    @Autowired
+    public void setWithoutCommitPrime(WithoutCommitPrime withoutCommitPrime) {
+        this.withoutCommitPrime = withoutCommitPrime;
     }
 
     PairFactory pairFactory;
@@ -58,6 +83,13 @@ public class DataManipulateExcel {
     public void setPairStrength(PairStrength pairStrength) {
         this.pairStrength = pairStrength;
     }*/
+
+    CommittedSoFar committedSoFar;
+
+    @Autowired
+    public void setCommittedSoFar(CommittedSoFar committedSoFar) {
+        this.committedSoFar = committedSoFar;
+    }
 
     GlobalDecay decay;
     @Autowired
@@ -110,8 +142,10 @@ public class DataManipulateExcel {
            Case-5 Number of lines of B has modified/Number of lines of the commit(except A&B)
             */
     public void dataToExcel() throws IOException, ParseException {
-
-
+        /*committedSoFar.committedSoFar();
+        coCommittedPrime.getCoCommittedFiles();
+        withoutCommitPrime.getTimeDifference();
+        System.exit(0);*/
         Map<String, Map<String, Float>> overallStrength;
         //Start: Modified as part of Factory Changes
         abstractPairFactory= factoryProducer.getFactory("pair");
