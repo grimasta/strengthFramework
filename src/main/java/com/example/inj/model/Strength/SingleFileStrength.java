@@ -100,12 +100,16 @@ public class SingleFileStrength {
                     Collections.sort(finalStr);
                     finalSetStr.addAll(finalStr);
                     Iterator readMapItr = readMap.iterator();
+                    String val = null;
+                    String newVal = null;
+                    Float str = null;
                     while (readMapItr.hasNext()) {
-                        String val = (String) readMapItr.next();
-                        String newVal = finalSetStr.floor(val);
-                        Float str = finalStrVal.get(newVal);
-
-                        if(bugFixMap.containsKey(rowStr) && bugFixMap.get(rowStr).containsKey(val) && bugFixMap.get(rowStr).get(val))
+                        val = (String) readMapItr.next();
+                        
+                    	newVal = finalSetStr.floor(val);
+                    	str = finalStrVal.get(newVal);
+                    	
+                        if(str!=null && bugFixMap.containsKey(rowStr) && bugFixMap.get(rowStr).containsKey(val) && bugFixMap.get(rowStr).get(val))
                         {
                             //str=str*0.001f;
                             //The strength of the file should increase if it is going to be a part of bug fixing commit
@@ -117,8 +121,6 @@ public class SingleFileStrength {
                             str=0.001f;
                         }
                         finalStrVal.putIfAbsent(val, str);
-
-
                     }
                     readMapItr = null; //Bug 003: Explicity using garbage Collector
 

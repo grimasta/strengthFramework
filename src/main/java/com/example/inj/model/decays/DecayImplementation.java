@@ -87,7 +87,7 @@ public class DecayImplementation {
         finalStrength.get("caa7faee-1ed0-11eb-98c6-482ae32cf5b4").entrySet().forEach(e->System.out.print(e));*/
 
         logger.info("Decay Implementation");
-        logger.info(finalStrength.toString());
+//        logger.info(finalStrength.toString());
 
     }
 }

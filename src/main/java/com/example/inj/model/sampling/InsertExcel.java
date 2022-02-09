@@ -1,5 +1,6 @@
 package com.example.inj.model.sampling;
 
+import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.model.Strength.SingleFileStrength;
 import com.example.inj.readingStrategy.strategy.ReadingStrategy;
 import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
@@ -61,7 +62,7 @@ public class InsertExcel {
         int i = 1;
         Workbook workbook = null;
         workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("solid");
+        Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME);
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Segment ID");
         header.createCell(1).setCellValue("Segment Width");
@@ -74,7 +75,7 @@ public class InsertExcel {
 
         Map<String, List<List<Object>>> sampleVectors = createSample.getVectorsForExcel();
 
-        sampleVectors.entrySet().forEach(e->System.out.println(e));
+//        sampleVectors.entrySet().forEach(e->System.out.println(e));
 
         Map<String, Integer> segmentWidth = createWidth.getSegmentWidth();
         for (String key : sampleVectors.keySet()) {
@@ -115,8 +116,8 @@ public class InsertExcel {
             }
             i++;
         }
-
-        FileOutputStream fileOut = new FileOutputStream("Slope.xlsx");
+        //	Slope writer
+        FileOutputStream fileOut = new FileOutputStream("results\\" + ProjectNameContainer.PROJECT_NAME + "_slope.xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
@@ -135,7 +136,7 @@ public class InsertExcel {
         Workbook workbook = null;
         workbook = new XSSFWorkbook();
         System.out.println("Inside");
-        Sheet sheet = workbook.createSheet("solid");
+        Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME);
             int i=0;
             for (String key : strength.keySet()) {
                 Map<String, Float> subStrength = strength.get(key);
@@ -163,7 +164,8 @@ public class InsertExcel {
 
             }
             try {
-                FileOutputStream fileOut = new FileOutputStream("Strength.xlsx");
+        		//	Strength writer
+                FileOutputStream fileOut = new FileOutputStream("results\\" + ProjectNameContainer.PROJECT_NAME+"_strengths.xlsx");
                 workbook.write(fileOut);
                 fileOut.close();
                 workbook.close();

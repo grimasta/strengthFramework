@@ -5,6 +5,7 @@ import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
 import com.example.inj.commitBuilder.TryFileDetails;
 import com.example.inj.commitRepository.CommitDetails;
+import com.example.inj.global.ProjectNameContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -81,9 +82,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         parserSettings.setHeaderExtractionEnabled(true);
         //setting the headers as additions and deletions are two same column name
-        parserSettings.setHeaders("id", "branch", "message", "parent_id", "author", "authored_at", "committer", "committed_at", "Cadditions", "Cdeletions"
-                , "changed_files", "is_bug_linked , sd", "is_fix_related", "is_bug_fixing", "is_refactoring",
-                "file_path", "previous_file_path", "additions", "deletions", "file_id");
+        parserSettings.setHeaders("id", "branch", "message", "parent_id", "author", "authored_at", "committer", "committed_at", "commit_additions", "commit_deletions"
+                , "changed_files", "is_bug_linked", "is_fix_related", "is_bug_fixing", "is_refactoring",
+                "file_path", "previous_file_path", "file_additions", "file_deletions", "file_id");
         //Select Attributes from enum
         parserSettings.selectFields(SelectAttributes.values());
         CsvParser parser = new CsvParser(parserSettings);
@@ -106,11 +107,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
         //D:\Thesis-Analysis\Extras-Thesis\Project_CSV_Files\NON-RECONCILED-DATA
         //D:\Thesis-Analysis\Extras-Thesis\Project_CSV_Files\Latest Excel_11_9_2020\Without_Merge_Reconciled\Done
         try {
-            parser.parse(new FileReader(new File("D:\\Thesis-Analysis\\Extras-Thesis\\Project_CSV_Files\\Latest Excel_11_9_2020\\Without_Merge_Reconciled\\Done\\solid.csv")));
+            parser.parse(new FileReader(new File("src\\main\\resources\\" + ProjectNameContainer.PROJECT_NAME + ".csv")));
         }
         catch(Exception e)
         {
-            System.out.println("File Not Found");
+            System.out.println("File Not Found" + e.getMessage());
         }
         List<AttributesField> beans = rowProcessor.getBeans();
         ListIterator<AttributesField> listIterator = beans.listIterator();
@@ -123,10 +124,10 @@ public class ReadingStrategyImp implements ReadingStrategy {
             TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
 
             TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
-
         }
 
         System.out.println("Calling Table Mapping");
+        
         createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
 
 
@@ -151,7 +152,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
     @Override
     public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI() {
-        return getReadableMappingSameN();
+        return readableMappingSameN;
     }
 
 /*    @Override
@@ -166,32 +167,32 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
     @Override
     public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI() {
-        return getReadableMappingFinal();
+        return readableMappingFinal;
     }
 
     @Override
     public HashMap<String, String> getDictionaryStringI() {
-        return getDictionaryString();
+        return dictionaryString;
     }
 
     @Override
     public HashMap<Integer, String> getDictionaryI() {
-        return getDictionary();
+        return dictionary;
     }
 
     @Override
     public Map<String, Map<String, Boolean>> getReadableBugFixingI() {
-        return getReadableBugFixing();
+        return readableBugFixing;
     }
 
     @Override
     public Map<String, List<String>> getFileCommitsI() {
-        return getFileCommits();
+        return fileCommits;
     }
 
     @Override
     public Map<String, String> getDictionaryTimeI() {
-        return getDictionaryTime();
+        return dictionaryTime;
     }
 
     //Method to create and populate data structure using GuavaTable
@@ -705,7 +706,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
     public void IsBugFixing() {
         Table<String, String, Map<Integer, List<Object>>> readableMappingPair = getReadableMapping();
-        Table<String, String, Map<Integer, List<Object>>> readableMappingSame = getReadableMappingSameN();
+        Table<String, String, Map<Integer, List<Object>>> readableMappingSame = getReadableMappingSameNI();
         Map<Integer, List<Object>> readSubRow = new HashMap<>();
         List<Object> obj = new ArrayList<>();
         Map<String, Map<String, Boolean>> outp = new LinkedHashMap<>();
@@ -775,10 +776,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
     }
 
-    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameN() {
-        return readableMappingSameN;
-    }
-
     public void setReadableMappingSameN(Table<String, String, Map<Integer, List<Object>>> readableMappingSameN) {
         this.readableMappingSameN = readableMappingSameN;
     }
@@ -795,32 +792,16 @@ public class ReadingStrategyImp implements ReadingStrategy {
         readableMappingFinal = readableMapping;
     }
 
-    public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinal() {
-        return readableMappingFinal;
-    }
-
     public void setReadableMappingN(Table<String, String, Map<String, List<Object>>> readableMappingN) {
         this.readableMappingN = readableMappingN;
-    }
-
-    public HashMap<String, String> getDictionaryString() {
-        return dictionaryString;
     }
 
     public void setDictionaryString(HashMap<String, String> dictionaryString) {
         this.dictionaryString = dictionaryString;
     }
 
-    public HashMap<Integer, String> getDictionary() {
-        return dictionary;
-    }
-
     public void setDictionary(HashMap<Integer, String> dictionary) {
         this.dictionary = dictionary;
-    }
-
-    public Map<String, Map<String, Boolean>> getReadableBugFixing() {
-        return readableBugFixing;
     }
 
     public void setReadableBugFixing(Map<String, Map<String, Boolean>> readableBugFixing) {

@@ -1,5 +1,16 @@
 package com.example.inj;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.example.inj.model.Factory.AbstractPairFactory;
 import com.example.inj.model.Factory.FactoryProducer;
 import com.example.inj.model.Factory.PairFactory;
@@ -15,13 +26,6 @@ import com.example.inj.model.decays.GlobalDecay;
 import com.example.inj.model.sampling.CreateSample;
 import com.example.inj.model.sampling.CreateVector;
 import com.example.inj.model.sampling.CreateWidth;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
@@ -150,7 +154,7 @@ public class DataManipulateExcel {
         //Start: Modified as part of Factory Changes
         abstractPairFactory= factoryProducer.getFactory("pair");
         PairStrengthIn pairStrength=abstractPairFactory.getPairStrengthType("PairStrength");
-        System.out.println("Successful Calling the Pair Strength " + pairStrength.toString());
+        System.out.println("Successful Calling the Pair Strength "); // + pairStrength.toString());
         //End: Modified as part of Factory Changes
         //It will calculate the pairStrength based on the cases
         pairStrength.calculatePairStrength();
