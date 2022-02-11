@@ -1,9 +1,30 @@
 package com.example.inj.readingStrategy.strategy;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
+
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
 import com.example.inj.commitBuilder.TryFileDetails;
+import com.example.inj.commitBuilder.TryFileDetails.TryFileDetailsBuilder;
 import com.example.inj.commitRepository.CommitDetails;
 import com.example.inj.global.ProjectNameContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,16 +33,8 @@ import com.google.common.collect.Table;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+
 import lombok.Data;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
-
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.*;
 
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
@@ -114,16 +127,28 @@ public class ReadingStrategyImp implements ReadingStrategy {
             System.out.println("File Not Found" + e.getMessage());
         }
         List<AttributesField> beans = rowProcessor.getBeans();
-        ListIterator<AttributesField> listIterator = beans.listIterator();
-        while (listIterator.hasNext()) {
-            AttributesField af = listIterator.next();
-            CommitDetails cm = new CommitDetails(af.getId());
+        for (AttributesField af : beans) {
+//        	Create a CommitDetails object using the id_field from the current AttributesField - object
+        	CommitDetails cm = new CommitDetails(af.getId());
+//        	add the newly created commitDetails object to the Map of Commit_ids to Commit Detail Objects  
+//        	TODO (there is nothing created here this method MUST BE RENAMED) 
             cm.createCommitHashMap(af.getId());
 
-
+//          create a new TryCommitDetails object (the hell if I know what it's used for and how it's different from the CommitDetails Object...
+//          TODO investigate if it's possible to safely delete
             TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
-
-            TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
+//			create a new TryFileDetails object using the necessary fields from the current AttributesField object
+//          TODO clean up the TryFileDetails class and calls, its a huge mess
+            TryFileDetailsBuilder tfdBuilder = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId());
+            tfdBuilder.setAddition(af.getAdditions());
+            tfdBuilder.setDeletion(af.getDeletions());
+            tfdBuilder.setBugFixing(af.getIs_bug_fixing());
+            tfdBuilder.setCommitDate(af.getCommitted_at());
+            tfdBuilder.setCaddition(af.getCadditions());
+            tfdBuilder.setCdeletion(af.getCdeletions());
+            TryFileDetails tryFileDetails = tfdBuilder.build();
+//			TODO this line should be possible to be safely deleted            
+//            TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
         }
 
         System.out.println("Calling Table Mapping");

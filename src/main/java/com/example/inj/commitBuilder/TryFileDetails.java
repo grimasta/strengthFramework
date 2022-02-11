@@ -38,8 +38,8 @@ public class TryFileDetails {
         this.bugFixing = bugFixing;
     }
 
-    public static HashMap<String, List<CommitDetails>> fileIdHashMap = new HashMap<>();
-    private static HashMap<CommitDetails, List<TryFileDetails>> fileDetailsPojoHashMap = new HashMap<>();
+    public static HashMap<String, List<CommitDetails>> fileIDtoCommitDetailsMap = new HashMap<>();
+    private static HashMap<CommitDetails, List<TryFileDetails>> Commit2FileDetailsMap = new HashMap<>();
 
     public TryFileDetails(TryFileDetailsBuilder builder) {
         this.fileId = builder.fileId;
@@ -64,15 +64,15 @@ public class TryFileDetails {
     }
 
     public static HashMap<CommitDetails, List<TryFileDetails>> getFileDetailsPojoHashMap() {
-        return fileDetailsPojoHashMap;
+        return Commit2FileDetailsMap;
     }
 
     public static HashMap<String, List<CommitDetails>> getFileIdHashMap() {
-        return fileIdHashMap;
+        return fileIDtoCommitDetailsMap;
     }
 
     public static void setFileIdHashMap(HashMap<String, List<CommitDetails>> fileIdHashMap) {
-        TryFileDetails.fileIdHashMap = fileIdHashMap;
+        TryFileDetails.fileIDtoCommitDetailsMap = fileIdHashMap;
     }
 
 
@@ -195,45 +195,43 @@ public class TryFileDetails {
 
         public TryFileDetails build()
         {
-            TryFileDetails user= new TryFileDetails(this);
-            createHashMap(user);
-            getFileIds(user);
-            return user;
+            TryFileDetails newTryFileDetails= new TryFileDetails(this);
+            createCommit2FileDetailsMap(newTryFileDetails);
+            createFileID2CommitDetailsMap(newTryFileDetails);
+            return newTryFileDetails;
         }
 
         /*createHashMap function populate the fileDetailsPojoHashMap with respective key and value pairs.
          * where key is commitId and value is list of files that are committed under the specified key */
-        public List<TryFileDetails> createHashMap(TryFileDetails fileDetails) {
-            CommitDetails commitDetails = CommitDetails.getCommitDetailsPojo().get(fileDetails.getCommitId());
+        private void createCommit2FileDetailsMap(TryFileDetails tryFileDetails) {
+            CommitDetails commitDetails = CommitDetails.getCommitDetailsPojo().get(tryFileDetails.getCommitId());
             List<TryFileDetails> fileListPojo;
-            if (fileDetailsPojoHashMap.containsKey(commitDetails)) {
-                fileListPojo = fileDetailsPojoHashMap.get(commitDetails);
-                fileListPojo.add(fileDetails);
-                TryFileDetails.fileDetailsPojoHashMap.replace(commitDetails, fileListPojo);
-            } else if ((fileDetailsPojoHashMap.isEmpty() || (!fileDetailsPojoHashMap.containsKey(fileDetails.getFileId())))) {
+            if (Commit2FileDetailsMap.containsKey(commitDetails)) {
+                Commit2FileDetailsMap.get(commitDetails).add(tryFileDetails);
+//                this is not necessary a simple comment would suffice to show that the value is replaced
+//                TryFileDetails.fileDetailsPojoHashMap.replace(commitDetails, fileListPojo); 
+            } else { // this doesn't make sense, aren't we supposed to have a map from commitIDs to list of FileDetails?
                 fileListPojo = new ArrayList<>();
-                fileListPojo.add(fileDetails);
-                TryFileDetails.fileDetailsPojoHashMap.put(commitDetails, fileListPojo);
+                fileListPojo.add(tryFileDetails);
+                TryFileDetails.Commit2FileDetailsMap.put(commitDetails, fileListPojo);
             }
-            return fileDetailsPojoHashMap.get(commitDetails);
+            return;
         }
 
         /*getFileIds function populate the fileIdHashMap with respective key and value pairs.
          * where key is fileId and value is list of commits that are performed for a particular file */
-        public List<CommitDetails> getFileIds(TryFileDetails fileDetails) {
-            String fileId = fileDetails.getFileId();
-            List<CommitDetails> commitDetails;
-            if (TryFileDetails.fileIdHashMap.containsKey(fileId)) {
-                commitDetails = TryFileDetails.fileIdHashMap.get(fileId);
-                commitDetails.add(new CommitDetails(fileDetails.getCommitId()));
-                TryFileDetails.fileIdHashMap.replace(fileId, commitDetails);
-            } else if (TryFileDetails.fileIdHashMap.isEmpty() || (!TryFileDetails.fileIdHashMap.containsKey(fileId))) {
-                commitDetails = new ArrayList<>();
-                commitDetails.add(new CommitDetails(fileDetails.getCommitId()));
-                TryFileDetails.fileIdHashMap.put(fileId, commitDetails);
+        private void createFileID2CommitDetailsMap(TryFileDetails tryFileDetails) {
+            String fileId = tryFileDetails.getFileId();
+            List<CommitDetails> commitDetailsList;
+            if (TryFileDetails.fileIDtoCommitDetailsMap.containsKey(fileId)) {
+                TryFileDetails.fileIDtoCommitDetailsMap.get(fileId).add(new CommitDetails(tryFileDetails.getCommitId()));
+            } else {
+                commitDetailsList = new ArrayList<>();
+                commitDetailsList.add(new CommitDetails(tryFileDetails.getCommitId()));
+                TryFileDetails.fileIDtoCommitDetailsMap.put(fileId, commitDetailsList);
             }
 
-            return TryFileDetails.fileIdHashMap.get(fileId);
+            return;
         }
     }
 
