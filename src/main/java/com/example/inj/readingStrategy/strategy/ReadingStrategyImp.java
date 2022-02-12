@@ -153,7 +153,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
         System.out.println("Calling Table Mapping");
         
-        createTableMapping(TryFileDetails.getFileDetailsPojoHashMap());
+        createTableMapping(TryFileDetails.getCommitId2FileDetailsMap());
 
 
     }
@@ -221,87 +221,94 @@ public class ReadingStrategyImp implements ReadingStrategy {
     }
 
     //Method to create and populate data structure using GuavaTable
-    public void createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> tryHashMap) throws ParseException {
-
+    public void createTableMapping(HashMap<CommitDetails, List<TryFileDetails>> commitDetails2TryFileDetailsMap) throws ParseException {
+//    	table maintaining the relation between files (includes self relations)	
         Table<TryFileDetails, TryFileDetails, Map<Integer, List<Object>>> fileTableMapping
                 = HashBasedTable.create();
         List<String> fileIds = new ArrayList<>();
+//      TODO give a proper name
         Table<String, String, Map<Integer, List<Object>>> readableMapping = HashBasedTable.create();
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingPure = new HashMap<>();
+//      TODO give a proper name
         Table<String, String, Map<Integer, List<Object>>> readableMapping2 = HashBasedTable.create();
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMapping2Pure = new HashMap<>();
+//      TODO give a proper name
         Table<String, String, Map<Integer, List<Object>>> readableMapping3 = HashBasedTable.create();
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMapping3Pure = new HashMap<>();
         //Check4 is created to capture the commitID
         Table<String, String, Map<String, List<Object>>> readableMappingCheck4 = HashBasedTable.create();
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingCheck4Pure = new HashMap<>();
         //For each commit we will have list of file objects
-        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet = tryHashMap.entrySet().iterator();
-        //Integer for occurence and List of changes
-        Map<Integer, List<Object>> scalarVector = new HashMap<>();
-        Map<String, List<Object>> scalarVectorCheck4 = new HashMap<>();
-        int count2=0;
-        int count1 = 0;
-        //Start: Bug 001: Committed as part of the file that is committed alone.
-        int caCount = 0;
+        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2TryFileDetailsMapIterator = commitDetails2TryFileDetailsMap.entrySet().iterator();
+        //Integer for occurrence and List of changes
+        Map<Integer, List<Object>> numberOfOccurences2ListOfChangesMap = new HashMap<>();
+        Map<String, List<Object>> maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap = new HashMap<>();
         int cadd = 0;
-        Table<String, String, Map<String, List<Object>>> readableMappingSame = HashBasedTable.create();
+//      TODO provide proper names to the following 2 Maps getting rid of the "samesies" conventions (STRONG ROLL OF EYES)
+//      TODO probably the "same" in the original name signified that that's a Map between a file and itself to "their" data ...
+        Table<String, String, Map<String, List<Object>>> fileId2fileId2CommitId2ListOfFileToFileData = HashBasedTable.create();
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSamePure = new HashMap<>();
         Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo = HashBasedTable.create();
-        Map<String, List<Object>> scalarVectorSame = new HashMap<>();
-        Map<String, List<Object>> scalarVectorSameTwo = new HashMap<>();
-        List<Object> sameObj = new LinkedList<>();
-        for (CommitDetails row : tryHashMap.keySet()) {
-            List<TryFileDetails> sameFile = new LinkedList<>();
-            sameFile = tryHashMap.get(row);
-
-            if (sameFile.size() == 1) {
-                TryFileDetails tf = sameFile.get(0);
+//        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSameTwoPure = new HashMap<>();
+        Map<String, List<Object>> commitId2CollectionOfData = new HashMap<>();
+//        Map<String, List<Object>> commitId2CollectionOfDataTemp = new HashMap<>();
+        List<Object> fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
+        for (CommitDetails commitDetails : commitDetails2TryFileDetailsMap.keySet()) {
+            List<TryFileDetails> singleFileChangeList = new LinkedList<>();
+//          sameFile will contain all the TryFileDetails Objects for a particular commitDetails object :O why is it called sameFile????
+            singleFileChangeList = commitDetails2TryFileDetailsMap.get(commitDetails);
+            commitId2CollectionOfData = new LinkedHashMap<>();
+            fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
+//          if current commitDetails has a single modified file then populate the statistics for this commit and add to the map	commitId2CollectionOfData
+            if (singleFileChangeList.size() == 1) {
+                TryFileDetails tf = singleFileChangeList.get(0);
                 cadd = tf.getAddition() + tf.getDeletion();
-                caCount++;
+                
 
                 //1. buggy
-
-                sameObj.add(0);
+                fileToFileDataForAParticularCommitInListFormat.add(0);
                 //2. non-buggy
-                sameObj.add(0);
+                fileToFileDataForAParticularCommitInListFormat.add(0);
                 // 3. How many lines of Fi is changed
-                sameObj.add(cadd);
+                fileToFileDataForAParticularCommitInListFormat.add(cadd);
                 // 4. How many lines of Fj is changed
-                sameObj.add(cadd);
+                fileToFileDataForAParticularCommitInListFormat.add(cadd);
                 // 5. Average number of lines changed in a particular commit
-                sameObj.add(cadd);
+                fileToFileDataForAParticularCommitInListFormat.add(cadd);
                 // 6. Minimum number of lines changed in a particular commit
-                sameObj.add(cadd);
+                fileToFileDataForAParticularCommitInListFormat.add(cadd);
                 // 7. Maximum number of lines changed in a particular commit
-                sameObj.add(cadd);
+                fileToFileDataForAParticularCommitInListFormat.add(cadd);
                 // 8. Median of lines changed in a particular commit
-                sameObj.add(0.0);
+                fileToFileDataForAParticularCommitInListFormat.add(0.0);
                 // 9. Percentile of Fi in a particular commit
-                sameObj.add(0.0);
+                fileToFileDataForAParticularCommitInListFormat.add(0.0);
                 // 10. Percentile of Fj in a particular commit
-                sameObj.add(0.0);
+                fileToFileDataForAParticularCommitInListFormat.add(0.0);
                 // 11. Date of committed file Fj
-                sameObj.add(tf.getDate());
+                fileToFileDataForAParticularCommitInListFormat.add(tf.getDate());
                 //12.
-                sameObj.add("RRRR");
+                fileToFileDataForAParticularCommitInListFormat.add("RRRR");
                 //13. Buggy List Fi
-                sameObj.add(tf.isBugFixing());
+                fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
                 //14. Number of lines in a commit has modified
-                sameObj.add(tf.getCaddition());
+                fileToFileDataForAParticularCommitInListFormat.add(tf.getCaddition());
                 //15. Number of lines in a commit is deleted
-                sameObj.add(tf.getCdeletion());
+                fileToFileDataForAParticularCommitInListFormat.add(tf.getCdeletion());
                 //16. BugFixing Or Not
-                sameObj.add(tf.isBugFixing());
+                fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
 
+//              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elmenets of the List is for luck of a better word.. random  	
+                commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
 
-                scalarVectorSame.put(tf.getCommitId(), sameObj);
-
-                if (readableMappingSame.contains(tf.getFileId(), tf.getFileId())) {
-                    scalarVectorSameTwo = readableMappingSame.get(tf.getFileId(), tf.getFileId());
-                    scalarVectorSame.putAll(scalarVectorSameTwo);
-                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
+                if (fileId2fileId2CommitId2ListOfFileToFileData.contains(tf.getFileId(), tf.getFileId())) {
+                    fileId2fileId2CommitId2ListOfFileToFileData.get(tf.getFileId(), tf.getFileId()).putAll(commitId2CollectionOfData);
                 } else {
-                    readableMappingSame.put(tf.getFileId(), tf.getFileId(), scalarVectorSame);
+                    fileId2fileId2CommitId2ListOfFileToFileData.put(tf.getFileId(), tf.getFileId(), commitId2CollectionOfData);
                 }
-                scalarVectorSame = new LinkedHashMap<>();
-                scalarVectorSameTwo = new LinkedHashMap<>();
-                sameObj = new LinkedList<>();
+
+//                commitId2CollectionOfDataTemp = new LinkedHashMap<>();
+
             }
 
         }
@@ -309,24 +316,26 @@ public class ReadingStrategyImp implements ReadingStrategy {
         //End: Bug 001: Committed as part of the file that is committed alone.
 
         //Populating and Creating the data structure with "X" for the (FN,FN)
-        while (entrySet.hasNext()) {
+        
+//      TODO Figure out what's happening here and why the fileIds, fileTableMapping and readableMapping are being populated (such as they are)
+        while (commitDetails2TryFileDetailsMapIterator.hasNext()) {
             //Iterator on FileDetails of HashMap
-            Iterator<TryFileDetails> listIterator = entrySet.next().getValue().iterator();
-            while (listIterator.hasNext()) {
-                TryFileDetails tfd = listIterator.next();
+            Iterator<TryFileDetails> listOfTryFileDetailsIterator = commitDetails2TryFileDetailsMapIterator.next().getValue().iterator();
+            while (listOfTryFileDetailsIterator.hasNext()) {
+                TryFileDetails tfd = listOfTryFileDetailsIterator.next();
                 if (!fileIds.contains(tfd.getFileId())) {
                     fileIds.add(tfd.getFileId());
-                    fileTableMapping.put(tfd, tfd, scalarVector);
+                    fileTableMapping.put(tfd, tfd, numberOfOccurences2ListOfChangesMap);
 
-                    readableMapping.put(tfd.getFileId(), tfd.getFileId(), scalarVector);
+                    readableMapping.put(tfd.getFileId(), tfd.getFileId(), numberOfOccurences2ListOfChangesMap);
 
 
                 }
                 tfd=null; //Bug 003: Explicity using garbage Collector
             }
-            listIterator=null; //Bug 003: Explicity using garbage Collector
+            listOfTryFileDetailsIterator=null; //Bug 003: Explicity using garbage Collector
         }
-        entrySet=null; //Bug 003: Explicity using garbage Collector
+        commitDetails2TryFileDetailsMapIterator=null; //Bug 003: Explicity using garbage Collector
 
 
 
@@ -362,10 +371,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 fileColumn = columnReadableItr.next();
                 if (!fileRow.equals(fileColumn) &&
                         ((!readableMapping2.contains(fileRow, fileColumn) || !readableMapping2.contains(fileColumn, fileRow)))) {
-                    readableMapping2.put(fileRow, fileColumn, scalarVector);
-                    count1++;
+                    readableMapping2.put(fileRow, fileColumn, numberOfOccurences2ListOfChangesMap);
                 } else {
-                    count2++;
                 }
             }
             columnReadableItr=null; //Bug 003: Explicity using garbage Collector
@@ -392,9 +399,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
             while (columnReadableItr.hasNext()) {
                 String ctfd = columnReadableItr.next();
                 List<TryFileDetails> tfd = new ArrayList<>();
-                entrySet1 = tryHashMap.entrySet().iterator();
-                scalarVector = new HashMap<>();
-                scalarVectorCheck4 = new HashMap<>();
+                entrySet1 = commitDetails2TryFileDetailsMap.entrySet().iterator();
+                numberOfOccurences2ListOfChangesMap = new HashMap<>();
+                maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap = new HashMap<>();
                 i = 0;
                 String commitIdForAB = "";
                 buggy = 0; //Number of times it appear as a buggy commit in a commit details
@@ -558,8 +565,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             //16. BugFixing Or Not
                             buggyList.add(secondBug);
 
-                            scalarVector.put(i, buggyList);
-                            scalarVectorCheck4.put(commitIdForAB, buggyList);
+                            numberOfOccurences2ListOfChangesMap.put(i, buggyList);
+                            maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap.put(commitIdForAB, buggyList);
                             dictionary.put(i, commitIdForAB);
                             dictionaryString.put(date, commitIdForAB);
                             dictionaryTime.put(commitIdForAB,date);
@@ -569,37 +576,37 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                     }
                     entrySet1 = null; //Bug 003: Explicity using garbage Collector
-                    if (!scalarVector.isEmpty()) {
+                    if (!numberOfOccurences2ListOfChangesMap.isEmpty()) {
                         //Sorting a map for the function
-                        List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalarVector.entrySet());
+                        List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(numberOfOccurences2ListOfChangesMap.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
                         //scalarVector.clear();
-                        scalarVector = new LinkedHashMap<>();
+                        numberOfOccurences2ListOfChangesMap = new LinkedHashMap<>();
 
                         for (Map.Entry<Integer, List<Object>> stu : listSort) {
                             //System.out.println("Key" + stu.getKey() + "value" +stu.getValue());
-                            scalarVector.put(stu.getKey(), stu.getValue());
+                            numberOfOccurences2ListOfChangesMap.put(stu.getKey(), stu.getValue());
                         }
 
-                        readableMapping3.put(rtfd, ctfd, scalarVector);
+                        readableMapping3.put(rtfd, ctfd, numberOfOccurences2ListOfChangesMap);
                         listSort = null; //Start:Bug 003: Explicity using garbage Collector
 
                     }
                     //Start-Repeated for check 4
-                    if (!scalarVectorCheck4.isEmpty()) {
+                    if (!maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap.isEmpty()) {
                         //Sorting a map for the function
-                        List<Map.Entry<String, List<Object>>> listSort = new LinkedList<>(scalarVectorCheck4.entrySet());
+                        List<Map.Entry<String, List<Object>>> listSort = new LinkedList<>(maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
-                        scalarVectorCheck4 = new LinkedHashMap<>();
+                        maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap = new LinkedHashMap<>();
 
                         for (Map.Entry<String, List<Object>> stu : listSort) {
 
-                            scalarVectorCheck4.put(stu.getKey(), stu.getValue());
+                            maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap.put(stu.getKey(), stu.getValue());
                         }
 
-                        readableMappingCheck4.put(rtfd, ctfd, scalarVectorCheck4);
+                        readableMappingCheck4.put(rtfd, ctfd, maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap);
                         listSort = null; //Start:Bug 003: Explicity using garbage Collector
                     }
                     //End-Repeated Check 4
@@ -609,9 +616,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 //Start: Bug 001: Committed as part of the file that is committed alone.
                 else {
                     //readableMappingSameTwo it will contain the records of file that are committed alone
-                    if (readableMappingSame.contains(rtfd, ctfd)) {
+                    if (fileId2fileId2CommitId2ListOfFileToFileData.contains(rtfd, ctfd)) {
                         {
-                            Map<String, List<Object>> fixMap = readableMappingSame.get(rtfd, ctfd);
+                            Map<String, List<Object>> fixMap = fileId2fileId2CommitId2ListOfFileToFileData.get(rtfd, ctfd);
                             Map<Integer, List<Object>> doubFix = new LinkedHashMap<>();
                             for (String k : fixMap.keySet()) {
                                 doubFix.put(iDic, fixMap.get(k));
@@ -712,17 +719,17 @@ public class ReadingStrategyImp implements ReadingStrategy {
         System.out.println("Generate");
 
         /*Start:Bug 003: Explicity using garbage Collector*/
-        scalarVectorCheck4=null;
-        scalarVector= null;
+        maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap=null;
+        numberOfOccurences2ListOfChangesMap= null;
         readableMapping=null;
         readableMapping2=null;
-        readableMappingSame=null;
+        fileId2fileId2CommitId2ListOfFileToFileData=null;
         readableMappingSameTwo=null;
         //dictionaryString=null;
         //dictionary=null;
         readableMappingCheck4=null;
         fileTableMapping=null;
-        entrySet=null;
+        commitDetails2TryFileDetailsMapIterator=null;
 
         System.out.println("Mapping is generated");
         /* End: Bug 003: Explicity using garbage Collector */

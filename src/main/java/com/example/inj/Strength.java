@@ -28,7 +28,7 @@ public class Strength {
 
     public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
 			
-			ProjectNameContainer.PROJECT_NAME = "digikam_small";
+			ProjectNameContainer.PROJECT_NAME = "amarok";
 	    	try {
 	            ConfigurableApplicationContext ack = SpringApplication.run(Strength.class, args);
 		        System.out.println(ProjectNameContainer.PROJECT_NAME);

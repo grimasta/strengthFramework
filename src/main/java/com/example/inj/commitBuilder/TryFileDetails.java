@@ -39,7 +39,7 @@ public class TryFileDetails {
     }
 
     public static HashMap<String, List<CommitDetails>> fileIDtoCommitDetailsMap = new HashMap<>();
-    private static HashMap<CommitDetails, List<TryFileDetails>> Commit2FileDetailsMap = new HashMap<>();
+    private static HashMap<CommitDetails, List<TryFileDetails>> CommitDetails2TryFileDetailsMap = new HashMap<>();
 
     public TryFileDetails(TryFileDetailsBuilder builder) {
         this.fileId = builder.fileId;
@@ -63,15 +63,15 @@ public class TryFileDetails {
         this.commit = commit;
     }
 
-    public static HashMap<CommitDetails, List<TryFileDetails>> getFileDetailsPojoHashMap() {
-        return Commit2FileDetailsMap;
+    public static HashMap<CommitDetails, List<TryFileDetails>> getCommitId2FileDetailsMap() {
+        return CommitDetails2TryFileDetailsMap;
     }
 
-    public static HashMap<String, List<CommitDetails>> getFileIdHashMap() {
+    public static HashMap<String, List<CommitDetails>> getFileId2CommitDetailsMap() {
         return fileIDtoCommitDetailsMap;
     }
 
-    public static void setFileIdHashMap(HashMap<String, List<CommitDetails>> fileIdHashMap) {
+    public static void setFileId2CommitDetailsMap(HashMap<String, List<CommitDetails>> fileIdHashMap) {
         TryFileDetails.fileIDtoCommitDetailsMap = fileIdHashMap;
     }
 
@@ -206,14 +206,14 @@ public class TryFileDetails {
         private void createCommit2FileDetailsMap(TryFileDetails tryFileDetails) {
             CommitDetails commitDetails = CommitDetails.getCommitDetailsPojo().get(tryFileDetails.getCommitId());
             List<TryFileDetails> fileListPojo;
-            if (Commit2FileDetailsMap.containsKey(commitDetails)) {
-                Commit2FileDetailsMap.get(commitDetails).add(tryFileDetails);
+            if (CommitDetails2TryFileDetailsMap.containsKey(commitDetails)) {
+                CommitDetails2TryFileDetailsMap.get(commitDetails).add(tryFileDetails);
 //                this is not necessary a simple comment would suffice to show that the value is replaced
 //                TryFileDetails.fileDetailsPojoHashMap.replace(commitDetails, fileListPojo); 
             } else { // this doesn't make sense, aren't we supposed to have a map from commitIDs to list of FileDetails?
                 fileListPojo = new ArrayList<>();
                 fileListPojo.add(tryFileDetails);
-                TryFileDetails.Commit2FileDetailsMap.put(commitDetails, fileListPojo);
+                TryFileDetails.CommitDetails2TryFileDetailsMap.put(commitDetails, fileListPojo);
             }
             return;
         }
