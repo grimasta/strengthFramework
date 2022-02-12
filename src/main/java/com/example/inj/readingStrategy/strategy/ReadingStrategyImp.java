@@ -227,10 +227,10 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 = HashBasedTable.create();
         List<String> fileIds = new ArrayList<>();
 //      TODO give a proper name
-        Table<String, String, Map<Integer, List<Object>>> readableMapping = HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges = HashBasedTable.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingPure = new HashMap<>();
 //      TODO give a proper name
-        Table<String, String, Map<Integer, List<Object>>> readableMapping2 = HashBasedTable.create();
+        Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges2 = HashBasedTable.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMapping2Pure = new HashMap<>();
 //      TODO give a proper name
         Table<String, String, Map<Integer, List<Object>>> readableMapping3 = HashBasedTable.create();
@@ -327,7 +327,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                     fileIds.add(tfd.getFileId());
                     fileTableMapping.put(tfd, tfd, numberOfOccurences2ListOfChangesMap);
 
-                    readableMapping.put(tfd.getFileId(), tfd.getFileId(), numberOfOccurences2ListOfChangesMap);
+                    fileId2FileID2OccurencesNumber2ListOfChanges.put(tfd.getFileId(), tfd.getFileId(), numberOfOccurences2ListOfChangesMap);
 
 
                 }
@@ -340,13 +340,13 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
 
-        //Removal of redundancy
-        Iterator<String> columnReadableItr;
-        Iterator<String> rowReadableItr = readableMapping.rowKeySet().iterator();
+        //Removal of redundancy TODO because we wouldn't want to write redundant code right?? FOFF film
+        Iterator<String> guavaInnerKeyIterator;
+        Iterator<String> guavaOuterKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges.rowKeySet().iterator();
         String fileRow = "";
         String fileColumn = "";
-        List<Object> list = new ArrayList<>();
-        list.add("C");
+        List<Object> fuckOff = new ArrayList<>();
+        fuckOff.add("C");
 
 
         int i = 0;
@@ -364,42 +364,45 @@ public class ReadingStrategyImp implements ReadingStrategy {
         double median = 0;
 
 
-        while (rowReadableItr.hasNext()) {
-            fileRow = rowReadableItr.next();
-            columnReadableItr = readableMapping.columnKeySet().iterator();
-            while (columnReadableItr.hasNext()) {
-                fileColumn = columnReadableItr.next();
+        while (guavaOuterKeyIterator.hasNext()) {
+            fileRow = guavaOuterKeyIterator.next();
+            guavaInnerKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges.columnKeySet().iterator();
+            while (guavaInnerKeyIterator.hasNext()) {
+                fileColumn = guavaInnerKeyIterator.next();
+//              if file source is not the file target and the readableMapping2 does not contain the pair (either in the form fileRow2fileColumn or fileColumn2fileRow
+//              then add the pair in the form fileRow -> fileColumn to the readableMapping2 GuavaTable
+//              TODO figure out what the hell is the numberOfOccurrences2ListOfChangesMap
                 if (!fileRow.equals(fileColumn) &&
-                        ((!readableMapping2.contains(fileRow, fileColumn) || !readableMapping2.contains(fileColumn, fileRow)))) {
-                    readableMapping2.put(fileRow, fileColumn, numberOfOccurences2ListOfChangesMap);
+                        ((!fileId2FileID2OccurencesNumber2ListOfChanges2.contains(fileRow, fileColumn) || !fileId2FileID2OccurencesNumber2ListOfChanges2.contains(fileColumn, fileRow)))) {
+                    fileId2FileID2OccurencesNumber2ListOfChanges2.put(fileRow, fileColumn, numberOfOccurences2ListOfChangesMap);
                 } else {
                 }
             }
-            columnReadableItr=null; //Bug 003: Explicity using garbage Collector
+            guavaInnerKeyIterator=null; //Bug 003: Explicity using garbage Collector
         }
-        rowReadableItr=null; //Bug 003: Explicity using garbage Collector
+        guavaOuterKeyIterator=null; //Bug 003: Explicity using garbage Collector
 
 
-        rowReadableItr = readableMapping2.rowKeySet().iterator();
+        guavaOuterKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges2.rowKeySet().iterator();
 
 
 
         //Creating Sparse Vector using HashMap
-        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> entrySet1;
+        Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2ListOfFileChangesIterator;
 
         int columnInside = 0;
         int rowInside = 0;
         int iDic = -1;
-        while (rowReadableItr.hasNext()) {
-            String rtfd = rowReadableItr.next();
+        while (guavaOuterKeyIterator.hasNext()) {
+            String sourceFileId = guavaOuterKeyIterator.next();
 
 
-            columnReadableItr = readableMapping.columnKeySet().iterator();
+            guavaInnerKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges.columnKeySet().iterator();
 
-            while (columnReadableItr.hasNext()) {
-                String ctfd = columnReadableItr.next();
-                List<TryFileDetails> tfd = new ArrayList<>();
-                entrySet1 = commitDetails2TryFileDetailsMap.entrySet().iterator();
+            while (guavaInnerKeyIterator.hasNext()) {
+                String targetFileId = guavaInnerKeyIterator.next();
+                List<TryFileDetails> listOfTryFileDetails = new ArrayList<>();
+                commitDetails2ListOfFileChangesIterator = commitDetails2TryFileDetailsMap.entrySet().iterator();
                 numberOfOccurences2ListOfChangesMap = new HashMap<>();
                 maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap = new HashMap<>();
                 i = 0;
@@ -407,11 +410,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 buggy = 0; //Number of times it appear as a buggy commit in a commit details
                 nonbuggy = 0; //Number of times it appear as a non-buggy commit
 
-                if (!rtfd.equals(ctfd)) {
+                if (!sourceFileId.equals(targetFileId)) {
 
-                    while(entrySet1.hasNext()) {
-                        tfd = entrySet1.next().getValue();
-                        Iterator<TryFileDetails> itrTfd = tfd.listIterator();
+                    while(commitDetails2ListOfFileChangesIterator.hasNext()) {
+                        listOfTryFileDetails = commitDetails2ListOfFileChangesIterator.next().getValue();
+                        Iterator<TryFileDetails> iteratorOfFileDetailsList = listOfTryFileDetails.listIterator();
                         List<Object> buggyList = new ArrayList<>();
                         int rowAppear = 0;
                         int colAppear = 0;
@@ -434,18 +437,18 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         //Improvising
 
                         //Traversing against the list of a particular commit
-                        while (itrTfd.hasNext()) {
-                            TryFileDetails ttffd = itrTfd.next();
+                        while (iteratorOfFileDetailsList.hasNext()) {
+                            TryFileDetails tempTryFileDetails = iteratorOfFileDetailsList.next();
                             index = 0;
 
-                            cAddition = ttffd.getCaddition();
-                            cDeletion = ttffd.getCdeletion();
+                            cAddition = tempTryFileDetails.getCaddition();
+                            cDeletion = tempTryFileDetails.getCdeletion();
                             //Average number of lines changed in a particular commit
-                            avgLinesChangedCi = avgLinesChangedCi + ttffd.getAddition() + ttffd.getDeletion();
+                            avgLinesChangedCi = avgLinesChangedCi + tempTryFileDetails.getAddition() + tempTryFileDetails.getDeletion();
                             FileCount++;
                             //Average number of lines changed in a particular commit
 
-                            lines = ttffd.getAddition() + ttffd.getDeletion();
+                            lines = tempTryFileDetails.getAddition() + tempTryFileDetails.getDeletion();
 
                             {
                                 //Minimum lines changed in a particular commit
@@ -454,36 +457,36 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                             }
 
-                            if(ttffd.getFileId().equals(rtfd))
+                            if(tempTryFileDetails.getFileId().equals(sourceFileId))
                             {
-                                secondBug=ttffd.isBugFixing();
+                                secondBug=tempTryFileDetails.isBugFixing();
                             }
 
-                            if (ttffd.getFileId().equals(rtfd)) {
+                            if (tempTryFileDetails.getFileId().equals(sourceFileId)) {
                                 rowAppear++;
                                 rowInside++;
 
-                                linesChangedFi = ttffd.getAddition() + ttffd.getDeletion();
-                                if (!ttffd.isBugFixing()) {
+                                linesChangedFi = tempTryFileDetails.getAddition() + tempTryFileDetails.getDeletion();
+                                if (!tempTryFileDetails.isBugFixing()) {
                                     rtfdBugFixing = true;
                                 }
                             }
-                            if (ttffd.getFileId().equals(ctfd)) {
+                            if (tempTryFileDetails.getFileId().equals(targetFileId)) {
                                 colAppear++;
                                 columnInside++;
-                                date = ttffd.getDate();
+                                date = tempTryFileDetails.getDate();
 
                                 //How many lines of Fj is changed
-                                linesChangedFj = ttffd.getAddition() + ttffd.getDeletion();
-                                if (!ttffd.isBugFixing()) {
+                                linesChangedFj = tempTryFileDetails.getAddition() + tempTryFileDetails.getDeletion();
+                                if (!tempTryFileDetails.isBugFixing()) {
                                     ctfdBugFixing = true;
                                 }
                             }
 
-                            commitIdForAB = ttffd.getCommitId();
+                            commitIdForAB = tempTryFileDetails.getCommitId();
                         }
 
-                        itrTfd = null; //Bug 003: Explicity using garbage Collector
+                        iteratorOfFileDetailsList = null; //Bug 003: Explicity using garbage Collector
 
                         if ((rowAppear != 0 && colAppear != 0)) {
 
@@ -575,7 +578,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                         i = i + 1;
 
                     }
-                    entrySet1 = null; //Bug 003: Explicity using garbage Collector
+                    commitDetails2ListOfFileChangesIterator = null; //Bug 003: Explicity using garbage Collector
                     if (!numberOfOccurences2ListOfChangesMap.isEmpty()) {
                         //Sorting a map for the function
                         List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(numberOfOccurences2ListOfChangesMap.entrySet());
@@ -589,7 +592,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             numberOfOccurences2ListOfChangesMap.put(stu.getKey(), stu.getValue());
                         }
 
-                        readableMapping3.put(rtfd, ctfd, numberOfOccurences2ListOfChangesMap);
+                        readableMapping3.put(sourceFileId, targetFileId, numberOfOccurences2ListOfChangesMap);
                         listSort = null; //Start:Bug 003: Explicity using garbage Collector
 
                     }
@@ -606,7 +609,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                             maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap.put(stu.getKey(), stu.getValue());
                         }
 
-                        readableMappingCheck4.put(rtfd, ctfd, maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap);
+                        readableMappingCheck4.put(sourceFileId, targetFileId, maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap);
                         listSort = null; //Start:Bug 003: Explicity using garbage Collector
                     }
                     //End-Repeated Check 4
@@ -616,9 +619,9 @@ public class ReadingStrategyImp implements ReadingStrategy {
                 //Start: Bug 001: Committed as part of the file that is committed alone.
                 else {
                     //readableMappingSameTwo it will contain the records of file that are committed alone
-                    if (fileId2fileId2CommitId2ListOfFileToFileData.contains(rtfd, ctfd)) {
+                    if (fileId2fileId2CommitId2ListOfFileToFileData.contains(sourceFileId, targetFileId)) {
                         {
-                            Map<String, List<Object>> fixMap = fileId2fileId2CommitId2ListOfFileToFileData.get(rtfd, ctfd);
+                            Map<String, List<Object>> fixMap = fileId2fileId2CommitId2ListOfFileToFileData.get(sourceFileId, targetFileId);
                             Map<Integer, List<Object>> doubFix = new LinkedHashMap<>();
                             for (String k : fixMap.keySet()) {
                                 doubFix.put(iDic, fixMap.get(k));
@@ -627,7 +630,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
                                 dictionaryString.put(date, k);
                                 dictionaryTime.put(k,date);
                                 //readableMapping3.put(rtfd, ctfd, doubFix);
-                                readableMappingSameTwo.put(rtfd, ctfd, doubFix);
+                                readableMappingSameTwo.put(sourceFileId, targetFileId, doubFix);
                                 iDic--;
                             }
 
@@ -636,7 +639,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                         }
                         //Map<Integer, List<Object>> scalVec= readableMapping3.get(rtfd, ctfd);
-                        Map<Integer, List<Object>> scalVec = readableMappingSameTwo.get(rtfd, ctfd);
+                        Map<Integer, List<Object>> scalVec = readableMappingSameTwo.get(sourceFileId, targetFileId);
                         List<Map.Entry<Integer, List<Object>>> listSort = new LinkedList<>(scalVec.entrySet());
                         Collections.sort(listSort, Comparator.comparing(o -> String.valueOf(o.getValue().get(10))));
 
@@ -649,7 +652,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
                         }
                         //readableMapping3.put(rtfd, ctfd, scalVec);
-                        readableMappingSameTwo.put(rtfd, ctfd, scalVec);
+                        readableMappingSameTwo.put(sourceFileId, targetFileId, scalVec);
 
                         scalVec = new LinkedHashMap<>();
 
@@ -660,14 +663,14 @@ public class ReadingStrategyImp implements ReadingStrategy {
 
 
             }
-            columnReadableItr = null; //Bug 003: Explicity using garbage Collector
+            guavaInnerKeyIterator = null; //Bug 003: Explicity using garbage Collector
 
 
         }
 
         Map<String, Map<String, Map<String, List<Object>>>> printMap=  readableMappingCheck4.rowMap();
 
-        rowReadableItr=null; //Bug 003: Explicity using garbage Collector
+        guavaOuterKeyIterator=null; //Bug 003: Explicity using garbage Collector
         setDictionary(dictionary);
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
@@ -721,8 +724,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
         /*Start:Bug 003: Explicity using garbage Collector*/
         maybeAStringRepresentationofNumberOfOccurrences2ListofChangesMap=null;
         numberOfOccurences2ListOfChangesMap= null;
-        readableMapping=null;
-        readableMapping2=null;
+        fileId2FileID2OccurencesNumber2ListOfChanges=null;
+        fileId2FileID2OccurencesNumber2ListOfChanges2=null;
         fileId2fileId2CommitId2ListOfFileToFileData=null;
         readableMappingSameTwo=null;
         //dictionaryString=null;
