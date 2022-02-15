@@ -1,11 +1,12 @@
 package com.example.inj.model.Factory;
 
-import com.example.inj.model.Strength.PairStrength;
-import com.example.inj.model.Strength.PairStrengthIn;
 import org.springframework.stereotype.Component;
+
+import com.example.inj.model.strength.pair.PairStrength;
+import com.example.inj.model.strength.pair.ΙPairStrength;
 
 @Component
 public abstract class AbstractPairFactory {
 
-    public abstract PairStrengthIn getPairStrengthType(String Pairtype);
+    public abstract ΙPairStrength getPairStrengthType(String Pairtype);
 }

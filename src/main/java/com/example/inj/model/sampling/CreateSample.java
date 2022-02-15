@@ -1,7 +1,8 @@
 package com.example.inj.model.sampling;
 
 import com.example.inj.automate.Chi2Automate;
-import com.example.inj.model.Strength.PairStrength;
+import com.example.inj.model.strength.pair.PairStrength;
+
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,41 +21,11 @@ import java.util.*;
 @Component
 public class CreateSample {
 
-    CreateVector createVector;
-
-    @Autowired
-    public void setCreateVector(CreateVector createVector) {
-        this.createVector = createVector;
-    }
-
-    //This vectorsForExcel is used by InsertExcel
-    Map<String, List<List<Object>>> vectorsForExcel;
-
-    Chi2Automate chi2Automate;
-
+    private CreateVector createVector;
+    private Map<String, List<List<Object>>> vectorsForExcel;
+    private Chi2Automate chi2Automate;
+    private InsertExcel insertExcel;
     Logger logger = LoggerFactory.getLogger(CreateSample.class);
-
-    @Autowired
-    public void setChi2Automate(Chi2Automate chi2Automate) {
-        this.chi2Automate = chi2Automate;
-    }
-
-    InsertExcel insertExcel;
-
-    @Autowired
-    public void setInsertExcel(InsertExcel insertExcel) {
-        this.insertExcel = insertExcel;
-    }
-
-    public Map<String, List<List<Object>>> getVectorsForExcel() {
-        return vectorsForExcel;
-    }
-
-    public void setVectorsForExcel(Map<String, List<List<Object>>> vectorsForExcel) {
-        this.vectorsForExcel = vectorsForExcel;
-
-
-    }
 
     /*createRandomSample will create the starting point of the samples and put it in the list and make
             it available for machine learning algorithm.
@@ -190,10 +161,42 @@ public class CreateSample {
 
         System.out.println("Before excel");
         insertExcel.insertDataExcel();
-        System.exit(0);
+//        System.exit(0);
 
         chi2Automate.getDetailsOfChi2();
        //insertExcel.insertDataExcel(); //This will insert data into the excel.
     }
+
+	public CreateVector getCreateVector() {
+		return createVector;
+	}
+
+	public void setCreateVector(CreateVector createVector) {
+		this.createVector = createVector;
+	}
+
+	public Map<String, List<List<Object>>> getVectorsForExcel() {
+		return vectorsForExcel;
+	}
+
+	public void setVectorsForExcel(Map<String, List<List<Object>>> vectorsForExcel) {
+		this.vectorsForExcel = vectorsForExcel;
+	}
+
+	public Chi2Automate getChi2Automate() {
+		return chi2Automate;
+	}
+
+	public void setChi2Automate(Chi2Automate chi2Automate) {
+		this.chi2Automate = chi2Automate;
+	}
+
+	public InsertExcel getInsertExcel() {
+		return insertExcel;
+	}
+
+	public void setInsertExcel(InsertExcel insertExcel) {
+		this.insertExcel = insertExcel;
+	}
 
 }

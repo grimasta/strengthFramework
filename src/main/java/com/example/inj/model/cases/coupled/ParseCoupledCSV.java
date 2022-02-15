@@ -1,46 +1,38 @@
 package com.example.inj.model.cases.coupled;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+
+import lombok.Getter;
+import lombok.Setter;
 
 
 //Case6:Number of calls between A to B/ Average number of calls from A to all other co-committed files.
-@Component
-@Getter
-@Setter
+
 public class ParseCoupledCSV {
     Logger logger = LoggerFactory.getLogger(ParseCoupledCSV.class);
 
-    ReadingStrategy readingStrategy;
+    private IReadingStrategy readingStrategy;
+    private HashMap<String,HashMap<String,HashMap<String, Float>>> finalCallsValue= new HashMap<>();
+    private HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls = new HashMap<>();
+    private HashMap<String,HashMap<String,Integer>> maxCommitCalls = new HashMap<>();
+    private HashMap<String,Float> avgCommitCalls= new HashMap<>();
 
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
-
-
-    HashMap<String,HashMap<String,HashMap<String, Float>>> finalCallsValue= new HashMap<>();
-    HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls = new HashMap<>();
-    //SourceFileId, DestinationFileId, CommitID,Calls
-    HashMap<String,HashMap<String,Integer>> maxCommitCalls = new HashMap<>();
-    HashMap<String,Float> avgCommitCalls= new HashMap<>();
-    //Commit_ID, AvgCalls
-    //FileID, Commit_ID, MaxCalls
     public void parseData() {
 
         try {
@@ -149,10 +141,37 @@ public class ParseCoupledCSV {
         } catch (FileNotFoundException e) {
             System.out.println("File not found exception during parsing CSV");
             System.exit(0);
-        } catch (IOException e) {
-            System.out.println("Exception occurs while parsing the CSV");
-            System.exit(0);
         }
     }
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+	public HashMap<String, HashMap<String, HashMap<String, Float>>> getFinalCallsValue() {
+		return finalCallsValue;
+	}
+	public void setFinalCallsValue(HashMap<String, HashMap<String, HashMap<String, Float>>> finalCallsValue) {
+		this.finalCallsValue = finalCallsValue;
+	}
+	public HashMap<String, HashMap<String, HashMap<String, Integer>>> getMapCalls() {
+		return mapCalls;
+	}
+	public void setMapCalls(HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls) {
+		this.mapCalls = mapCalls;
+	}
+	public HashMap<String, HashMap<String, Integer>> getMaxCommitCalls() {
+		return maxCommitCalls;
+	}
+	public void setMaxCommitCalls(HashMap<String, HashMap<String, Integer>> maxCommitCalls) {
+		this.maxCommitCalls = maxCommitCalls;
+	}
+	public HashMap<String, Float> getAvgCommitCalls() {
+		return avgCommitCalls;
+	}
+	public void setAvgCommitCalls(HashMap<String, Float> avgCommitCalls) {
+		this.avgCommitCalls = avgCommitCalls;
+	}
 
 }

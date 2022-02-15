@@ -10,12 +10,12 @@ import java.text.ParseException;
 public class ReadingStrategyContext {
 
 
-    private ReadingStrategy readingStrategy;
+    private IReadingStrategy readingStrategy;
 
     @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
+    public void setReadingStrategy(DefaultReadingStrategy readingStrategy) {
 
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+        this.readingStrategy = DefaultReadingStrategy.getInstance();
     }
 
     public void parsingStrategy() throws IOException, ParseException {

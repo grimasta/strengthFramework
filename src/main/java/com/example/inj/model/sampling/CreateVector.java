@@ -1,9 +1,9 @@
 package com.example.inj.model.sampling;
 
-import com.example.inj.model.Strength.SingleFileStrength;
 import com.example.inj.model.decays.DecayImplementation;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.model.strength.singlefile.ISingleFileStrength;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,58 +21,14 @@ import java.util.stream.Collectors;
 @Component
 public class CreateVector {
 
-    //Dependency Injection
-
     Logger logger = LoggerFactory.getLogger(CreateVector.class);
 
-    DecayImplementation decayImplementation;
-
-    SingleFileStrength singleFileStrength;
-
-    @Autowired
-    public void setSingleFileStrength(SingleFileStrength singleFileStrength) {
-        this.singleFileStrength = singleFileStrength;
-    }
-
-    @Autowired
-    public void setDecayImplementation(DecayImplementation decayImplementation) {
-        this.decayImplementation = decayImplementation;
-    }
-
-    ReadingStrategy readingStrategy;
-
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
-
-
-    CreateWidth createWidth;
-
-    @Autowired
-    public void setCreateWidth(CreateWidth createWidth) {
-        this.createWidth = createWidth;
-    }
-
-    Map<String, Map<String, List<Object>>> vectorMapGlobal;
-
-    public Map<String, Map<String, List<Object>>> getVectorMapGlobal() {
-        return vectorMapGlobal;
-    }
-
-    public void setVectorMapGlobal(Map<String, Map<String, List<Object>>> vectorMapGlobal) {
-        this.vectorMapGlobal = vectorMapGlobal;
-    }
-
-    Map<String, List<List<Object>>> vectorFinalMapGlobal;
-
-    public Map<String, List<List<Object>>> getVectorFinalMapGlobal() {
-        return vectorFinalMapGlobal;
-    }
-
-    public void setVectorFinalMapGlobal(Map<String, List<List<Object>>> vectorFinalMapGlobal) {
-        this.vectorFinalMapGlobal = vectorFinalMapGlobal;
-    }
+    private DecayImplementation decayImplementation;
+    private ISingleFileStrength singleFileStrength;
+    private IReadingStrategy readingStrategy;
+    private CreateWidth createWidth;
+    private Map<String, Map<String, List<Object>>> vectorMapGlobal;
+    private Map<String, List<List<Object>>> vectorFinalMapGlobal;
 
 /*
     createVector() function is responsible for creating vector of desired segment. The segment width
@@ -82,7 +38,7 @@ public class CreateVector {
 //Imp 005: BugFixing Commit of Prev
 //Imp 006: Check if current segment is buggy or not
     public void createVector() {
-        Map<String, Float> accStrength;
+    	Map<String, Float> accStrength;
         HashMap<String, String> dictionaryString = readingStrategy.getDictionaryStringI(); //Bug 002: Committed as part of commitID to be added in the sample data
         Map<String, Integer> segmentWidths = createWidth.getSegmentWidth();
         Map<String, Map<String, Float>> acStren = singleFileStrength.getFinalStrength();
@@ -374,4 +330,52 @@ public class CreateVector {
 
         }
     }
+
+	public DecayImplementation getDecayImplementation() {
+		return decayImplementation;
+	}
+
+	public void setDecayImplementation(DecayImplementation decayImplementation) {
+		this.decayImplementation = decayImplementation;
+	}
+
+	public ISingleFileStrength getSingleFileStrength() {
+		return singleFileStrength;
+	}
+
+	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
+		this.singleFileStrength = singleFileStrength;
+	}
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+
+	public CreateWidth getCreateWidth() {
+		return createWidth;
+	}
+
+	public void setCreateWidth(CreateWidth createWidth) {
+		this.createWidth = createWidth;
+	}
+
+	public Map<String, Map<String, List<Object>>> getVectorMapGlobal() {
+		return vectorMapGlobal;
+	}
+
+	public void setVectorMapGlobal(Map<String, Map<String, List<Object>>> vectorMapGlobal) {
+		this.vectorMapGlobal = vectorMapGlobal;
+	}
+
+	public Map<String, List<List<Object>>> getVectorFinalMapGlobal() {
+		return vectorFinalMapGlobal;
+	}
+
+	public void setVectorFinalMapGlobal(Map<String, List<List<Object>>> vectorFinalMapGlobal) {
+		this.vectorFinalMapGlobal = vectorFinalMapGlobal;
+	}
 }

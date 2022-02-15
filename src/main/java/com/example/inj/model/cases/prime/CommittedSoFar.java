@@ -1,32 +1,27 @@
 package com.example.inj.model.cases.prime;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
-@Component
-@Data
 public class CommittedSoFar {
-    ReadingStrategy readingStrategy;
-
+	
+    private IReadingStrategy readingStrategy;
+    private Map<String,Map<String, Integer>> yearMap= new HashMap<>();
     Logger logger= LoggerFactory.getLogger(CommittedSoFar.class);
 
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
-
-    private Map<String,Map<String, Integer>> yearMap= new HashMap<>();
     //Number of times a file is committed so far
 
     public void committedSoFar()
     {
+    	
         Map<String, Map<String, Map<Integer, List<Object>>>> readMap=readingStrategy.getReadableMappingFinalI().rowMap();
         Map<Integer, String> dictionary= readingStrategy.getDictionaryI();
         //ID,Commit_ID
@@ -83,5 +78,21 @@ public class CommittedSoFar {
 
 
     }
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+
+	public Map<String, Map<String, Integer>> getYearMap() {
+		return yearMap;
+	}
+
+	public void setYearMap(Map<String, Map<String, Integer>> yearMap) {
+		this.yearMap = yearMap;
+	}
 
 }

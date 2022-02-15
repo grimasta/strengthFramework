@@ -1,7 +1,7 @@
 package com.example.inj.model.decays;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +14,10 @@ public class GlobalDecay {
 
     Map<String, Map<String, Float>> globalDecay;
 
-    ReadingStrategy readingStrategy;
+    IReadingStrategy readingStrategy;
 
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
     Logger logger = LoggerFactory.getLogger(DecayImplementation.class);

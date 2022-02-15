@@ -44,7 +44,7 @@ import lombok.Data;
 //Imp 004: File and it's associated commit details
 @Component("reading")
 @Data
-public class ReadingStrategyImp implements ReadingStrategy {
+public class DefaultReadingStrategy implements IReadingStrategy {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	private HashMap<Integer, String> dictionary = new HashMap<>();
@@ -72,16 +72,16 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		this.fileCommits = fileCommits;
 	}
 
-	private ReadingStrategyImp() {
+	private DefaultReadingStrategy() {
 	}
 
-	private static volatile ReadingStrategyImp instance;
+	private static volatile DefaultReadingStrategy instance;
 
-	public static ReadingStrategyImp getInstance() {
+	public static DefaultReadingStrategy getInstance() {
 		if (instance == null) {
-			synchronized (ReadingStrategyImp.class) {
+			synchronized (DefaultReadingStrategy.class) {
 				if (instance == null) {
-					instance = new ReadingStrategyImp();
+					instance = new DefaultReadingStrategy();
 				}
 			}
 
@@ -155,69 +155,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		System.out.println("Calling Table Mapping");
 
 		createTableMapping(TryFileDetails.getCommitId2FileDetailsMap());
-
-	}
-
-	/*
-	 * convertJson function will convert the List input to JSON output using Jackson
-	 * Json API
-	 */
-	@Override
-	public ArrayList<String> convertJson(List<AttributesField> attf) throws IOException {
-		ListIterator<AttributesField> itr = attf.listIterator();
-		ArrayList<String> jsonArray = new ArrayList<>();
-
-		while (itr.hasNext()) {
-			// Create ObjectMapper
-			ObjectMapper mapper = new ObjectMapper();
-			// Convert Object to JSON string
-			String jsonFormat = mapper.writeValueAsString(itr.next());
-			jsonArray.add(jsonFormat);
-		}
-		return jsonArray;
-	}
-
-	@Override
-	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI() {
-		return readableMappingSameN;
-	}
-
-	/*
-	 * @Override public Table<String, String, Map<String, List<Object>>>
-	 * getReadableMappingNI() { return getReadableMappingN(); }
-	 * 
-	 * @Override public Table<String, String, Map<Integer, List<Object>>>
-	 * getReadableMappingI() { return getReadableMapping(); }
-	 */
-
-	@Override
-	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI() {
-		return fileId2FileID2OccurencesNumber2ListOfChanges3Copy;
-	}
-
-	@Override
-	public HashMap<String, String> getDictionaryStringI() {
-		return dictionaryString;
-	}
-
-	@Override
-	public HashMap<Integer, String> getDictionaryI() {
-		return dictionary;
-	}
-
-	@Override
-	public Map<String, Map<String, Boolean>> getReadableBugFixingI() {
-		return readableBugFixing;
-	}
-
-	@Override
-	public Map<String, List<String>> getFileCommitsI() {
-		return fileCommits;
-	}
-
-	@Override
-	public Map<String, String> getDictionaryTimeI() {
-		return dictionaryTime;
 	}
 
 	// Method to create and populate data structure using GuavaTable
@@ -259,90 +196,175 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		Map<String, List<Object>> commitId2CollectionOfData = new HashMap<>();
 //        Map<String, List<Object>> commitId2CollectionOfDataTemp = new HashMap<>();
 		List<Object> fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
-		for (CommitDetails commitDetails : commitDetails2TryFileDetailsMap.keySet()) {
-			List<TryFileDetails> singleFileChangeList = new LinkedList<>();
+		try {
+			for (CommitDetails commitDetails : commitDetails2TryFileDetailsMap.keySet()) {
+				List<TryFileDetails> singleFileChangeList = new LinkedList<>();
 //          sameFile will contain all the TryFileDetails Objects for a particular commitDetails object :O why is it called sameFile????
-			singleFileChangeList = commitDetails2TryFileDetailsMap.get(commitDetails);
-			commitId2CollectionOfData = new LinkedHashMap<>();
-			fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
+				singleFileChangeList = commitDetails2TryFileDetailsMap.get(commitDetails);
+				commitId2CollectionOfData = new LinkedHashMap<>();
+				fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
 //          if current commitDetails has a single modified file then populate the statistics for this commit and add to the map	commitId2CollectionOfData
-			if (singleFileChangeList.size() == 1) {
-				TryFileDetails tf = singleFileChangeList.get(0);
-				cadd = tf.getAddition() + tf.getDeletion();
+				if (singleFileChangeList.size() == 1) {
+					TryFileDetails tf = singleFileChangeList.get(0);
+					cadd = tf.getAddition() + tf.getDeletion();
 
-				File2FileDetails detailedCrossFileData = new File2FileDetails(0, 0, cadd, cadd, cadd, cadd, cadd, 0.0,
-						0.0, 0.0, tf.getDate(), "RRRR", tf.isBugFixing(), tf.getCaddition(), tf.getCdeletion(),
-						tf.isBugFixing());
-				// 1. buggy
-				fileToFileDataForAParticularCommitInListFormat.add(0);
-				// 2. non-buggy
-				fileToFileDataForAParticularCommitInListFormat.add(0);
-				// 3. How many lines of Fi is changed
-				fileToFileDataForAParticularCommitInListFormat.add(cadd);
-				// 4. How many lines of Fj is changed
-				fileToFileDataForAParticularCommitInListFormat.add(cadd);
-				// 5. Average number of lines changed in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(cadd);
-				// 6. Minimum number of lines changed in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(cadd);
-				// 7. Maximum number of lines changed in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(cadd);
-				// 8. Median of lines changed in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(0.0);
-				// 9. Percentile of Fi in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(0.0);
-				// 10. Percentile of Fj in a particular commit
-				fileToFileDataForAParticularCommitInListFormat.add(0.0);
-				// 11. Date of committed file Fj
-				fileToFileDataForAParticularCommitInListFormat.add(tf.getDate());
-				// 12.
-				fileToFileDataForAParticularCommitInListFormat.add("RRRR");
-				// 13. Buggy List Fi
-				fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
-				// 14. Number of lines in a commit has modified
-				fileToFileDataForAParticularCommitInListFormat.add(tf.getCaddition());
-				// 15. Number of lines in a commit is deleted
-				fileToFileDataForAParticularCommitInListFormat.add(tf.getCdeletion());
-				// 16. BugFixing Or Not
-				fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
+					File2FileDetails detailedCrossFileData = new File2FileDetails(0, 0, cadd, cadd, cadd, cadd, cadd,
+							0.0, 0.0, 0.0, tf.getDate(), "RRRR", tf.isBugFixing(), tf.getCaddition(), tf.getCdeletion(),
+							tf.isBugFixing());
+					// 1. buggy
+					fileToFileDataForAParticularCommitInListFormat.add(0);
+					// 2. non-buggy
+					fileToFileDataForAParticularCommitInListFormat.add(0);
+					// 3. How many lines of Fi is changed
+					fileToFileDataForAParticularCommitInListFormat.add(cadd);
+					// 4. How many lines of Fj is changed
+					fileToFileDataForAParticularCommitInListFormat.add(cadd);
+					// 5. Average number of lines changed in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(cadd);
+					// 6. Minimum number of lines changed in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(cadd);
+					// 7. Maximum number of lines changed in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(cadd);
+					// 8. Median of lines changed in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(0.0);
+					// 9. Percentile of Fi in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(0.0);
+					// 10. Percentile of Fj in a particular commit
+					fileToFileDataForAParticularCommitInListFormat.add(0.0);
+					// 11. Date of committed file Fj
+					fileToFileDataForAParticularCommitInListFormat.add(tf.getDate());
+					// 12.
+					fileToFileDataForAParticularCommitInListFormat.add("RRRR");
+					// 13. Buggy List Fi
+					fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
+					// 14. Number of lines in a commit has modified
+					fileToFileDataForAParticularCommitInListFormat.add(tf.getCaddition());
+					// 15. Number of lines in a commit is deleted
+					fileToFileDataForAParticularCommitInListFormat.add(tf.getCdeletion());
+					// 16. BugFixing Or Not
+					fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
 
 //              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elmenets of the List is for luck of a better word.. random  	
-				commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
+					commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
 
-				if (fileId2fileId2CommitId2ListOfFileToFileData.contains(tf.getFileId(), tf.getFileId())) {
-					fileId2fileId2CommitId2ListOfFileToFileData.get(tf.getFileId(), tf.getFileId())
-							.putAll(commitId2CollectionOfData);
-				} else {
-					fileId2fileId2CommitId2ListOfFileToFileData.put(tf.getFileId(), tf.getFileId(),
-							commitId2CollectionOfData);
-				}
+					if (fileId2fileId2CommitId2ListOfFileToFileData.contains(tf.getFileId(), tf.getFileId())) {
+						fileId2fileId2CommitId2ListOfFileToFileData.get(tf.getFileId(), tf.getFileId())
+								.putAll(commitId2CollectionOfData);
+					} else {
+						fileId2fileId2CommitId2ListOfFileToFileData.put(tf.getFileId(), tf.getFileId(),
+								commitId2CollectionOfData);
+					}
 
 //                commitId2CollectionOfDataTemp = new LinkedHashMap<>();
 
-			} else {
+				} else {
 
-				// End: Bug 001: Committed as part of the file that is committed alone.
+					// End: Bug 001: Committed as part of the file that is committed alone.
 
-				// Populating and Creating the data structure with "X" for the (FN,FN)
+					// Populating and Creating the data structure with "X" for the (FN,FN)
 
-				// Iterator on FileDetails of HashMap
-				Iterator<TryFileDetails> listOfTryFileDetailsIterator;
-				listOfTryFileDetailsIterator = commitDetails2TryFileDetailsMap.get(commitDetails).iterator();
-				for (TryFileDetails tryFileDetailSource : singleFileChangeList) {
-					for (TryFileDetails tryFileDetailTarget : singleFileChangeList) {
-						String sourceFileId = tryFileDetailSource.getFileId();
-						String targetFileId = tryFileDetailTarget.getFileId();
-						if (!sourceFileId.equals(targetFileId) && !fileId2FileID2OccurencesNumber2ListOfChanges2.contains(sourceFileId, targetFileId))
-								fileId2FileID2OccurencesNumber2ListOfChanges2.put(sourceFileId, targetFileId, numberOfOccurences2ListOfChangesMap);
-					}
-					String fileId = tryFileDetailSource.getFileId();
-					if (!fileIds.contains(fileId)) {
-						fileIds.add(fileId);
-						fileId2FileID2OccurencesNumber2ListOfChanges.put(fileId, fileId,
-								numberOfOccurences2ListOfChangesMap);
+					// Iterator on FileDetails of HashMap
+					Iterator<TryFileDetails> listOfTryFileDetailsIterator;
+					listOfTryFileDetailsIterator = commitDetails2TryFileDetailsMap.get(commitDetails).iterator();
+					int cAddition = 0;
+					int cDeletion = 0;
+					int avgLinesChangedInCommit = 0;
+					int noOflinesChangedInSourceFile = 0;
+					int noOfLinesChangedInTargetFile = 0;
+					int index = 0;
+					List<Object> buggyList = new ArrayList<>();
+					int buggy = 0;
+					int nonbuggy = 0;
+					boolean secondBug = false;
+					boolean tryFileDetailsSourceIsNotBugFixing = false;
+					boolean tryFileDetailsTargetIsNotBugFixing = false;
+					for (TryFileDetails tryFileDetailSource : singleFileChangeList) {
+						for (TryFileDetails tryFileDetailTarget : singleFileChangeList) {
+//						calculating characteristics of file interaction within given commit
+							index = 0;
+							cAddition = tryFileDetailSource.getCaddition();
+							cDeletion = tryFileDetailSource.getCdeletion();
+							avgLinesChangedInCommit = (tryFileDetailSource.getAddition()
+									+ tryFileDetailSource.getDeletion()) / singleFileChangeList.size();
+							noOflinesChangedInSourceFile = tryFileDetailSource.getAddition()
+									+ tryFileDetailSource.getDeletion();
+							if (!tryFileDetailSource.isBugFixing()) {
+								tryFileDetailsSourceIsNotBugFixing = true;
+							}
+							noOfLinesChangedInTargetFile = tryFileDetailTarget.getAddition()
+									+ tryFileDetailTarget.getDeletion();
+							if (!tryFileDetailTarget.isBugFixing()) {
+								tryFileDetailsTargetIsNotBugFixing = true;
+							}
+
+							buggyList.add(buggy);
+							// 2.
+							buggyList.add(nonbuggy);
+							// 3. How many lines of Fi is changed
+							buggyList.add(noOflinesChangedInSourceFile);
+							// 4. How many lines of Fj is changed
+							buggyList.add(noOfLinesChangedInTargetFile);
+							// 5. Average number of lines changed in a particular commit
+							buggyList.add(avgLinesChangedInCommit);
+							// 6. Minimum number of lines changed in a particular commit
+							buggyList.add(commitDetails.getSortedListOfChanges().get(0));
+							// 7. Maximum number of lines changed in a particular commit
+							buggyList.add(commitDetails.getSortedListOfChanges()
+									.get(commitDetails.getSortedListOfChanges().size() - 1));
+							// 8. Median of lines changed in a particular commit
+							buggyList.add(commitDetails.getMedianModifiedLines());
+							// 9. Percentile of Fi in a particular commit
+							buggyList.add(tryFileDetailSource.getPercentile());
+							// 10. Percentile of Fj in a particular commit
+							buggyList.add(tryFileDetailTarget.getPercentile());
+							// 11. Date of committed file Fj
+							buggyList.add(tryFileDetailSource.getDate());
+							// 12.
+							buggyList.add("RRRR");
+							// 13. Buggy List Fi
+							buggyList.add(tryFileDetailSource.isBugFixing());
+							// 14. Number of lines in a commit has modified
+							buggyList.add(cAddition);
+							// 15. Number of lines in a commit is deleted
+							buggyList.add(cDeletion);
+							// 16. BugFixing Or Not
+							buggyList.add(secondBug);
+
+							String sourceFileId = tryFileDetailSource.getFileId();
+							String targetFileId = tryFileDetailTarget.getFileId();
+
+							if (!sourceFileId.equals(targetFileId)) {
+								if (!fileId2FileID2OccurencesNumber2ListOfChanges2.contains(sourceFileId,
+										targetFileId)) {
+									fileId2FileID2OccurencesNumber2ListOfChanges2.put(sourceFileId, targetFileId,
+											new HashMap<>());
+									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChanges2
+											.get(sourceFileId, targetFileId);
+									listOfChanges.put(listOfChanges.size(), buggyList);
+
+								} else {
+									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChanges2
+											.get(sourceFileId, targetFileId);
+									listOfChanges.put(listOfChanges.size(), buggyList);
+								}
+
+								commitId2ListofChangesMap.put(commitDetails.getCommitID(), buggyList);
+								dictionary.put(fileId2FileID2OccurencesNumber2ListOfChanges2
+										.get(sourceFileId, targetFileId).size() - 1, commitDetails.getCommitID());
+								dictionaryString.put(tryFileDetailSource.getDate(), commitDetails.getCommitID());
+								dictionaryTime.put(commitDetails.getCommitID(), tryFileDetailSource.getDate());
+							}
+						}
+						String fileId = tryFileDetailSource.getFileId();
+						if (!fileIds.contains(fileId)) {
+							fileIds.add(fileId);
+							fileId2FileID2OccurencesNumber2ListOfChanges.put(fileId, fileId, new HashMap<>());
+						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			System.out.println(e.getClass() + "\n");
 		}
 
 		// Removal of redundancy TODO because we wouldn't want to write redundant code
@@ -385,11 +407,11 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		double percentileTargetFile = 0;
 		List<Integer> sortedListLineChanged = new ArrayList<>();
 		double medianOfNumberOfChangedLines = 0;
-		
+
 		guavaOuterKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges2.rowKeySet().iterator();
 
 		// Creating Sparse Vector using HashMap
-		Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2ListOfFileChangesIterator;
+		Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2ListOfFileDetailsIterator;
 
 		int columnInside = 0;
 		int rowInside = 0;
@@ -397,23 +419,21 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		while (guavaOuterKeyIterator.hasNext()) {
 			String sourceFileId = guavaOuterKeyIterator.next();
 
-			guavaInnerKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges.columnKeySet().iterator();
+			guavaInnerKeyIterator = fileId2FileID2OccurencesNumber2ListOfChanges2.columnKeySet().iterator();
 
 			while (guavaInnerKeyIterator.hasNext()) {
 				String targetFileId = guavaInnerKeyIterator.next();
 				List<TryFileDetails> listOfTryFileDetails = new ArrayList<>();
-				commitDetails2ListOfFileChangesIterator = commitDetails2TryFileDetailsMap.entrySet().iterator();
+				commitDetails2ListOfFileDetailsIterator = commitDetails2TryFileDetailsMap.entrySet().iterator();
 				numberOfOccurences2ListOfChangesMap = new HashMap<>();
 				commitId2ListofChangesMap = new HashMap<>();
 				i = 0;
 				String commitIdForCurrentFilePair = "";
 				buggy = 0; // Number of times it appear as a buggy commit in a commit details
 				nonbuggy = 0; // Number of times it appear as a non-buggy commit
-
 				if (!sourceFileId.equals(targetFileId)) {
-
-					while (commitDetails2ListOfFileChangesIterator.hasNext()) {
-						listOfTryFileDetails = commitDetails2ListOfFileChangesIterator.next().getValue();
+					while (commitDetails2ListOfFileDetailsIterator.hasNext()) {
+						listOfTryFileDetails = commitDetails2ListOfFileDetailsIterator.next().getValue();
 						Iterator<TryFileDetails> iteratorOfFileDetailsList = listOfTryFileDetails.listIterator();
 						List<Object> buggyList = new ArrayList<>();
 						int rowAppear = 0;
@@ -435,7 +455,6 @@ public class ReadingStrategyImp implements ReadingStrategy {
 						boolean nonBug = true;
 						boolean secondBug = false;
 						// Improvising
-
 						// Traversing against the list of a particular commit
 						while (iteratorOfFileDetailsList.hasNext()) {
 							TryFileDetails tempTryFileDetails = iteratorOfFileDetailsList.next();
@@ -457,7 +476,8 @@ public class ReadingStrategyImp implements ReadingStrategy {
 								secondBug = tempTryFileDetails.isBugFixing();
 								rowAppear++;
 								rowInside++;
-								noOflinesChangedInSourceFile = tempTryFileDetails.getAddition() + tempTryFileDetails.getDeletion();
+								noOflinesChangedInSourceFile = tempTryFileDetails.getAddition()
+										+ tempTryFileDetails.getDeletion();
 								if (!tempTryFileDetails.isBugFixing()) {
 									tempTryFileDetailsSourceIsNotBugFixing = true;
 								}
@@ -498,10 +518,12 @@ public class ReadingStrategyImp implements ReadingStrategy {
 						// Median of a sorted list
 //							TODO this must be extracted to a separate class as static method .. Jesus
 						if (sortedListLineChanged.size() % 2 == 0) {
-							medianOfNumberOfChangedLines = (double) (sortedListLineChanged.get(((sortedListLineChanged.size() - 1) / 2))
+							medianOfNumberOfChangedLines = (double) (sortedListLineChanged
+									.get(((sortedListLineChanged.size() - 1) / 2))
 									+ Math.abs(sortedListLineChanged.get((sortedListLineChanged.size()) / 2))) / 2.0;
 						} else {
-							medianOfNumberOfChangedLines = (double) (sortedListLineChanged.get(sortedListLineChanged.size() / 2));
+							medianOfNumberOfChangedLines = (double) (sortedListLineChanged
+									.get(sortedListLineChanged.size() / 2));
 						}
 						// Median of a sorted list
 						// Minimum lines and Maximum lines changed in a particular commit
@@ -666,41 +688,7 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy
 				.putAll(fileId2FileID2OccurencesNumber2ListOfChangesCheck4); // Added for parameters in excel
 
-		// Start: Imp 004: File and it's associated commit details
-		Map<String, Map<String, Map<Integer, List<Object>>>> mapMe = fileId2FileID2OccurencesNumber2ListOfChanges3Copy
-				.rowMap();
-		for (String file_id : mapMe.keySet()) {
-			Set<String> commits = new TreeSet<>();
-			Map<String, Map<Integer, List<Object>>> fileMap = mapMe.get(file_id);
-			for (String subFile : fileMap.keySet()) {
-				Map<Integer, List<Object>> inside = fileMap.get(subFile);
-				for (int dictKey : inside.keySet()) {
-					if (dictionary.containsKey(dictKey)) {
-
-						String value = dictionary.get(dictKey);
-						commits.add(value);
-					}
-				}
-			}
-			if (readableMappingSameTwo.contains(file_id, file_id)) {
-				Map<Integer, List<Object>> insideSameFile = readableMappingSameTwo.get(file_id, file_id);
-				for (int dictSameKey : insideSameFile.keySet()) {
-					if (dictionary.containsKey(dictSameKey)) {
-						String value = dictionary.get(dictSameKey);
-						commits.add(value);
-					}
-				}
-			}
-			fileCommits.put(file_id, new ArrayList<>(commits));
-		}
-		setFileCommits(fileCommits);
-		/*
-		 * System.out.println("Newly Added feature"); fileCommits.entrySet().forEach(e->
-		 * System.out.print(e));
-		 */
-
-		// End : Imp 004: File and it's associated commit details
-		// System.exit(0);
+		setFileCommits(makeFileIds2CommitIdsMap(commitDetails2TryFileDetailsMap));
 
 		System.out.println("Generate");
 
@@ -720,6 +708,20 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		System.out.println("Mapping is generated");
 		/* End: Bug 003: Explicity using garbage Collector */
 
+	}
+
+	private Map<String, List<String>> makeFileIds2CommitIdsMap(
+			Map<CommitDetails, List<TryFileDetails>> Commits2FileChangesMap) {
+		Map<String, List<String>> efficientlyComputedCommitsPerFile = new HashMap<>();
+		for (Entry<CommitDetails, List<TryFileDetails>> commitDetails2TryFileDetailsList : Commits2FileChangesMap
+				.entrySet())
+			for (TryFileDetails currentFileWithinCommit : commitDetails2TryFileDetailsList.getValue()) {
+				List<String> currentFileCommitIds = efficientlyComputedCommitsPerFile
+						.getOrDefault(currentFileWithinCommit.getFileId(), new ArrayList<>());
+				currentFileCommitIds.add(commitDetails2TryFileDetailsList.getKey().getCommitID());
+				efficientlyComputedCommitsPerFile.put(currentFileWithinCommit.getFileId(), currentFileCommitIds);
+			}
+		return efficientlyComputedCommitsPerFile;
 	}
 
 	public void IsBugFixing() {
@@ -796,6 +798,68 @@ public class ReadingStrategyImp implements ReadingStrategy {
 		readableMappingPairMap = null;
 		/* End:Bug 003: Explicity using garbage Collector */
 
+	}
+
+	/*
+	 * convertJson function will convert the List input to JSON output using Jackson
+	 * Json API
+	 */
+	@Override
+	public ArrayList<String> convertJson(List<AttributesField> attf) throws IOException {
+		ListIterator<AttributesField> itr = attf.listIterator();
+		ArrayList<String> jsonArray = new ArrayList<>();
+
+		while (itr.hasNext()) {
+			// Create ObjectMapper
+			ObjectMapper mapper = new ObjectMapper();
+			// Convert Object to JSON string
+			String jsonFormat = mapper.writeValueAsString(itr.next());
+			jsonArray.add(jsonFormat);
+		}
+		return jsonArray;
+	}
+
+	@Override
+	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI() {
+		return readableMappingSameN;
+	}
+
+	/*
+	 * @Override public Table<String, String, Map<String, List<Object>>>
+	 * getReadableMappingNI() { return getReadableMappingN(); }
+	 * 
+	 * @Override public Table<String, String, Map<Integer, List<Object>>>
+	 * getReadableMappingI() { return getReadableMapping(); }
+	 */
+
+	@Override
+	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI() {
+		return fileId2FileID2OccurencesNumber2ListOfChanges3Copy;
+	}
+
+	@Override
+	public HashMap<String, String> getDictionaryStringI() {
+		return dictionaryString;
+	}
+
+	@Override
+	public HashMap<Integer, String> getDictionaryI() {
+		return dictionary;
+	}
+
+	@Override
+	public Map<String, Map<String, Boolean>> getReadableBugFixingI() {
+		return readableBugFixing;
+	}
+
+	@Override
+	public Map<String, List<String>> getFileCommitsI() {
+		return fileCommits;
+	}
+
+	@Override
+	public Map<String, String> getDictionaryTimeI() {
+		return dictionaryTime;
 	}
 
 	public void setReadableMappingSameN(Table<String, String, Map<Integer, List<Object>>> readableMappingSameN) {

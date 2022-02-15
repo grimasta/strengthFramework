@@ -1,71 +1,36 @@
-package com.example.inj.model.Strength;
+package com.example.inj.model.strength.singlefile;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.example.inj.model.decays.DecayImplementation;
 import com.example.inj.model.sampling.InsertExcel;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.google.common.collect.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
-public class SingleFileStrength {
+public class SingleFileStrength implements ISingleFileStrength {
 
 
     Logger logger = LoggerFactory.getLogger(SingleFileStrength.class);
-    AccumulatedStrength accumulatedStrength;
+    private IStrengthAccumulator accumulatedStrength;
+    private IReadingStrategy readingStrategy;
+    private DecayImplementation decayImplementation;
+    private InsertExcel insertExcel;
+    private Map<String, List<String>> yearMapAloneSame;
+    private Map<String, Map<String, Float>> finalStrength;
 
-    ReadingStrategy readingStrategy;
-
-
-    DecayImplementation decayImplementation;
-
-    InsertExcel insertExcel;
-
-    @Autowired
-    public void setInsertExcel(InsertExcel insertExcel) {
-        this.insertExcel = insertExcel;
-    }
-
-    @Autowired
-    public void setDecayImplementation(DecayImplementation decayImplementation) {
-        this.decayImplementation = decayImplementation;
-    }
-
-    @Autowired
-    public void setAccumulatedStrength(AccumulatedStrength accumulatedStrength) {
-        this.accumulatedStrength = accumulatedStrength;
-    }
-
-    Map<String, List<String>> yearMapAloneSame;
-    Map<String, Map<String, Float>> finalStrength;
-
-    public Map<String, List<String>> getYearMapAloneSame() {
-        return yearMapAloneSame;
-    }
-
-    public void setYearMapAloneSame(Map<String, List<String>> yearMapAloneSame) {
-        this.yearMapAloneSame = yearMapAloneSame;
-    }
-
-    public Map<String, Map<String, Float>> getFinalStrength() {
-        return finalStrength;
-    }
-
-    public void setFinalStrength(Map<String, Map<String, Float>> finalStrengthSorted) {
-        this.finalStrength = finalStrengthSorted;
-    }
-
-    @Autowired
-    public void setReadingStrategyImp() {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
 
     /*
         finalStrengthSingleFile()-This function will calculate the strength of file even if the file is
@@ -73,7 +38,7 @@ public class SingleFileStrength {
         previous value without any decay.
         Created to resolve the : Bug 001: Committed as part of the file that is committed alone.
          */
-    public void finalStrengthSingleFile() {
+	public void finalStrengthSingleFile() {
 
         Map<String, Map<String, Float>> finalStrength = decayImplementation.getAccumulatedSt();
 
@@ -99,7 +64,7 @@ public class SingleFileStrength {
                     TreeSet<String> finalSetStr = new TreeSet<>();
                     Collections.sort(finalStr);
                     finalSetStr.addAll(finalStr);
-                    Iterator readMapItr = readMap.iterator();
+                    Iterator<String> readMapItr = readMap.iterator();
                     String val = null;
                     String newVal = null;
                     Float str = null;
@@ -158,4 +123,52 @@ public class SingleFileStrength {
 
 
     }
+
+	public IStrengthAccumulator getAccumulatedStrength() {
+		return accumulatedStrength;
+	}
+
+	public void setAccumulatedStrength(IStrengthAccumulator accumulatedStrength) {
+		this.accumulatedStrength = accumulatedStrength;
+	}
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+
+	public DecayImplementation getDecayImplementation() {
+		return decayImplementation;
+	}
+
+	public void setDecayImplementation(DecayImplementation decayImplementation) {
+		this.decayImplementation = decayImplementation;
+	}
+
+	public InsertExcel getInsertExcel() {
+		return insertExcel;
+	}
+
+	public void setInsertExcel(InsertExcel insertExcel) {
+		this.insertExcel = insertExcel;
+	}
+
+	public Map<String, List<String>> getYearMapAloneSame() {
+		return yearMapAloneSame;
+	}
+
+	public void setYearMapAloneSame(Map<String, List<String>> yearMapAloneSame) {
+		this.yearMapAloneSame = yearMapAloneSame;
+	}
+
+	public Map<String, Map<String, Float>> getFinalStrength() {
+		return finalStrength;
+	}
+
+	public void setFinalStrength(Map<String, Map<String, Float>> finalStrength) {
+		this.finalStrength = finalStrength;
+	}
 }

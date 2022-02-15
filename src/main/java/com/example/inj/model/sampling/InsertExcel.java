@@ -1,57 +1,30 @@
 package com.example.inj.model.sampling;
 
-import com.example.inj.global.ProjectNameContainer;
-import com.example.inj.model.Strength.SingleFileStrength;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.model.strength.singlefile.ISingleFileStrength;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+
 /*This class will insert the data into the excel. As we have different requirement for inserting into excel,
 it is really helpful if we can have the logic separately
  */
-@Component
 public class InsertExcel {
 
-    CreateSample createSample;
-    CreateWidth createWidth;
-
-    SingleFileStrength singleFileStrength;
-
-    @Autowired
-    public void setSingleFileStrength(SingleFileStrength singleFileStrength) {
-        this.singleFileStrength = singleFileStrength;
-    }
-
-    //Dependency Injection
-    ReadingStrategy readingStrategy;
-
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
-
-    @Autowired
-    public void setCreateSample(CreateSample createSample) {
-        this.createSample = createSample;
-    }
-
-    @Autowired
-    public void setCreateWidth(CreateWidth createWidth) {
-        this.createWidth = createWidth;
-    }
-
+    private CreateSample createSample;
+    private CreateWidth createWidth;
+    private ISingleFileStrength singleFileStrength;
+    private IReadingStrategy readingStrategy;
+    
     /*
          We have used ApachePOI to insert into excel as it is quite fast as compared to normal I/O operation
          */
@@ -178,4 +151,36 @@ public class InsertExcel {
 
 
     }
+
+	public CreateSample getCreateSample() {
+		return createSample;
+	}
+
+	public void setCreateSample(CreateSample createSample) {
+		this.createSample = createSample;
+	}
+
+	public CreateWidth getCreateWidth() {
+		return createWidth;
+	}
+
+	public void setCreateWidth(CreateWidth createWidth) {
+		this.createWidth = createWidth;
+	}
+
+	public ISingleFileStrength getSingleFileStrength() {
+		return singleFileStrength;
+	}
+
+	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
+		this.singleFileStrength = singleFileStrength;
+	}
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
 }

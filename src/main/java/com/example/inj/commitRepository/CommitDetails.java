@@ -1,11 +1,27 @@
 package com.example.inj.commitRepository;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 public class CommitDetails {
 
     private String commitID;
-    private static HashMap<String, CommitDetails> CommitDetailsPojo = new HashMap<>();
+    
+    private List<Integer> sortedListOfChanges = new ArrayList<Integer>(){
+        public boolean add(Integer mt) {
+            super.add(mt);
+            Collections.sort(sortedListOfChanges, Comparator.naturalOrder());
+            return true;
+       }
+   }; ;
+    public List<Integer> getSortedListOfChanges() {
+		return sortedListOfChanges;
+	}
+
+	private static HashMap<String, CommitDetails> CommitDetailsPojo = new HashMap<>();
 
     public CommitDetails(String commitID) {
         this.commitID = commitID;
@@ -27,6 +43,18 @@ public class CommitDetails {
         CommitDetailsPojo = commitDetailsPojo;
     }
 
+    public void addFileModifiedLines(int added, int deleted) {
+    	this.sortedListOfChanges.add(added+deleted);
+    }
+    
+    public double getPercentile(int linesModifiedOfFile) {
+    	return ((float) (this.sortedListOfChanges.indexOf(linesModifiedOfFile) + 1) / (this.sortedListOfChanges.size())) * 100; 
+    }
+    
+    public double getMedianModifiedLines() {
+    	return this.sortedListOfChanges.get(this.sortedListOfChanges.size()/2);
+    }
+    
     @Override
     public String toString() {
         return "CommitDetailsPojo{" +

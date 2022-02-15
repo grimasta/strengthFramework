@@ -1,23 +1,28 @@
 package com.example.inj.model.cases;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import com.google.common.collect.Table;
-import javafx.util.Pair;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+
+import javafx.util.Pair;
 //Case-1 Number of times the file A&B are co-committed
 @Component
 public class CoCommittedFiles {
 
 
-    ReadingStrategy readingStrategy;
+    IReadingStrategy readingStrategy;
 
     @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
     Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps;

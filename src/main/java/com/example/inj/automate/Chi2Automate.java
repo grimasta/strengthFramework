@@ -1,6 +1,7 @@
 package com.example.inj.automate;
 
 
+import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.model.sampling.CreateSample;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class Chi2Automate {
 
     static int count1UBugFixing = 0;
@@ -253,14 +253,14 @@ public class Chi2Automate {
     static int count4DDDDLastSegmentIsBuggy = 0;
     static int count4DDDDSecondLastSegmentIsBuggy = 0;
     static int count4DDDDLastSecondLastSegmentIsBuggy = 0;
-    CreateSample createSample;
+    
+    private CreateSample createSample;
     private Logger logger = LoggerFactory.getLogger(Chi2Automate.class);
-
-    @Autowired
-    public void setCreateSample(CreateSample createSample) {
-        this.createSample = createSample;
+    private boolean logging = false; 
+    		
+    public Chi2Automate(Boolean logging) {
+    	this.logging = logging;
     }
-
     public void getDetailsOfChi2() {
 
         Map<String, List<List<Object>>> sampleVectors = createSample.getVectorsForExcel();
@@ -273,8 +273,10 @@ public class Chi2Automate {
 
             for (List<Object> objLis : vectorList) {
                 int count = 0;
+                if (logging) {
                 System.out.println("Here is list of objects");
                 System.out.println(objLis.toString());
+                }
                 if (objLis.get(2).toString().equalsIgnoreCase("U")) {
                     slope = -1;
                 } else {
@@ -283,7 +285,9 @@ public class Chi2Automate {
                 listSlope.add(slope);
 
                 bugFixing.add((Boolean) objLis.get(6));
+                if (logging) {
                 logger.info("Inside the chi2 method");
+                }
                 //logger.info(objLis.get(4).toString());
                 List<Boolean> abc = new ArrayList<>();
                 abc.addAll((Collection<? extends Boolean>) objLis.get(4));
@@ -303,12 +307,10 @@ public class Chi2Automate {
 
 
             }
-
+            if (logging) 
             logger.info(" Development Fix " + developmentFix.toString());
             //System.exit(0);
 
-
-            System.out.println("Ria");
             //Start: Chi-1 Results
             for (int i = 0, j = 0, k = 0; i < listSlope.size() && j < bugFixing.size() && k < developmentFix.size(); i++, j++, k++) {
                 if (listSlope.get(i) == -1) {
@@ -470,13 +472,13 @@ public class Chi2Automate {
                     break;
                 }
             }
-
+            if (logging) {
             logger.info("Chi-2 Results");
             logger.info("  BugFixing UU  " + count2UUBugFixing + "\n" + "  NonBugFixing UU " + count2UUNonBugFixing + "  " + "count2UUDevelopmentBugFixing" + count2UUDevelopmentBugFixing);
             logger.info(" BugFixing UD " + count2UDBugFixing + "\n" + " NonBugFixing UD " + count2UDNonBugFixing + " " + "count2UDDevelopmentBugFixing" + count2UDDevelopmentBugFixing);
             logger.info(" BugFixing DU " + count2DUBugFixing + "\n" + " NonBugFixing DU " + count2DUNonBugFixing + "  " + "count2DUDevelopmentBugFixing" + count2DUDevelopmentBugFixing);
             logger.info(" BugFixing DD " + count2DDBugFixing + "\n" + " NonBugFixing DDU " + count2DDNonBugFixing + "  " + "count2DDDevelopmentBugFixing" + count2DDDevelopmentBugFixing);
-
+            }
             //System.exit(0);
             //System.out.println(" Chi-2 After");
 
@@ -1709,7 +1711,7 @@ public class Chi2Automate {
         //System.out.println(" Chi-4 After");
 
         getInsertIntoExcel();
-
+        if (logging) {
         logger.info("Chi-2 Results");
         logger.info("  BugFixing UU  " + count2UUBugFixing + "\n" + "  NonBugFixing UU " + count2UUNonBugFixing);
         logger.info(" BugFixing UD " + count2UDBugFixing + "\n" + " NonBugFixing UD " + count2UDNonBugFixing);
@@ -1745,7 +1747,7 @@ public class Chi2Automate {
         logger.info(" BugFixing DDUD " + count4DDUDBugFixing + "\n" + " NonBugFixing DDUD " + count4DDUDNonBugFixing);
         logger.info(" BugFixing DDDU " + count4DDDUBugFixing + "\n" + " NonBugFixing DDDU " + count4DDDUNonBugFixing);
         logger.info(" BugFixing DDDDB " + count4DDDDBugFixing + "\n" + " NonBugFixing DDDDB " + count4DDDDNonBugFixing);
-
+        }
 
     }
 
@@ -1781,12 +1783,12 @@ public class Chi2Automate {
         header.createCell(1).setCellValue("UD");
         header.createCell(2).setCellValue("DU");
         header.createCell(3).setCellValue("DD");
-
+        if (logging) {
         logger.info("  BugFixing UU  " + count2UUBugFixing + "\n" + "  NonBugFixing UU " + count2UUNonBugFixing);
         logger.info(" BugFixing UD " + count2UDBugFixing + "\n" + " NonBugFixing UD " + count2UDNonBugFixing);
         logger.info(" BugFixing DU " + count2DUBugFixing + "\n" + " NonBugFixing DU " + count2DUNonBugFixing);
         logger.info(" BugFixing DD " + count2DDBugFixing + "\n" + " NonBugFixing DDU " + count2DDNonBugFixing);
-
+        }
 
         Row row = sheet.createRow(1);
 
@@ -2111,7 +2113,7 @@ public class Chi2Automate {
 
 
         try {
-            FileOutputStream fileOut = new FileOutputStream("Chi-Results.xlsx");
+            FileOutputStream fileOut = new FileOutputStream("results\\" + ProjectNameContainer.PROJECT_NAME + "Chi-Results.xlsx");
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
@@ -2121,6 +2123,14 @@ public class Chi2Automate {
         }
 
     }
+
+	public CreateSample getCreateSample() {
+		return createSample;
+	}
+
+	public void setCreateSample(CreateSample createSample) {
+		this.createSample = createSample;
+	}
 }
 
 

@@ -1,40 +1,38 @@
 package com.example.inj.model.cases.prime;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 //Case 1'' Number of times the file A&B are co-committed * 2/  Number of times A has been committed so far + Number of times B has been committed so far
-@Component
-@Data
 public class CoCommittedPrime {
 
-    ReadingStrategy readingStrategy;
-
+	private IReadingStrategy readingStrategy;
+	private CommittedSoFar committedSoFar;
+	private Map<String,Map<String,Map<String, Float>>> committedPrimeValue= new HashMap<>();//Source,Destination,Commit_Date,Value
+	private Map<String,Map<String, Map<String,Float>>> committedTogetherValue= new HashMap<>();
     Logger logger= LoggerFactory.getLogger(CoCommittedPrime.class);
+    
 
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
-    CommittedSoFar committedSoFar;
 
-    @Autowired
     public void setCommittedSoFar(CommittedSoFar committedSoFar) {
         this.committedSoFar = committedSoFar;
     }
 
-    Map<String,Map<String,Map<String, Float>>> committedPrimeValue= new HashMap<>();//Source,Destination,Commit_Date,Value
 
     //Number of time (A&B) are co-committed/ Number of time A is committed so far
-    Map<String,Map<String, Map<String,Float>>> committedTogetherValue= new HashMap<>();
 
     public void getCoCommittedFiles()
     {
@@ -59,7 +57,7 @@ public class CoCommittedPrime {
                 Map<String,Float> commitPrime2= new HashMap<>();
                 int sourceFile=0;
                 int destinationFile=0;
-                boolean flag=false;
+//                boolean flag=false;
                 List<Integer> commitKeys= new ArrayList<>();
                 List<String> commitDates= new ArrayList<>();
                 commitKeys.addAll(readMap.get(source).get(destination).keySet());
@@ -135,5 +133,35 @@ public class CoCommittedPrime {
         //logger.info(committedPrimeValue.toString());
 
     }
+
+
+	public Map<String, Map<String, Map<String, Float>>> getCommittedPrimeValue() {
+		return committedPrimeValue;
+	}
+
+
+	public void setCommittedPrimeValue(Map<String, Map<String, Map<String, Float>>> committedPrimeValue) {
+		this.committedPrimeValue = committedPrimeValue;
+	}
+
+
+	public Map<String, Map<String, Map<String, Float>>> getCommittedTogetherValue() {
+		return committedTogetherValue;
+	}
+
+
+	public void setCommittedTogetherValue(Map<String, Map<String, Map<String, Float>>> committedTogetherValue) {
+		this.committedTogetherValue = committedTogetherValue;
+	}
+
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+
+	public CommittedSoFar getCommittedSoFar() {
+		return committedSoFar;
+	}
 
 }

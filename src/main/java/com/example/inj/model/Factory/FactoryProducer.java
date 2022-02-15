@@ -3,6 +3,8 @@ package com.example.inj.model.Factory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.inj.model.strength.pair.PairFactory;
+
 @Component
 public class FactoryProducer {
 
@@ -13,13 +15,16 @@ public class FactoryProducer {
         this.pairFactory = pairFactory;
     }
 
-    public AbstractPairFactory getFactory(String type)
+    public AbstractPairFactory getFactory(FactoryProducerEnum type)
     {
-        if(type.equalsIgnoreCase(FactoryProducerEnum.pair.toString()))
-        {
-            //System.out.println("FactoryProducerEnum.pair.toString() " + FactoryProducerEnum.pair.toString());
-            return pairFactory;
-        }
-        return null;
+    	switch(type) {
+    	case PAIR:
+    		   return null;
+    	
+    	default:
+    		System.out.println("ERROR creating PAIR FACTORY USING THE ABSTRACT FACTORY CREATOR ?????");
+    		System.exit(1);
+    		return null;
+    	}
     }
 }

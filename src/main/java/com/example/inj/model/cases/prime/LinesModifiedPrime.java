@@ -1,16 +1,14 @@
 package com.example.inj.model.cases.prime;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 
 //Fourth And Fifth Case
@@ -20,21 +18,15 @@ import java.util.Map;
      Case-5 Number of lines of B is modified/ Total number of lines are modified in the commit excluding A&B
      */
 @Component
-@Data
 public class LinesModifiedPrime {
 
 
-    ReadingStrategy readingStrategy;
+	private IReadingStrategy readingStrategy;
 
     Logger logger= LoggerFactory.getLogger(CoCommittedPrime.class);
 
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
-    }
-
-    Map<String, Map<String, Map<String, Float>>> linesModifiedSource= new HashMap<>();
-    Map<String, Map<String, Map<String, Float>>> linesModifiedDestination= new HashMap<>();
+    private Map<String, Map<String, Map<String, Float>>> linesModifiedSource= new HashMap<>();
+    private Map<String, Map<String, Map<String, Float>>> linesModifiedDestination= new HashMap<>();
 
     public void getLinesModified()
     {
@@ -104,4 +96,29 @@ public class LinesModifiedPrime {
         //System.exit(0);
     }
 
+    public Map<String, Map<String, Map<String, Float>>> getLinesModifiedSource() {
+		return linesModifiedSource;
+	}
+
+	public void setLinesModifiedSource(Map<String, Map<String, Map<String, Float>>> linesModifiedSource) {
+		this.linesModifiedSource = linesModifiedSource;
+	}
+
+	public Map<String, Map<String, Map<String, Float>>> getLinesModifiedDestination() {
+		return linesModifiedDestination;
+	}
+
+	public void setLinesModifiedDestination(Map<String, Map<String, Map<String, Float>>> linesModifiedDestination) {
+		this.linesModifiedDestination = linesModifiedDestination;
+	}
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
+    }
+
+    
 }

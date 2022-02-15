@@ -1,140 +1,58 @@
-package com.example.inj.model.Strength;
+package com.example.inj.model.strength.pair;
 
-import com.example.inj.model.cases.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.example.inj.model.cases.CoCommittedExcel;
+import com.example.inj.model.cases.CoCommittedFiles;
+import com.example.inj.model.cases.LinesModified;
+import com.example.inj.model.cases.TimeDifference;
 import com.example.inj.model.cases.coupled.ParseCoupledCSV;
 import com.example.inj.model.cases.prime.CoCommittedPrime;
 import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.google.common.collect.Table;
+
 import javafx.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-import java.util.*;
 
 @Component
-public class PairStrength implements PairStrengthIn{
+public class PairStrength implements ΙPairStrength{
 
-    CommittedSoFar committedSoFar;
-
-    LinesModifiedPrime linesModifiedPrime;
-    @Autowired
-    public void setLinesModifiedPrime(LinesModifiedPrime linesModifiedPrime) {
-        this.linesModifiedPrime = linesModifiedPrime;
-    }
-
-    @Autowired
-    public void setCommittedSoFar(CommittedSoFar committedSoFar) {
-        this.committedSoFar = committedSoFar;
-    }
-
-    CoCommittedPrime coCommittedPrime;
-
+	private LinesModifiedPrime linesModifiedPrime;
+    private CommittedSoFar committedSoFar;
+    private CoCommittedPrime coCommittedPrime;
+    private WithoutCommitPrime withoutCommitPrime;
+    private ParseCoupledCSV parseCoupledCSV;
+    private CoCommittedExcel coCommittedExcel;
+    private CoCommittedFiles coCommittedFiles;
+    private LinesModified linesModified;
+    private TimeDifference timeDifferences;
+    private IStrengthAccumulator accumulatedStrength;
+    private Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap;
+    private Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
+    private IReadingStrategy readingStrategy;
     Logger logger = LoggerFactory.getLogger(PairStrength.class);
 
-    @Autowired
-    public void setCoCommittedPrime(CoCommittedPrime coCommittedPrime) {
-        this.coCommittedPrime = coCommittedPrime;
-    }
+ 
 
-    WithoutCommitPrime withoutCommitPrime;
+    
 
-    @Autowired
-    public void setWithoutCommitPrime(WithoutCommitPrime withoutCommitPrime) {
-        this.withoutCommitPrime = withoutCommitPrime;
-    }
-
-    //Dependency Injection
-    ReadingStrategy readingStrategy;
-
-     @Autowired
-     public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-            this.readingStrategy = ReadingStrategyImp.getInstance();
-        }
-    ParseCoupledCSV parseCoupledCSV;
-
-    @Autowired
-    public void setParseCoupledCSV(ParseCoupledCSV parseCoupledCSV) {
-        this.parseCoupledCSV = parseCoupledCSV;
-    }
-
-
-
-    //Dependency Injection
-    CoCommittedExcel coCommittedExcel;
-
-    @Autowired
-    public void setCoCommittedExcel(CoCommittedExcel coCommittedExcel) {
-        this.coCommittedExcel = coCommittedExcel;
-    }
-
-    CoCommittedFiles coCommittedFiles;
-
-    @Autowired
-    public void setCoCommittedFiles(CoCommittedFiles coCommittedFiles) {
-        this.coCommittedFiles = coCommittedFiles;
-    }
-
-    LinesModified linesModified;
-
-    @Autowired
-    public void setLinesModified(LinesModified linesModified) {
-        this.linesModified = linesModified;
-    }
-
-    TimeDifference timeDifferences;
-
-    @Autowired
-    public void setTimeDifferences(TimeDifference timeDifferences) {
-        this.timeDifferences = timeDifferences;
-    }
-
-    AccumulatedStrength accumulatedStrength;
-
-    @Autowired
-    public void setAccumulatedStrength(AccumulatedStrength accumulatedStrength) {
-        this.accumulatedStrength = accumulatedStrength;
-    }
-
-    Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap;
-
-    public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMap() {
-        return pairStrengthMap;
-    }
-
-    public void setPairStrengthMap(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap) {
-        this.pairStrengthMap = pairStrengthMap;
-    }
-
-    Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
-
-    public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMaps() {
-        return excelYearMaps;
-    }
-
-    public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps) {
-        this.excelYearMaps = excelYearMaps;
-    }
-
-    @Override
-    public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMapIn() {
-        return getPairStrengthMap();
-    }
-
-    @Override
-    public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMapsIn() {
-        return getExcelYearMaps();
-    }
 
 
     public void calculatePairStrength2(){
-
-        HashMap<Integer, String> dictionary = readingStrategy.getDictionaryI();
+    	
+//        HashMap<Integer, String> dictionary = readingStrategy.getDictionaryI();
 
         Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength= new LinkedHashMap<>();
 
@@ -214,19 +132,19 @@ public class PairStrength implements PairStrengthIn{
                             case5 = caseFourListB.get(row).get(column).get(commitKey).get(key);
                         }
                         //Case-6-//Case6:(Number of calls between A to B/ Maximum number of calls of A to all other co-committed files)*(modified lines in File A + modified lines in File B)
-                        HashMap<String,HashMap<String,HashMap<String,Float>>> callingMap=parseCoupledCSV.getFinalCallsValue();
-                        String dict = "";
-                        if (!dictionary.isEmpty()) {
-                            dict = dictionary.get(commitKey);
-                        }
-                        float case6=0.0f;
-                        //System.out.println(" Out case 6");
-                        //Start: Creating a HashMap for PairWise Strength
-                        if(callingMap.containsKey(row) && callingMap.get(row).containsKey(column) && callingMap.get(row).get(column).containsKey(dict))
-                        {
-                             case6= callingMap.get(row).get(column).get(dict);
-                             System.out.println(" IN case 6");
-                        }
+//                        HashMap<String,HashMap<String,HashMap<String,Float>>> callingMap=parseCoupledCSV.getFinalCallsValue();
+//                        String dict = "";
+//                        if (!dictionary.isEmpty()) {
+//                            dict = dictionary.get(commitKey);
+//                        }
+//                        float case6=0.0f;
+//                        //System.out.println(" Out case 6");
+//                        //Start: Creating a HashMap for PairWise Strength
+//                        if(callingMap.containsKey(row) && callingMap.get(row).containsKey(column) && callingMap.get(row).get(column).containsKey(dict))
+//                        {
+//                             case6= callingMap.get(row).get(column).get(dict);
+//                             System.out.println(" IN case 6");
+//                        }
                         //Summation
                         float sum = (float) case1 +  case2 + (float) case3 + case4 + case5;
 
@@ -259,9 +177,27 @@ public class PairStrength implements PairStrengthIn{
 
 
     }
+    
+    public void setUpObjects() {
+//    	committedSoFar = new CommittedSoFar();
+    	committedSoFar.setReadingStrategy(readingStrategy);
+//    	coCommittedPrime = new CoCommittedPrime();
+    	coCommittedPrime.setCommittedSoFar(committedSoFar);
+    	coCommittedPrime.setReadingStrategy(readingStrategy);
+//    	withoutCommitPrime = new WithoutCommitPrime();
+    	withoutCommitPrime.setCommittedSoFar(committedSoFar);
+    	withoutCommitPrime.setReadingStrategy(readingStrategy);
+    	linesModifiedPrime = new LinesModifiedPrime();
+    	linesModifiedPrime.setReadingStrategy(readingStrategy);
+    	parseCoupledCSV = new ParseCoupledCSV();
+    	parseCoupledCSV.setReadingStrategy(readingStrategy);
+//    	coCommittedFiles = new CoCommittedFiles();
+    	coCommittedFiles.setReadingStrategy(readingStrategy);
+    }
+    
     @Override
     public void calculatePairStrength(){
-
+    	setUpObjects();
         logger.info("inside calculate Pair Strength");
         System.out.println(" inside calculate Pair Strength ");
         Map<String,Map<String, Map<Integer,List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
@@ -296,7 +232,7 @@ public class PairStrength implements PairStrengthIn{
         Map<String, Map<String, Map<String, Float>>> sourceLinesModified = linesModifiedPrime.getLinesModifiedSource();
         //case-5
         Map<String, Map<String, Map<String, Float>>> destinationLinesModified = linesModifiedPrime.getLinesModifiedDestination();
-        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
+//        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
         float pairStrength=0.0f;
         Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
         for(String source: readMap.keySet())
@@ -313,7 +249,7 @@ public class PairStrength implements PairStrengthIn{
 
                     float coCommitValue=coCommit.get(source).get(destination).get(commitTime); //Case 1''
                     float coCommitTogetherValue=coCommitTogether.get(source).get(destination).get(commitTime); //Case 2
-                    float callsValue=0.0f;
+//                    float callsValue=0.0f;
                     /*if(callsMap.containsKey(source) && callsMap.get(source).containsKey(destination) && callsMap.get(source).get(destination).containsKey(commitTime))
                     {
                         callsValue=callsMap.get(source).get(destination).get(commitTime);
@@ -370,4 +306,118 @@ public class PairStrength implements PairStrengthIn{
         //logger.info(localPairStrength.toString());
 
     }
+
+	public LinesModifiedPrime getLinesModifiedPrime() {
+		return linesModifiedPrime;
+	}
+
+	public void setLinesModifiedPrime(LinesModifiedPrime linesModifiedPrime) {
+		this.linesModifiedPrime = linesModifiedPrime;
+	}
+
+	public CommittedSoFar getCommittedSoFar() {
+		return committedSoFar;
+	}
+
+	public void setCommittedSoFar(CommittedSoFar committedSoFar) {
+		this.committedSoFar = committedSoFar;
+	}
+
+	public CoCommittedPrime getCoCommittedPrime() {
+		return coCommittedPrime;
+	}
+
+	public void setCoCommittedPrime(CoCommittedPrime coCommittedPrime) {
+		this.coCommittedPrime = coCommittedPrime;
+	}
+
+	public WithoutCommitPrime getWithoutCommitPrime() {
+		return withoutCommitPrime;
+	}
+
+	public void setWithoutCommitPrime(WithoutCommitPrime withoutCommitPrime) {
+		this.withoutCommitPrime = withoutCommitPrime;
+	}
+
+	public ParseCoupledCSV getParseCoupledCSV() {
+		return parseCoupledCSV;
+	}
+
+	public void setParseCoupledCSV(ParseCoupledCSV parseCoupledCSV) {
+		this.parseCoupledCSV = parseCoupledCSV;
+	}
+
+	public CoCommittedExcel getCoCommittedExcel() {
+		return coCommittedExcel;
+	}
+
+	public void setCoCommittedExcel(CoCommittedExcel coCommittedExcel) {
+		this.coCommittedExcel = coCommittedExcel;
+	}
+
+	public CoCommittedFiles getCoCommittedFiles() {
+		return coCommittedFiles;
+	}
+
+	public void setCoCommittedFiles(CoCommittedFiles coCommittedFiles) {
+		this.coCommittedFiles = coCommittedFiles;
+	}
+
+	public LinesModified getLinesModified() {
+		return linesModified;
+	}
+
+	public void setLinesModified(LinesModified linesModified) {
+		this.linesModified = linesModified;
+	}
+
+	public TimeDifference getTimeDifferences() {
+		return timeDifferences;
+	}
+
+	public void setTimeDifferences(TimeDifference timeDifferences) {
+		this.timeDifferences = timeDifferences;
+	}
+
+	public IStrengthAccumulator getAccumulatedStrength() {
+		return accumulatedStrength;
+	}
+
+	public void setAccumulatedStrength(IStrengthAccumulator accumulatedStrength) {
+		this.accumulatedStrength = accumulatedStrength;
+	}
+
+	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMap() {
+		return pairStrengthMap;
+	}
+
+	public void setPairStrengthMap(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap) {
+		this.pairStrengthMap = pairStrengthMap;
+	}
+
+	public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMaps() {
+		return excelYearMaps;
+	}
+
+	public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps) {
+		this.excelYearMaps = excelYearMaps;
+	}
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+	
+	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMapIn() {
+        return getPairStrengthMap();
+    }
+
+    public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMapsIn() {
+        return getExcelYearMaps();
+    }
+
+
 }

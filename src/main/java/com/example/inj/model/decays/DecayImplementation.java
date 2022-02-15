@@ -1,19 +1,16 @@
 package com.example.inj.model.decays;
 
-import com.example.inj.model.Strength.SingleFileStrength;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
 public class DecayImplementation {
 
 
     Logger logger = LoggerFactory.getLogger(DecayImplementation.class);
 
-    Map<String, Map<String, Float>> accumulatedSt;
+    private Map<String, Map<String, Float>> accumulatedSt;
 
     public Map<String, Map<String, Float>> getAccumulatedSt() {
         return accumulatedSt;

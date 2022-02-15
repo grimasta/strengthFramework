@@ -38,6 +38,10 @@ public class TryFileDetails {
         this.bugFixing = bugFixing;
     }
 
+    public double getPercentile() {
+    	return CommitDetails.getCommitDetailsPojo().get(this.getCommitId()).getPercentile(addition+deletion);
+    }
+    
     public static HashMap<String, List<CommitDetails>> fileIDtoCommitDetailsMap = new HashMap<>();
     private static HashMap<CommitDetails, List<TryFileDetails>> CommitDetails2TryFileDetailsMap = new HashMap<>();
 
@@ -205,6 +209,7 @@ public class TryFileDetails {
          * where key is commitId and value is list of files that are committed under the specified key */
         private void createCommit2FileDetailsMap(TryFileDetails tryFileDetails) {
             CommitDetails commitDetails = CommitDetails.getCommitDetailsPojo().get(tryFileDetails.getCommitId());
+            commitDetails.addFileModifiedLines(addition, deletion);
             List<TryFileDetails> fileListPojo;
             if (CommitDetails2TryFileDetailsMap.containsKey(commitDetails)) {
                 CommitDetails2TryFileDetailsMap.get(commitDetails).add(tryFileDetails);

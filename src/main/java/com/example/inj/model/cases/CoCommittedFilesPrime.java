@@ -1,7 +1,7 @@
 package com.example.inj.model.cases;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
 import com.google.common.collect.Table;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +13,11 @@ import java.util.*;
 @Data
 public class CoCommittedFilesPrime {
 
-    ReadingStrategy readingStrategy;
+    IReadingStrategy readingStrategy;
 
     @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(DefaultReadingStrategy readingStrategy) {
+        this.readingStrategy = DefaultReadingStrategy.getInstance();
     }
 
     Map<String, Map<Integer, Map<String, Integer>>> yearMap = new HashMap<>();

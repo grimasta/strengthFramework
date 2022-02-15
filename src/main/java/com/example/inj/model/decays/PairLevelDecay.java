@@ -1,8 +1,8 @@
 package com.example.inj.model.decays;
 
-import com.example.inj.model.Strength.PairStrength;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.model.strength.pair.PairStrength;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
 import com.google.common.collect.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +14,16 @@ import java.util.*;
 @Component
 public class PairLevelDecay {
 
-    ReadingStrategy readingStrategy;
+    IReadingStrategy readingStrategy;
     @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
     Logger logger = LoggerFactory.getLogger(PairStrength.class);
 
 
-    Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
+    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
 
     public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
         return pairLevelDecayMap;
@@ -33,7 +33,7 @@ public class PairLevelDecay {
         this.pairLevelDecayMap = pairLevelDecayMap;
     }
 
-    Map<String, List<String>> yearMapPair;
+    private Map<String, List<String>> yearMapPair;
 
     public Map<String, List<String>> getYearMapPair() {
         return yearMapPair;

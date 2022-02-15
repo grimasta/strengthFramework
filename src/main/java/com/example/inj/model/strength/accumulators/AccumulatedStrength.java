@@ -1,22 +1,33 @@
-package com.example.inj.model.Strength;
+package com.example.inj.model.strength.accumulators;
 
-import com.example.inj.model.decays.PairLevelDecay;
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.model.decays.PairLevelDecay;
+import com.example.inj.model.strength.pair.PairStrength;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 @Component
-public class AccumulatedStrength {
+public class AccumulatedStrength implements IStrengthAccumulator {
 
     Logger logger = LoggerFactory.getLogger(AccumulatedStrength.class);
-    ReadingStrategy readingStrategy;
-    @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    IReadingStrategy readingStrategy;
+    @Override
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
     Map<String, Map<String, Float>> accumulatedStrength;
@@ -25,21 +36,31 @@ public class AccumulatedStrength {
 
     PairStrength pairStrength;
 
-    @Autowired
+    @Override
+	
     public void setPairStrength(PairStrength pairStrength) {
         this.pairStrength = pairStrength;
     }
+    
+    
 
-    @Autowired
+    @Override
     public void setPairLevelDecay(PairLevelDecay pairLevelDecay) {
         this.pairLevelDecay = pairLevelDecay;
     }
 
-    public Map<String, Map<String, Float>> getAccumulatedStrength() {
+    @Override
+    public PairLevelDecay getPairLevelDecay() {
+    	return this.pairLevelDecay;
+    }
+    
+    @Override
+	public Map<String, Map<String, Float>> getAccumulatedStrength() {
         return accumulatedStrength;
     }
 
-    public void setAccumulatedStrength(Map<String, Map<String, Float>> accumulatedStrength) {
+    @Override
+	public void setAccumulatedStrength(Map<String, Map<String, Float>> accumulatedStrength) {
         this.accumulatedStrength = accumulatedStrength;
     }
 
@@ -47,8 +68,15 @@ public class AccumulatedStrength {
     /*
     AccumulatedStrength: Function will calculate the total strength of file A, when it is committed with B,C,D,E,F along with decay.
      */
-
-    public void calculateAccumulatedStrength(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap, Map<String, Map<Integer, Map<String, Integer>>> excelYearMap) {
+    @Override
+    public void setUpObjects() {
+    	pairLevelDecay = new PairLevelDecay();
+    	pairLevelDecay.setReadingStrategy(readingStrategy);
+    	System.out.println("initialized");
+    }
+    
+    @Override
+	public void calculateAccumulatedStrength(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap, Map<String, Map<Integer, Map<String, Integer>>> excelYearMap) {
         Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMapSecond = new LinkedHashMap<>();
         pairStrengthMapSecond.putAll(pairStrengthMap);
 
@@ -98,7 +126,7 @@ public class AccumulatedStrength {
                             {
 
                                 List<Map<Integer, Map<String, Float>>> columnPairList = columnPair.get(columnKey);
-                                ListIterator columnPairListIterator = columnPairList.listIterator();
+                                ListIterator<Map<Integer, Map<String, Float>>> columnPairListIterator = columnPairList.listIterator();
 
                                 while (columnPairListIterator.hasNext()) {
                                     Map<Integer, Map<String, Float>> columnMapPair = (Map<Integer, Map<String, Float>>) columnPairListIterator.next();
@@ -130,7 +158,7 @@ public class AccumulatedStrength {
                                 }
 
                             }
-                            Iterator validValueIterator = validValue.listIterator();
+                            Iterator<String> validValueIterator = validValue.listIterator();
                             index = datesMap.indexOf(firstDate);
                             if (index > 0) {
 
@@ -138,7 +166,7 @@ public class AccumulatedStrength {
                                     String val = (String) validValueIterator.next();
                                     float decaySt = 0;
                                     float st = 0;
-                                    Iterator pairIteratorTry = pairStrengthMap.get(row).get(val).iterator();
+                                    Iterator<Map<Integer, Map<String, Float>>> pairIteratorTry = pairStrengthMap.get(row).get(val).iterator();
                                     Map<Integer, Map<String, Float>> pairMapping;
                                     Set<String> pairTry = new TreeSet<>();
                                     while (pairIteratorTry.hasNext()) {
@@ -154,7 +182,7 @@ public class AccumulatedStrength {
                                     pairIteratorTry = null; //Bug 003: Explicity using garbage Collector
                                     String prev = ((TreeSet<String>) pairTry).floor(firstDate);
                                     if (prev != null) {
-                                        Iterator pairIterator = pairStrengthMap.get(row).get(val).iterator();
+                                        Iterator<Map<Integer, Map<String, Float>>> pairIterator = pairStrengthMap.get(row).get(val).iterator();
                                         Map<Integer, Map<String, Float>> pairMappings;
                                         while (pairIterator.hasNext()) {
                                             pairMappings = (Map<Integer, Map<String, Float>>) pairIterator.next();

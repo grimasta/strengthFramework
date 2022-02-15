@@ -1,41 +1,24 @@
 package com.example.inj.model.sampling;
 
-import com.example.inj.model.Strength.SingleFileStrength;
-import com.example.inj.model.decays.PairLevelDecay;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-@Component
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import com.example.inj.model.decays.PairLevelDecay;
+import com.example.inj.model.strength.singlefile.ISingleFileStrength;
+
 public class CreateWidth {
 
-    PairLevelDecay pairLevelDecay;
-
-    SingleFileStrength singleFileStrength;
-
-    @Autowired
-    public void setSingleFileStrength(SingleFileStrength singleFileStrength) {
-        this.singleFileStrength = singleFileStrength;
-    }
-
-    @Autowired
-    public void setPairLevelDecay(PairLevelDecay pairLevelDecay) {
-        this.pairLevelDecay = pairLevelDecay;
-    }
-
-    //This will contain the segment width of each sample
-    Map<String, Integer> segmentWidth = new LinkedHashMap<>();
-
-    public Map<String, Integer> getSegmentWidth() {
-        return segmentWidth;
-    }
-
-    public void setSegmentWidth(Map<String, Integer> segmentWidth) {
-        this.segmentWidth = segmentWidth;
-    }
-
+	private PairLevelDecay pairLevelDecay;
+    private ISingleFileStrength singleFileStrength;
+    private Map<String, Integer> segmentWidth = new LinkedHashMap<>();
+    
+    
     /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
     file is committed between the intervals, like t1, t4, t8, t12. Whereas, global clock tick from t1,
     t2, t3, t4, t5, t6, t7... t12.
@@ -124,4 +107,34 @@ public class CreateWidth {
 
 
     }
+
+
+	public PairLevelDecay getPairLevelDecay() {
+		return pairLevelDecay;
+	}
+
+
+	public void setPairLevelDecay(PairLevelDecay pairLevelDecay) {
+		this.pairLevelDecay = pairLevelDecay;
+	}
+
+
+	public ISingleFileStrength getSingleFileStrength() {
+		return singleFileStrength;
+	}
+
+
+	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
+		this.singleFileStrength = singleFileStrength;
+	}
+
+
+	public Map<String, Integer> getSegmentWidth() {
+		return segmentWidth;
+	}
+
+
+	public void setSegmentWidth(Map<String, Integer> segmentWidth) {
+		this.segmentWidth = segmentWidth;
+	}
 }

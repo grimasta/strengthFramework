@@ -1,36 +1,23 @@
 package com.example.inj.model.cases;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 @Component
 public class CoCommittedExcel {
 
 
-    ReadingStrategy readingStrategy;
-
-
-    @Autowired
-        public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-            this.readingStrategy = ReadingStrategyImp.getInstance();
-        }
-
-    Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits;
-
-    public Table<String, String, Map<Integer, Map<String, List<Float>>>> getTableCommits() {
-        return tableCommits;
-    }
-
-    public void setTableCommits(Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits) {
-        this.tableCommits = tableCommits;
-    }
-
+	private IReadingStrategy readingStrategy;
+	private Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits;
+	
     // Case 2 Start- Number of times A&B are co-committed together/ Number of time A is committed globally
     public void coCommitted() {
 
@@ -115,6 +102,30 @@ public class CoCommittedExcel {
         setTableCommits(outputTable1);
 
     }
+
+
+
+	public IReadingStrategy getReadingStrategy() {
+		return readingStrategy;
+	}
+
+
+
+	public void setReadingStrategy(IReadingStrategy readingStrategy) {
+		this.readingStrategy = readingStrategy;
+	}
+
+
+
+	public Table<String, String, Map<Integer, Map<String, List<Float>>>> getTableCommits() {
+		return tableCommits;
+	}
+
+
+
+	public void setTableCommits(Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits) {
+		this.tableCommits = tableCommits;
+	}
 
 
 }

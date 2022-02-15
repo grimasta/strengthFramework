@@ -8,15 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.inj.model.Factory.AbstractPairFactory;
 import com.example.inj.model.Factory.FactoryProducer;
-import com.example.inj.model.Factory.PairFactory;
-import com.example.inj.model.Strength.AccumulatedStrength;
-import com.example.inj.model.Strength.PairStrengthIn;
-import com.example.inj.model.Strength.SingleFileStrength;
 import com.example.inj.model.cases.TimeDifference;
 import com.example.inj.model.cases.prime.CoCommittedPrime;
 import com.example.inj.model.cases.prime.CommittedSoFar;
@@ -26,6 +21,10 @@ import com.example.inj.model.decays.GlobalDecay;
 import com.example.inj.model.sampling.CreateSample;
 import com.example.inj.model.sampling.CreateVector;
 import com.example.inj.model.sampling.CreateWidth;
+import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
+import com.example.inj.model.strength.pair.PairFactory;
+import com.example.inj.model.strength.pair.ΙPairStrength;
+import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
@@ -34,111 +33,23 @@ import com.example.inj.model.sampling.CreateWidth;
 public class DataManipulateExcel {
 
 
-    TimeDifference timeDifference;
-
-    @Autowired
-    public void setTimeDifference(TimeDifference timeDifference) {
-        this.timeDifference = timeDifference;
-    }
-
-    AccumulatedStrength accumulatedStrength;
-
-    @Autowired
-    public void setAccumulatedStrength(AccumulatedStrength accumulatedStrength) {
-        this.accumulatedStrength = accumulatedStrength;
-    }
-
-    CoCommittedPrime coCommittedPrime;
-    @Autowired
-    public void setCoCommittedPrime(CoCommittedPrime coCommittedPrime) {
-        this.coCommittedPrime = coCommittedPrime;
-    }
-
-    WithoutCommitPrime withoutCommitPrime;
-
-    @Autowired
-    public void setWithoutCommitPrime(WithoutCommitPrime withoutCommitPrime) {
-        this.withoutCommitPrime = withoutCommitPrime;
-    }
-
-    PairFactory pairFactory;
-
-    @Autowired
-    public void setPairFactory(PairFactory pairFactory) {
-        this.pairFactory = pairFactory;
-    }
-
-    FactoryProducer factoryProducer;
-
-    @Autowired
-    public void setFactoryProducer(FactoryProducer factoryProducer) {
-        this.factoryProducer = factoryProducer;
-    }
-
-    AbstractPairFactory abstractPairFactory;
-
-    @Autowired
-    public void setAbstractPairFactory(AbstractPairFactory abstractPairFactory) {
-        this.abstractPairFactory = abstractPairFactory;
-    }
-    /*  PairStrength pairStrength;
-
-    @Autowired
-    public void setPairStrength(PairStrength pairStrength) {
-        this.pairStrength = pairStrength;
-    }*/
-
-    CommittedSoFar committedSoFar;
-
-    @Autowired
-    public void setCommittedSoFar(CommittedSoFar committedSoFar) {
-        this.committedSoFar = committedSoFar;
-    }
-
-    GlobalDecay decay;
-    @Autowired
-    public void setDecay(GlobalDecay decay) {
-        this.decay = decay;
-    }
-
-    DecayImplementation decayImplementation;
-
-    @Autowired
-    public void setDecayImplementation(DecayImplementation decayImplementation) {
-        this.decayImplementation = decayImplementation;
-    }
-
-    SingleFileStrength singleFileStrength;
-
-    @Autowired
-    public void setSingleFileStrength(SingleFileStrength singleFileStrength) {
-        this.singleFileStrength = singleFileStrength;
-    }
-
-    CreateWidth createWidth;
-
-    @Autowired
-    public void setCreateWidth(CreateWidth createWidth) {
-        this.createWidth = createWidth;
-    }
-
-    CreateVector createVectors;
-
-    CreateSample createSample;
-
-    @Autowired
-    public void setCreateVectors(CreateVector createVectors) {
-        this.createVectors = createVectors;
-    }
-
-    @Autowired
-    public void setCreateSample(CreateSample createSample) {
-        this.createSample = createSample;
-    }
-
-
-
-    /*
+    private TimeDifference timeDifference;
+    private IStrengthAccumulator strengthAccumulator;
+    private CoCommittedPrime coCommittedPrime;
+    private WithoutCommitPrime withoutCommitPrime;    
+    private PairFactory pairFactory;
+    private FactoryProducer factoryProducer;
+    private AbstractPairFactory abstractPairFactory;
+    private CommittedSoFar committedSoFar;
+    private GlobalDecay decay;
+    private DecayImplementation decayImplementation;
+    private ISingleFileStrength singleFileStrength;
+    private CreateWidth createWidth;
+    private CreateVector createVectors;
+    private CreateSample createSample;
+    private ΙPairStrength pairStrength;
+  
+	/*
            Case-1 Number of times the file A&B are co-committed
            Case-2 Number of time (A&B) are co-committed/ Number of time A is committed globally
            Case-3 Time difference when A&B are co-commited in a consecutive commit/ Count Difference
@@ -152,8 +63,8 @@ public class DataManipulateExcel {
         System.exit(0);*/
         Map<String, Map<String, Float>> overallStrength;
         //Start: Modified as part of Factory Changes
-        abstractPairFactory= factoryProducer.getFactory("pair");
-        PairStrengthIn pairStrength=abstractPairFactory.getPairStrengthType("PairStrength");
+//        abstractPairFactory= factoryProducer.getFactory("pair");
+//        ΙPairStrength pairStrength=abstractPairFactory.getPairStrengthType("PairStrength");
         System.out.println("Successful Calling the Pair Strength "); // + pairStrength.toString());
         //End: Modified as part of Factory Changes
         //It will calculate the pairStrength based on the cases
@@ -164,8 +75,8 @@ public class DataManipulateExcel {
         //pairStrength.getPairStrengthMapIn().entrySet().forEach(e-> System.out.print(e));
 
         //Todo: I am using the instance to get the values here, any better way of achieving this
-        accumulatedStrength.calculateAccumulatedStrength(pairStrength.getPairStrengthMapIn(), pairStrength.getExcelYearMapsIn());
-        overallStrength = accumulatedStrength.getAccumulatedStrength();
+        strengthAccumulator.calculateAccumulatedStrength(pairStrength.getPairStrengthMapIn(), pairStrength.getExcelYearMapsIn());
+        overallStrength = strengthAccumulator.getAccumulatedStrength();
 
         List<String> commitDatesSchedule = commitSchedule(overallStrength);
 
@@ -175,7 +86,10 @@ public class DataManipulateExcel {
         decayImplementation.implementDecayInStrengthSecond(globalDecay, overallStrength);
 
         singleFileStrength.finalStrengthSingleFile(); // Includes Pair as well Single file that are committed alone
-
+        
+//      TODO move to a setup method
+        createWidth.setSingleFileStrength(singleFileStrength);
+        createWidth.setPairLevelDecay(strengthAccumulator.getPairLevelDecay());
         createWidth.createSegmentWidth();
         createVectors.createVector();
         createSample.createRandomSample();
@@ -205,6 +119,127 @@ public class DataManipulateExcel {
         return finalCommitDates;
     }
 
+	public ΙPairStrength getPairStrength() {
+		// TODO Auto-generated method stub
+		return pairStrength;
+	}
+
+	public TimeDifference getTimeDifference() {
+		return timeDifference;
+	}
+
+	public void setTimeDifference(TimeDifference timeDifference) {
+		this.timeDifference = timeDifference;
+	}
+
+	public IStrengthAccumulator getStrengthAccumulator() {
+		return strengthAccumulator;
+	}
+
+	public void setStrengthAccumulator(IStrengthAccumulator strengthAccumulator) {
+		this.strengthAccumulator = strengthAccumulator;
+	}
+
+	public CoCommittedPrime getCoCommittedPrime() {
+		return coCommittedPrime;
+	}
+
+	public void setCoCommittedPrime(CoCommittedPrime coCommittedPrime) {
+		this.coCommittedPrime = coCommittedPrime;
+	}
+
+	public WithoutCommitPrime getWithoutCommitPrime() {
+		return withoutCommitPrime;
+	}
+
+	public void setWithoutCommitPrime(WithoutCommitPrime withoutCommitPrime) {
+		this.withoutCommitPrime = withoutCommitPrime;
+	}
+
+	public PairFactory getPairFactory() {
+		return pairFactory;
+	}
+
+	public void setPairFactory(PairFactory pairFactory) {
+		this.pairFactory = pairFactory;
+	}
+
+	public FactoryProducer getFactoryProducer() {
+		return factoryProducer;
+	}
+
+	public void setFactoryProducer(FactoryProducer factoryProducer) {
+		this.factoryProducer = factoryProducer;
+	}
+
+	public AbstractPairFactory getAbstractPairFactory() {
+		return abstractPairFactory;
+	}
+
+	public void setAbstractPairFactory(AbstractPairFactory abstractPairFactory) {
+		this.abstractPairFactory = abstractPairFactory;
+	}
+
+	public CommittedSoFar getCommittedSoFar() {
+		return committedSoFar;
+	}
+
+	public void setCommittedSoFar(CommittedSoFar committedSoFar) {
+		this.committedSoFar = committedSoFar;
+	}
+
+	public GlobalDecay getDecay() {
+		return decay;
+	}
+
+	public void setDecay(GlobalDecay decay) {
+		this.decay = decay;
+	}
+
+	public DecayImplementation getDecayImplementation() {
+		return decayImplementation;
+	}
+
+	public void setDecayImplementation(DecayImplementation decayImplementation) {
+		this.decayImplementation = decayImplementation;
+	}
+
+	public ISingleFileStrength getSingleFileStrength() {
+		return singleFileStrength;
+	}
+
+	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
+		this.singleFileStrength = singleFileStrength;
+	}
+
+	public CreateWidth getCreateWidth() {
+		return createWidth;
+	}
+
+	public void setCreateWidth(CreateWidth createWidth) {
+		this.createWidth = createWidth;
+	}
+
+	public CreateVector getCreateVectors() {
+		return createVectors;
+	}
+
+	public void setCreateVectors(CreateVector createVectors) {
+		this.createVectors = createVectors;
+	}
+
+	public CreateSample getCreateSample() {
+		return createSample;
+	}
+
+	public void setCreateSample(CreateSample createSample) {
+		this.createSample = createSample;
+	}
+
+	public void setPairStrength(ΙPairStrength pairStrength) {
+		this.pairStrength = pairStrength;
+	}
+	
 
 }
 

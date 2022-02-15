@@ -1,8 +1,8 @@
 package com.example.inj.model.bootstrap;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.example.inj.readingStrategy.strategy.ReadingStrategyContext;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -30,7 +30,7 @@ public class CreateTableMapping extends ReadingStrategyContext implements Applic
         }
         catch(Exception e)
         {
-            System.out.println("Exception while parsing the table mapping");
+            System.out.println("Exception while parsing the table mapping" + e.getMessage());
         }
         System.out.println("After Parse Data");
     }

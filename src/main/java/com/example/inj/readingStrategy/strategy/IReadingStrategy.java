@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public interface ReadingStrategy {
+public interface IReadingStrategy {
 
     void parseData() throws IOException, ParseException;
 

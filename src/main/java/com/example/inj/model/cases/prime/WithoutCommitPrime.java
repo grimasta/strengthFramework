@@ -1,13 +1,20 @@
 package com.example.inj.model.cases.prime;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategy;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyImp;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.*;
+
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+
+import lombok.Data;
 
 
 
@@ -16,14 +23,14 @@ import java.util.*;
 //Case 3’- How many times the File A has been committed without File B/ Number of time A is committed so far
 public class WithoutCommitPrime {
 
-    ReadingStrategy readingStrategy;
+    IReadingStrategy readingStrategy;
     CommittedSoFar committedSoFar;
 
     Logger logger = LoggerFactory.getLogger(WithoutCommitPrime.class);
 
     @Autowired
-    public void setReadingStrategy(ReadingStrategyImp readingStrategy) {
-        this.readingStrategy = ReadingStrategyImp.getInstance();
+    public void setReadingStrategy(IReadingStrategy readingStrategy) {
+        this.readingStrategy = readingStrategy;
     }
 
     @Autowired
@@ -39,7 +46,7 @@ public class WithoutCommitPrime {
         Map<String,Map<String,Integer>> commitYears= committedSoFar.getYearMap();
         Map<String,Map<String,Map<Integer, List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
         Map<Integer,String> dict= readingStrategy.getDictionaryI();
-        Map<String,String> dictCommit=readingStrategy.getDictionaryStringI();
+//        Map<String,String> dictCommit=readingStrategy.getDictionaryStringI();
         Map<String,String> dictDate=readingStrategy.getDictionaryTimeI();
         Map<String, Map<String, Map<String, Float>>> coTimeDifferences = new HashMap<>();
 
