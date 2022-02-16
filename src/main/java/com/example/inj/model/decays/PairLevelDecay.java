@@ -191,9 +191,9 @@ public class PairLevelDecay {
         setPairLevelDecayMap(globalDecay);
         setYearMapPair(yearMap);
         logger.info("globalDecay");
-        logger.info(globalDecay.toString());
+        logger.info("globalDecay size = " + globalDecay.size());
         logger.info("yearMap");
-        logger.info(yearMap.toString());
+        logger.info("yearMap size = " + yearMap.size());
 
     }
 

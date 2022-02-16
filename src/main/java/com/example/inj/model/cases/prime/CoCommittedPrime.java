@@ -37,11 +37,10 @@ public class CoCommittedPrime {
     public void getCoCommittedFiles()
     {
 
-        Map<String, Map<String, Map<Integer, List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
-        Map<Integer,String> dictMap= readingStrategy.getDictionaryI(); //id,commit_ID
-        Map<String,String> dictDate=readingStrategy.getDictionaryTimeI();//Commit_ID,Time&Date
+        Map<String, Map<String, Map<Integer, List<Object>>>> readMap = readingStrategy.getReadableMappingFinalI().rowMap();
+        Map<Integer,String> dictMap = readingStrategy.getDictionaryI(); //id,commit_ID
+        Map<String,String> dictDate = readingStrategy.getDictionaryTimeI();//Commit_ID,Time&Date
         Map<String,Map<String, Integer>> yearMap=committedSoFar.getYearMap();
-
        /*System.out.println("Inside getCoCommittedFiles");*/
 
         for(String source: readMap.keySet())

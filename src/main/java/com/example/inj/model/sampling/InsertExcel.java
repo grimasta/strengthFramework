@@ -105,11 +105,11 @@ public class InsertExcel {
     public void insertOverallStrength() {
         Map<String, Map<String, Float>> strength= singleFileStrength.getFinalStrength();
         Map<String, String> dateToCommit = readingStrategy.getDictionaryStringI();
-
+        int sheetCount = 1;
         Workbook workbook = null;
         workbook = new XSSFWorkbook();
         System.out.println("Inside");
-        Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME);
+        Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME + sheetCount);
             int i=0;
             for (String key : strength.keySet()) {
                 Map<String, Float> subStrength = strength.get(key);
@@ -127,11 +127,17 @@ public class InsertExcel {
                     Float overallStrength = subStrength.get(dat);
                     String commitID = dateToCommit.get(dat);
                     i = i + 1;
+                    if (i > 1048575) { 
+                    	sheetCount++;
+                    	sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME + sheetCount);
+                    	i = 0;
+                    }
                     Row row = sheet.createRow(i);
                     row.createCell(0).setCellValue(key); //File_ID
                     row.createCell(1).setCellValue(dat); //Date
                     row.createCell(2).setCellValue(commitID); //CommitID
                     row.createCell(3).setCellValue(overallStrength);//OverallStrength
+                    
                 }
                 i++;
 

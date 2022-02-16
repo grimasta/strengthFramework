@@ -199,7 +199,7 @@ public class PairStrength implements ΙPairStrength{
     public void calculatePairStrength(){
     	setUpObjects();
         logger.info("inside calculate Pair Strength");
-        System.out.println(" inside calculate Pair Strength ");
+        System.out.println("inside calculate Pair Strength ");
         Map<String,Map<String, Map<Integer,List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
         Map<Integer,String> dictionaryKey= readingStrategy.getDictionaryI();
         Map<String,String> dictionaryStringDate=readingStrategy.getDictionaryTimeI();
@@ -215,17 +215,17 @@ public class PairStrength implements ΙPairStrength{
         Map<String,Map<String,Map<String, Float>>> coCommit=coCommittedPrime.getCommittedPrimeValue();
         //Case 2: Number of time (A&B) are co-committed/ Number of time A is committed so far
         logger.info("After Case 2");
-        System.out.println(" After Case 2 ");
+        System.out.println("After Case 2");
         Map<String,Map<String,Map<String, Float>>> coCommitTogether=coCommittedPrime.getCommittedTogetherValue();
         //How many times the File A has been committed without File B/ Number of time A is committed so far
-        logger.info(" coCommitTogether ");
+        logger.info("coCommitTogether");
         withoutCommitPrime.getTimeDifference();
         logger.info("After Case 3");
         Map<String,Map<String,Map<String, Float>>> committedNotTogether=withoutCommitPrime.getCoTimeDifference(); //Todo Need to check at that particular point when files are committed together
         //Case 6: ’: Number of calls between A to B/ Average number of calls from A to all other co-committed files. (Ignore the self calls
         //parseCoupledCSV.parseData();
         logger.info("After Case 6");
-        System.out.println(" After Case 6 ");
+        System.out.println("After Case 6");
 
         linesModifiedPrime.getLinesModified();
         System.out.println("After Case-4");

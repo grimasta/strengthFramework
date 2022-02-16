@@ -889,7 +889,7 @@ public class Chi2Automate {
                 }
             }
 
-            System.out.println(" Chi-3 After");
+//            System.out.println(" Chi-3 After");
             //Chi-4
             //    static int count4UUUUBugFixing=0;
             //    static int count4UUUUNonBugFixing=0;
