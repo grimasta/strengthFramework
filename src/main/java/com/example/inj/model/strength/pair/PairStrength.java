@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.catalina.mbeans.GlobalResourcesLifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.example.inj.model.cases.CoCommittedExcel;
 import com.example.inj.model.cases.CoCommittedFiles;
@@ -21,13 +21,13 @@ import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
 import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
+import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.google.common.collect.Table;
 
 import javafx.util.Pair;
 
-@Component
-public class PairStrength implements ΙPairStrength{
+public class PairStrength implements IPairStrength{
 
 	private LinesModifiedPrime linesModifiedPrime;
     private CommittedSoFar committedSoFar;
@@ -43,11 +43,7 @@ public class PairStrength implements ΙPairStrength{
     private Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
     private IReadingStrategy readingStrategy;
     Logger logger = LoggerFactory.getLogger(PairStrength.class);
-
- 
-
-    
-
+    private IPairStrengthStrategy theStrategy = null;
 
 
     public void calculatePairStrength2(){
@@ -195,7 +191,10 @@ public class PairStrength implements ΙPairStrength{
     	coCommittedFiles.setReadingStrategy(readingStrategy);
     }
     
-    @Override
+    public void setStrategy(IPairStrengthStrategy newStrategy) {
+    	this.theStrategy = newStrategy;
+    }
+    
     public void calculatePairStrength(){
     	setUpObjects();
         logger.info("inside calculate Pair Strength");
@@ -233,75 +232,76 @@ public class PairStrength implements ΙPairStrength{
         //case-5
         Map<String, Map<String, Map<String, Float>>> destinationLinesModified = linesModifiedPrime.getLinesModifiedDestination();
 //        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
-        float pairStrength=0.0f;
-        Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
-        for(String source: readMap.keySet())
-        {
-            Map<String, List<Map<Integer, Map<String, Float>>>> pairStrengthSubMap = new LinkedHashMap<>();
-            for(String destination: readMap.get(source).keySet())
-            {
-                Map<String, Float> pairStrengthSubThreeMap = new TreeMap<>();
-                Map<Integer, Map<String, Float>> pairStrengthSubTwoMap = new TreeMap<>();
-                List<Map<Integer, Map<String, Float>>> pairSubTwoMapList = new LinkedList<>();
-                for(int commitKey: readMap.get(source).get(destination).keySet())
-                {
-                    String commitTime=dictionaryStringDate.get(dictionaryKey.get(commitKey));
-
-                    float coCommitValue=coCommit.get(source).get(destination).get(commitTime); //Case 1''
-                    float coCommitTogetherValue=coCommitTogether.get(source).get(destination).get(commitTime); //Case 2
-//                    float callsValue=0.0f;
-                    /*if(callsMap.containsKey(source) && callsMap.get(source).containsKey(destination) && callsMap.get(source).get(destination).containsKey(commitTime))
-                    {
-                        callsValue=callsMap.get(source).get(destination).get(commitTime);
-                    }*/
-                    float commitNotTog=0.0f;
-                    if(committedNotTogether.containsKey(source) && committedNotTogether.get(source).containsKey(destination) && committedNotTogether.get(source).get(destination).containsKey(commitTime))
-                    {
-                        commitNotTog=committedNotTogether.get(source).get(destination).get(commitTime);
-                    }
-
-                    float sourceLinesModify=0.0f;
-                    if(sourceLinesModified.containsKey(source) && sourceLinesModified.get(source).containsKey(destination) && sourceLinesModified.get(source).get(destination).containsKey(commitTime))
-                    {
-                        //logger.info("Inside 1");
-                        sourceLinesModify=sourceLinesModified.get(source).get(destination).get(commitTime);
-                    }
-                    float destinationLinesModify=0.0f;
-                    if(destinationLinesModified.containsKey(source) && destinationLinesModified.get(source).containsKey(destination) && destinationLinesModified.get(source).get(destination).containsKey(commitTime))
-                    {
-                        //logger.info("Inside 2");
-                        destinationLinesModify=destinationLinesModified.get(source).get(destination).get(commitTime);
-                    }
-                    //replce- with+
-                    if((bugFixingMap.containsKey(source) && bugFixingMap.get(source).containsKey(commitTime) && bugFixingMap.get(source).get(commitTime)) && (bugFixingMap.containsKey(source) && bugFixingMap.get(destination).containsKey(commitTime) && bugFixingMap.get(destination).get(commitTime)))
-                    {
-                        pairStrength =1.5f*(coCommitValue +coCommitTogetherValue + sourceLinesModify + destinationLinesModify) - commitNotTog;
-                    }
-                    else {
-                        //pairStrength=coCommitValue+coCommitTogetherValue+ callsValue  + sourceLinesModify + destinationLinesModify - commitNotTog;
-                        //0.50  //0.20
-                        pairStrength =  0.20f*(coCommitValue + coCommitTogetherValue + sourceLinesModify + destinationLinesModify - commitNotTog);
-                    }
-                    //logger.info(" callsValue "+ callsValue + " coCommitValue " + coCommitValue + " coCommitTogetherValue " + coCommitTogetherValue +  " commitNotTog " + commitNotTog + " sourceLinesModify " + sourceLinesModify + " destinationLinesModify " + destinationLinesModify);
-
-                    pairStrengthSubThreeMap.put(commitTime,pairStrength);
-                    pairStrengthSubTwoMap.put(commitKey, pairStrengthSubThreeMap);
-                    pairSubTwoMapList.add(pairStrengthSubTwoMap);
-                    pairStrengthSubThreeMap=new TreeMap<>();
-                    pairStrengthSubTwoMap= new TreeMap<>();
-                }
-                pairStrengthSubMap.put(destination, pairSubTwoMapList);
-
-            }
-            localPairStrength.put(source, pairStrengthSubMap);
-        }
+        setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
+//        float pairStrength=0.0f;
+//        Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
+//        for(String source: readMap.keySet())
+//        {
+//            Map<String, List<Map<Integer, Map<String, Float>>>> pairStrengthSubMap = new LinkedHashMap<>();
+//            for(String destination: readMap.get(source).keySet())
+//            {
+//                Map<String, Float> pairStrengthSubThreeMap = new TreeMap<>();
+//                Map<Integer, Map<String, Float>> pairStrengthSubTwoMap = new TreeMap<>();
+//                List<Map<Integer, Map<String, Float>>> pairSubTwoMapList = new LinkedList<>();
+//                for(int commitKey: readMap.get(source).get(destination).keySet())
+//                {
+//                    String commitTime=dictionaryStringDate.get(dictionaryKey.get(commitKey));
+//
+//                    float coCommitValue=coCommit.get(source).get(destination).get(commitTime); //Case 1''
+//                    float coCommitTogetherValue=coCommitTogether.get(source).get(destination).get(commitTime); //Case 2
+////                    float callsValue=0.0f;
+//                    /*if(callsMap.containsKey(source) && callsMap.get(source).containsKey(destination) && callsMap.get(source).get(destination).containsKey(commitTime))
+//                    {
+//                        callsValue=callsMap.get(source).get(destination).get(commitTime);
+//                    }*/
+//                    float commitNotTog=0.0f;
+//                    if(committedNotTogether.containsKey(source) && committedNotTogether.get(source).containsKey(destination) && committedNotTogether.get(source).get(destination).containsKey(commitTime))
+//                    {
+//                        commitNotTog=committedNotTogether.get(source).get(destination).get(commitTime);
+//                    }
+//
+//                    float sourceLinesModify=0.0f;
+//                    if(sourceLinesModified.containsKey(source) && sourceLinesModified.get(source).containsKey(destination) && sourceLinesModified.get(source).get(destination).containsKey(commitTime))
+//                    {
+//                        //logger.info("Inside 1");
+//                        sourceLinesModify=sourceLinesModified.get(source).get(destination).get(commitTime);
+//                    }
+//                    float destinationLinesModify=0.0f;
+//                    if(destinationLinesModified.containsKey(source) && destinationLinesModified.get(source).containsKey(destination) && destinationLinesModified.get(source).get(destination).containsKey(commitTime))
+//                    {
+//                        //logger.info("Inside 2");
+//                        destinationLinesModify=destinationLinesModified.get(source).get(destination).get(commitTime);
+//                    }
+//                    //replce- with+
+//                    if((bugFixingMap.containsKey(source) && bugFixingMap.get(source).containsKey(commitTime) && bugFixingMap.get(source).get(commitTime)) && (bugFixingMap.containsKey(source) && bugFixingMap.get(destination).containsKey(commitTime) && bugFixingMap.get(destination).get(commitTime)))
+//                    {
+//                        pairStrength =1.5f*(coCommitValue +coCommitTogetherValue + sourceLinesModify + destinationLinesModify) - commitNotTog;
+//                    }
+//                    else {
+//                        //pairStrength=coCommitValue+coCommitTogetherValue+ callsValue  + sourceLinesModify + destinationLinesModify - commitNotTog;
+//                        //0.50  //0.20
+//                        pairStrength =  0.20f*(coCommitValue + coCommitTogetherValue + sourceLinesModify + destinationLinesModify - commitNotTog);
+//                    }
+//                    //logger.info(" callsValue "+ callsValue + " coCommitValue " + coCommitValue + " coCommitTogetherValue " + coCommitTogetherValue +  " commitNotTog " + commitNotTog + " sourceLinesModify " + sourceLinesModify + " destinationLinesModify " + destinationLinesModify);
+//
+//                    pairStrengthSubThreeMap.put(commitTime,pairStrength);
+//                    pairStrengthSubTwoMap.put(commitKey, pairStrengthSubThreeMap);
+//                    pairSubTwoMapList.add(pairStrengthSubTwoMap);
+//                    pairStrengthSubThreeMap=new TreeMap<>();
+//                    pairStrengthSubTwoMap= new TreeMap<>();
+//                }
+//                pairStrengthSubMap.put(destination, pairSubTwoMapList);
+//
+//            }
+//            localPairStrength.put(source, pairStrengthSubMap);
+//        }
         //System.exit(0);
 
         coCommittedFiles.coCommitABCD();
         Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = coCommittedFiles.getPairMaps();
         Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();
         setExcelYearMaps(excelYearMap);
-        setPairStrengthMap(localPairStrength);
+//        setPairStrengthMap(localPairStrength);
         //logger.info("Pair Strength");
         //logger.info(localPairStrength.toString());
 

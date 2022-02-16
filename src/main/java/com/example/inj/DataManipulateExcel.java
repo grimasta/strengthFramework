@@ -23,7 +23,7 @@ import com.example.inj.model.sampling.CreateVector;
 import com.example.inj.model.sampling.CreateWidth;
 import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
 import com.example.inj.model.strength.pair.PairFactory;
-import com.example.inj.model.strength.pair.ΙPairStrength;
+import com.example.inj.model.strength.pair.IPairStrength;
 import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 
 //Bug 001: Committed as part of the file that is committed alone.
@@ -47,7 +47,7 @@ public class DataManipulateExcel {
     private CreateWidth createWidth;
     private CreateVector createVectors;
     private CreateSample createSample;
-    private ΙPairStrength pairStrength;
+    private IPairStrength pairStrength;
   
 	/*
            Case-1 Number of times the file A&B are co-committed
@@ -119,7 +119,7 @@ public class DataManipulateExcel {
         return finalCommitDates;
     }
 
-	public ΙPairStrength getPairStrength() {
+	public IPairStrength getPairStrength() {
 		// TODO Auto-generated method stub
 		return pairStrength;
 	}
@@ -236,7 +236,7 @@ public class DataManipulateExcel {
 		this.createSample = createSample;
 	}
 
-	public void setPairStrength(ΙPairStrength pairStrength) {
+	public void setPairStrength(IPairStrength pairStrength) {
 		this.pairStrength = pairStrength;
 	}
 	

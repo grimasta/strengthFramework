@@ -22,8 +22,12 @@ import com.example.inj.model.sampling.CreateWidth;
 import com.example.inj.model.sampling.InsertExcel;
 import com.example.inj.model.strength.accumulators.StrengthAccumulatorFactory;
 import com.example.inj.model.strength.accumulators.StrengthAccumulators;
-import com.example.inj.model.strength.pair.FactoryEnum;
+import com.example.inj.model.strength.accumulators.strategies.StrengthAccumulatorStrategiesEnum;
+import com.example.inj.model.strength.accumulators.strategies.StrengthAccumulatorStrategiesFactory;
+import com.example.inj.model.strength.pair.PairCalculatorEnum;
 import com.example.inj.model.strength.pair.PairFactory;
+import com.example.inj.model.strength.pair.strategies.PairStrengthStrategyEnum;
+import com.example.inj.model.strength.pair.strategies.PairStrengthStrategyFactory;
 import com.example.inj.model.strength.singlefile.SingleFileStrength;
 import com.example.inj.readingStrategy.strategy.ReadingStrategyEnumeration;
 import com.example.inj.readingStrategy.strategy.ReadingStrategyFactory;
@@ -77,14 +81,19 @@ public class Strength {
 				)								// to the StrengthAccumulator types enumerations and the factory
 		); 										//
 		
+		dataManipulate.getStrengthAccumulator().setStrategy(StrengthAccumulatorStrategiesFactory.createStrengthAccumulatorStrategy(StrengthAccumulatorStrategiesEnum.DEFAULT));
+		
 		dataManipulate.setPairStrength( 				// This is where you can set the Pairwise
 														// Strength Calculator
 			PairFactory.getPairStrengthType(			// Look into the com.example.inj.model.strength.pair
 														// package
-				FactoryEnum.RIA_S_PAIRWISE_CALCULATOR 	// for more details on how to implement your
+				PairCalculatorEnum.RIA_S_PAIRWISE_CALCULATOR 	// for more details on how to implement your
 														// own version and how to add it
 			) 											// to the PairFactory types enumerations 
 		);							 					// and the corresponding factory
+		
+//		Set Concrete pairStrength Calculation Strategy
+		dataManipulate.getPairStrength().setStrategy(PairStrengthStrategyFactory.createPairStrengthStrategy(PairStrengthStrategyEnum.DEFAULT));
 		
 		dataManipulate.getPairStrength(). 				// That's an important step if you adhere to the
 														// current mode of operation

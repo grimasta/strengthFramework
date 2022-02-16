@@ -3,8 +3,6 @@ package com.example.inj.model.strength.pair;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
 import com.example.inj.model.cases.CoCommittedExcel;
 import com.example.inj.model.cases.CoCommittedFiles;
 import com.example.inj.model.cases.LinesModified;
@@ -15,13 +13,14 @@ import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
 import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
+import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
-@Component
-public interface ΙPairStrength {
+public interface IPairStrength {
 
 //	public void calculatePairStrength2()
     	
+	public void setStrategy(IPairStrengthStrategy theStrategy);
 	public void setUpObjects();
   	public void calculatePairStrength();
 	public LinesModifiedPrime getLinesModifiedPrime();

@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.inj.model.decays.PairLevelDecay;
+import com.example.inj.model.strength.accumulators.strategies.IStrengthAccumulatorStrategy;
 import com.example.inj.model.strength.pair.PairStrength;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 public interface IStrengthAccumulator {
 
+	public void setStrategy(IStrengthAccumulatorStrategy theStrategy);
+	
 	void setReadingStrategy(IReadingStrategy readingStrategy);
 
 	void setPairStrength(PairStrength pairStrength);
