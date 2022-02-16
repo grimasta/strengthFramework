@@ -238,38 +238,40 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 					File2FileDetails detailedCrossFileData = new File2FileDetails(0, 0, cadd, cadd, cadd, cadd, cadd,
 							0.0, 0.0, 0.0, tf.getDate(), "RRRR", tf.isBugFixing(), tf.getCaddition(), tf.getCdeletion(),
 							tf.isBugFixing());
-					// 1. buggy
+					// 0. buggy
 					fileToFileDataForAParticularCommitInListFormat.add(0);
-					// 2. non-buggy
+					// 1. non-buggy
 					fileToFileDataForAParticularCommitInListFormat.add(0);
-					// 3. How many lines of Fi is changed
+					// 2. How many lines of Fi is changed
 					fileToFileDataForAParticularCommitInListFormat.add(cadd);
-					// 4. How many lines of Fj is changed
+					// 3. How many lines of Fj is changed
 					fileToFileDataForAParticularCommitInListFormat.add(cadd);
-					// 5. Average number of lines changed in a particular commit
+					// 4. Average number of lines changed in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(cadd);
-					// 6. Minimum number of lines changed in a particular commit
+					// 5. Minimum number of lines changed in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(cadd);
-					// 7. Maximum number of lines changed in a particular commit
+					// 6. Maximum number of lines changed in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(cadd);
-					// 8. Median of lines changed in a particular commit
+					// 7. Median of lines changed in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(0.0);
-					// 9. Percentile of Fi in a particular commit
+					// 8. Percentile of Fi in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(0.0);
-					// 10. Percentile of Fj in a particular commit
+					// 9. Percentile of Fj in a particular commit
 					fileToFileDataForAParticularCommitInListFormat.add(0.0);
-					// 11. Date of committed file Fj
+					// 10. Date of committed file Fj
 					fileToFileDataForAParticularCommitInListFormat.add(tf.getDate());
-					// 12.
+					// 11.
 					fileToFileDataForAParticularCommitInListFormat.add("RRRR");
-					// 13. Buggy List Fi
+					// 12. Buggy List Fi
 					fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
-					// 14. Number of lines in a commit has modified
+					// 13. Number of lines in a commit has modified
 					fileToFileDataForAParticularCommitInListFormat.add(tf.getCaddition());
-					// 15. Number of lines in a commit is deleted
+					// 14. Number of lines in a commit is deleted
 					fileToFileDataForAParticularCommitInListFormat.add(tf.getCdeletion());
-					// 16. BugFixing Or Not
+					// 15. BugFixing Or Not
 					fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
+					// 16. CommitID
+					fileToFileDataForAParticularCommitInListFormat.add(commitDetails.getCommitID());
 
 //              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elmenets of the List is for luck of a better word.. random  	
 					commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
@@ -333,40 +335,42 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 							} else {
 								++buggy;
 							}
-
+							// 0.
 							buggyList.add(buggy);
-							// 2.
+							// 1.
 							buggyList.add(nonbuggy);
-							// 3. How many lines of Fi is changed
+							// 2. How many lines of Fi is changed
 							buggyList.add(noOflinesChangedInSourceFile);
-							// 4. How many lines of Fj is changed
+							// 3. How many lines of Fj is changed
 							buggyList.add(noOfLinesChangedInTargetFile);
-							// 5. Average number of lines changed in a particular commit
+							// 4. Average number of lines changed in a particular commit
 							buggyList.add(avgLinesChangedInCommit);
-							// 6. Minimum number of lines changed in a particular commit
+							// 5. Minimum number of lines changed in a particular commit
 							buggyList.add(commitDetails.getSortedListOfChanges().get(0));
-							// 7. Maximum number of lines changed in a particular commit
+							// 6. Maximum number of lines changed in a particular commit
 							buggyList.add(commitDetails.getSortedListOfChanges()
 									.get(commitDetails.getSortedListOfChanges().size() - 1));
-							// 8. Median of lines changed in a particular commit
+							// 7. Median of lines changed in a particular commit
 							buggyList.add(commitDetails.getMedianModifiedLines());
-							// 9. Percentile of Fi in a particular commit
+							// 8. Percentile of Fi in a particular commit
 							buggyList.add(tryFileDetailSource.getPercentile());
-							// 10. Percentile of Fj in a particular commit
+							// 9. Percentile of Fj in a particular commit
 							buggyList.add(tryFileDetailTarget.getPercentile());
-							// 11. Date of committed file Fj
+							// 10. Date of committed file Fj
 							buggyList.add(tryFileDetailSource.getDate());
-							// 12.
+							// 11.
 							buggyList.add("RRRR");
-							// 13. Buggy List Fi
+							// 12. Buggy List Fi
 							buggyList.add(tryFileDetailSource.isBugFixing());
-							// 14. Number of lines in a commit has modified
+							// 13. Number of lines in a commit has modified
 							buggyList.add(cAddition);
-							// 15. Number of lines in a commit is deleted
+							// 14. Number of lines in a commit is deleted
 							buggyList.add(cDeletion);
-							// 16. BugFixing Or Not
+							// 15. BugFixing Or Not
 							buggyList.add(tryFileDetailSource.isBugFixing() && tryFileDetailTarget.isBugFixing());
-
+							// 16. CommitID
+							buggyList.add(commitDetails.getCommitID());
+							
 							String sourceFileId = tryFileDetailSource.getFileId();
 							String targetFileId = tryFileDetailTarget.getFileId();
 

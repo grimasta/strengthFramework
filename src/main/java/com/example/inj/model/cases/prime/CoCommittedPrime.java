@@ -62,10 +62,7 @@ public class CoCommittedPrime {
                 commitKeys.addAll(readMap.get(source).get(destination).keySet());
                 for(int key: commitKeys)
                 {
-                    if(dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key)))
-                    {
-                        commitDates.add(dictDate.get(dictMap.get(key)));
-                    }
+                        commitDates.add((String) readMap.get(source).get(destination).get(key).get(10));
                 }
                 Collections.sort(commitDates);
                 //Number of times the file A&B are co-committed*2

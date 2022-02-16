@@ -64,19 +64,19 @@ public class LinesModifiedPrime {
                             valueOfB = 0.0f;
                         }
 
-                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
-                            String dateAndTime = dictDate.get(dictMap.get(key));
+//                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
+                            String dateAndTime = (String) readMap.get(source).get(destination).get(key).get(10);
                             linesModfiedMapSource.put(dateAndTime, valueOfA);
                             linesModifiedMapDestination.put(dateAndTime, valueOfB);
-                        }
+//                        }
                     }
                     else
                     {
-                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
-                            String dateAndTime = dictDate.get(dictMap.get(key));
+//                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
+                            String dateAndTime = (String) readMap.get(source).get(destination).get(key).get(10);
                             linesModfiedMapSource.put(dateAndTime, 0.0f);
                             linesModifiedMapDestination.put(dateAndTime, 0.0f);
-                        }
+//                        }
                     }
 
                 }

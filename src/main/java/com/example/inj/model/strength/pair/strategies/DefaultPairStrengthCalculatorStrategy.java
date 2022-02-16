@@ -26,8 +26,8 @@ public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrat
 				Map<Integer, Map<String, Float>> pairStrengthSubTwoMap = new TreeMap<>();
 				List<Map<Integer, Map<String, Float>>> pairSubTwoMapList = new LinkedList<>();
 				for (int commitKey : readMap.get(source).get(destination).keySet()) {
-					String commitTime = dictionaryStringDate.get(dictionaryKey.get(commitKey));
-
+//					String commitTime = dictionaryStringDate.get(dictionaryKey.get(commitKey));
+					String commitTime = (String) readMap.get(source).get(destination).get(commitKey).get(10);
 					float coCommitValue = coCommit.get(source).get(destination).get(commitTime); // Case 1''
 					float coCommitTogetherValue = coCommitTogether.get(source).get(destination).get(commitTime); // Case
 																													// 2

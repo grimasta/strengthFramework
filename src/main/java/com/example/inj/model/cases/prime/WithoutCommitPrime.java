@@ -76,10 +76,10 @@ public class WithoutCommitPrime {
                     List<String> togetherKeys= new ArrayList<>();
                     for(int key: committedTogetherKeys)
                     {
-                        if(dict.containsKey(key) && dictDate.containsKey(dict.get(key)))
-                        {
-                            togetherKeys.add( dictDate.get(dict.get(key)));
-                        }
+//                        if(dict.containsKey(key) && dictDate.containsKey(dict.get(key)))
+//                        {
+                            togetherKeys.add((String) readMap.get(source).get(destination).get(key).get(10));
+//                        }
                     }
                     Collections.sort(togetherKeys);
                     TreeSet<String> togetherSetKeys= new TreeSet<>();
