@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 //Case 1'' Number of times the file A&B are co-committed * 2/  Number of times A has been committed so far + Number of times B has been committed so far
@@ -19,11 +20,12 @@ public class CoCommittedPrime {
 	private CommittedSoFar committedSoFar;
 	private Map<String,Map<String,Map<String, Float>>> committedPrimeValue= new HashMap<>();//Source,Destination,Commit_Date,Value
 	private Map<String,Map<String, Map<String,Float>>> committedTogetherValue= new HashMap<>();
+	private DataRepository dataRepository;
     Logger logger= LoggerFactory.getLogger(CoCommittedPrime.class);
     
-
-    public void setReadingStrategy(IReadingStrategy readingStrategy) {
-        this.readingStrategy = readingStrategy;
+    
+    public CoCommittedPrime() {
+    	dataRepository = DataRepository.getInstance();
     }
 
 
@@ -37,10 +39,10 @@ public class CoCommittedPrime {
     public void getCoCommittedFiles()
     {
 
-        Map<String, Map<String, Map<Integer, List<Object>>>> readMap = readingStrategy.getReadableMappingFinalI().rowMap();
-        Map<Integer,String> dictMap = readingStrategy.getDictionaryI(); //id,commit_ID
-        Map<String,String> dictDate = readingStrategy.getDictionaryTimeI();//Commit_ID,Time&Date
-        Map<String,Map<String, Integer>> yearMap=committedSoFar.getYearMap();
+        Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
+        Map<Integer,String> dictMap = dataRepository.getDictionary(); //id,commit_ID
+        Map<String,String> dictDate = dataRepository.getDictionaryTime();//Commit_ID,Time&Date
+        Map<String,Map<String, Integer>> yearMap = dataRepository.getYearMap();
        /*System.out.println("Inside getCoCommittedFiles");*/
 
         for(String source: readMap.keySet())
@@ -119,8 +121,8 @@ public class CoCommittedPrime {
 
             committedPrimeValue.put(source,subCommittedPrime);
             committedTogetherValue.put(source, subCommittedPrime2);
-            setCommittedPrimeValue(committedPrimeValue);
-            setCommittedTogetherValue(committedTogetherValue);
+            dataRepository.setCommittedPrimeValue(committedPrimeValue);
+            dataRepository.setCommittedTogetherValue(committedTogetherValue);
 
             /*logger.info("Inside co-committed Prime - STage 6");*/
 

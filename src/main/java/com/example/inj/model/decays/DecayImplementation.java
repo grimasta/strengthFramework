@@ -3,6 +3,8 @@ package com.example.inj.model.decays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.inj.model.storage.DataRepository;
+
 import java.util.*;
 
 public class DecayImplementation {
@@ -11,7 +13,12 @@ public class DecayImplementation {
     Logger logger = LoggerFactory.getLogger(DecayImplementation.class);
 
     private Map<String, Map<String, Float>> accumulatedSt;
-
+    private DataRepository dataRepository;
+    
+    public DecayImplementation() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public Map<String, Map<String, Float>> getAccumulatedSt() {
         return accumulatedSt;
     }
@@ -79,7 +86,7 @@ public class DecayImplementation {
             finalRowStrength = new LinkedHashMap<>();
         }
         System.out.println("implementDecayInStrengthSecond");
-        setAccumulatedSt(finalStrength);
+        dataRepository.setAccumulatedSt(finalStrength);
  /*       System.out.println("Implement Global Decay");
         finalStrength.get("caa7faee-1ed0-11eb-98c6-482ae32cf5b4").entrySet().forEach(e->System.out.print(e));*/
 

@@ -1,39 +1,45 @@
 package com.example.inj.model.sampling;
 
-import com.example.inj.automate.Chi2Automate;
-import com.example.inj.model.strength.pair.PairStrength;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-
-import java.io.IOException;
-import java.util.*;
+import com.example.inj.automate.Chi2Automate;
+import com.example.inj.model.storage.DataRepository;
 
 //Modification 004- We are trying to analyze if the number of commits in the segment >2(Not equal)
 // and hardcoding the increasing slope that helps to analyze whether the number of commit
 // should be considered. How it can impact our research.
 
 
-@Component
 public class CreateSample {
 
+	
+	private DataRepository dataRepository;
     private CreateVector createVector;
     private Map<String, List<List<Object>>> vectorsForExcel;
     private Chi2Automate chi2Automate;
     private InsertExcel insertExcel;
     Logger logger = LoggerFactory.getLogger(CreateSample.class);
 
+    public CreateSample() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     /*createRandomSample will create the starting point of the samples and put it in the list and make
             it available for machine learning algorithm.
             */
     public void createRandomSample() throws IOException {
-        Map<String, Map<String, List<Object>>> vectorMap = createVector.getVectorMapGlobal();
+        Map<String, Map<String, List<Object>>> vectorMap = dataRepository.getVectorMapGlobal();
         Map<String, List<Object>> vectorListMap;
-        Map<String, List<List<Object>>> vectorFinalMap = createVector.getVectorFinalMapGlobal();
+        Map<String, List<List<Object>>> vectorFinalMap = dataRepository.getVectorFinalMapGlobal();
         List<List<Object>> vectorFinalList;
         Map<String, List<List<Object>>> vectorSampling = new LinkedHashMap<>();
         List<List<Object>> vectorSamplingList = new LinkedList<>();
@@ -154,49 +160,14 @@ public class CreateSample {
         //System.exit(0);
 
 
-        setVectorsForExcel(vectorCleanFinalMap);
+        dataRepository.setVectorsForExcel(vectorCleanFinalMap);
         //System.out.println("CLEAN THE SLATE");
         //vectorCleanFinalMap.entrySet().forEach(e-> System.out.print(e));
         //System.exit(0);
 
-        System.out.println("Before excel");
-        insertExcel.insertDataExcel();
-//        System.exit(0);
-
-        chi2Automate.getDetailsOfChi2();
+       
        //insertExcel.insertDataExcel(); //This will insert data into the excel.
     }
 
-	public CreateVector getCreateVector() {
-		return createVector;
-	}
-
-	public void setCreateVector(CreateVector createVector) {
-		this.createVector = createVector;
-	}
-
-	public Map<String, List<List<Object>>> getVectorsForExcel() {
-		return vectorsForExcel;
-	}
-
-	public void setVectorsForExcel(Map<String, List<List<Object>>> vectorsForExcel) {
-		this.vectorsForExcel = vectorsForExcel;
-	}
-
-	public Chi2Automate getChi2Automate() {
-		return chi2Automate;
-	}
-
-	public void setChi2Automate(Chi2Automate chi2Automate) {
-		this.chi2Automate = chi2Automate;
-	}
-
-	public InsertExcel getInsertExcel() {
-		return insertExcel;
-	}
-
-	public void setInsertExcel(InsertExcel insertExcel) {
-		this.insertExcel = insertExcel;
-	}
 
 }

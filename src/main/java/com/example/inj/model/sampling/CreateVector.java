@@ -1,16 +1,20 @@
 package com.example.inj.model.sampling;
 
-import com.example.inj.model.decays.DecayImplementation;
-import com.example.inj.model.strength.singlefile.ISingleFileStrength;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.example.inj.model.decays.DecayImplementation;
+import com.example.inj.model.storage.DataRepository;
+import com.example.inj.model.strength.singlefile.ISingleFileStrength;
+import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 //Modification 003- We have modify the current selection of segment to include a value if any file in the next segment is
 //bugfixing or not.
@@ -18,18 +22,15 @@ import java.util.stream.Collectors;
 // and hardcoding the increasing slope that helps to analyze whether the number of commit
 // should be considered. How it can impact our research.
 
-@Component
 public class CreateVector {
 
     Logger logger = LoggerFactory.getLogger(CreateVector.class);
 
-    private DecayImplementation decayImplementation;
-    private ISingleFileStrength singleFileStrength;
-    private IReadingStrategy readingStrategy;
-    private CreateWidth createWidth;
-    private Map<String, Map<String, List<Object>>> vectorMapGlobal;
-    private Map<String, List<List<Object>>> vectorFinalMapGlobal;
-
+    private DataRepository dataRepository;
+    
+    public CreateVector() {
+    	dataRepository = DataRepository.getInstance();
+    }
 /*
     createVector() function is responsible for creating vector of desired segment. The segment width
     is obtained from createSegmentWidth function.
@@ -39,10 +40,10 @@ public class CreateVector {
 //Imp 006: Check if current segment is buggy or not
     public void createVector() {
     	Map<String, Float> accStrength;
-        HashMap<String, String> dictionaryString = readingStrategy.getDictionaryStringI(); //Bug 002: Committed as part of commitID to be added in the sample data
-        Map<String, Integer> segmentWidths = createWidth.getSegmentWidth();
-        Map<String, Map<String, Float>> acStren = singleFileStrength.getFinalStrength();
-        Map<String,List<String>> fileCommits= readingStrategy.getFileCommitsI(); //Imp 004: File and it's associated commit details
+        HashMap<String, String> dictionaryString = dataRepository.getDictionaryString(); //Bug 002: Committed as part of commitID to be added in the sample data
+        Map<String, Integer> segmentWidths = dataRepository.getSegmentWidth();
+        Map<String, Map<String, Float>> acStren = dataRepository.getFinalStrength();
+        Map<String,List<String>> fileCommits= dataRepository.getFileCommits(); //Imp 004: File and it's associated commit details
         System.out.println("Strength");
         List<Object> xList = new ArrayList<>();
 
@@ -55,7 +56,7 @@ public class CreateVector {
         int i = 0;
         int segmentI = 0;
         int segmentWid = 0;
-        Map<String, Map<String, Boolean>> booleanFix = readingStrategy.getReadableBugFixingI(); //<FileId, <Date, Boolean>>
+        Map<String, Map<String, Boolean>> booleanFix = dataRepository.getReadableBugFixing(); //<FileId, <Date, Boolean>>
         Map<String, Boolean> booleanSubFix = new LinkedHashMap<>();
         String anDate = "";
 
@@ -237,8 +238,8 @@ public class CreateVector {
             }
         }
 
-        setVectorMapGlobal(vectorMap);
-        setVectorFinalMapGlobal(vectorFinalMap);
+        dataRepository.setVectorMapGlobal(vectorMap);
+        dataRepository.setVectorFinalMapGlobal(vectorFinalMap);
 
         //logger.info(vectorMap.entrySet().forEach(e-> System.out.println(e)));
         //logger.info("Check the solution");
@@ -255,10 +256,10 @@ public class CreateVector {
 
     public void createVectorSecondStrategy() {
         Map<String, Float> accStrength;
-        HashMap<String, String> dictionaryString = readingStrategy.getDictionaryStringI(); //Bug 002: Committed as part of commitID to be added in the sample data
-        Map<String, Integer> segmentWidths = createWidth.getSegmentWidth();
-        Map<String, Map<String, Float>> acStren = singleFileStrength.getFinalStrength();
-        Map<String, List<String>> fileCommits = readingStrategy.getFileCommitsI(); //Imp 004: File and it's associated commit details
+        HashMap<String, String> dictionaryString = dataRepository.getDictionaryString(); //Bug 002: Committed as part of commitID to be added in the sample data
+        Map<String, Integer> segmentWidths = dataRepository.getSegmentWidth();
+        Map<String, Map<String, Float>> acStren = dataRepository.getFinalStrength();
+        Map<String, List<String>> fileCommits = dataRepository.getFileCommits(); //Imp 004: File and it's associated commit details
         System.out.println("Strength");
         List<Object> xList = new ArrayList<>();
         List<List<Object>> xDoubleList = new ArrayList<>();
@@ -272,7 +273,7 @@ public class CreateVector {
         int i = 0;
         int segmentI = 0;
         int segmentWid = 0;
-        Map<String, Map<String, Boolean>> booleanFix = readingStrategy.getReadableBugFixingI(); //<FileId, <Date, Boolean>>
+        Map<String, Map<String, Boolean>> booleanFix = dataRepository.getReadableBugFixing(); //<FileId, <Date, Boolean>>
         Map<String, Boolean> booleanSubFix = new LinkedHashMap<>();
         String anDate = "";
 
@@ -331,51 +332,4 @@ public class CreateVector {
         }
     }
 
-	public DecayImplementation getDecayImplementation() {
-		return decayImplementation;
-	}
-
-	public void setDecayImplementation(DecayImplementation decayImplementation) {
-		this.decayImplementation = decayImplementation;
-	}
-
-	public ISingleFileStrength getSingleFileStrength() {
-		return singleFileStrength;
-	}
-
-	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
-		this.singleFileStrength = singleFileStrength;
-	}
-
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
-	}
-
-	public CreateWidth getCreateWidth() {
-		return createWidth;
-	}
-
-	public void setCreateWidth(CreateWidth createWidth) {
-		this.createWidth = createWidth;
-	}
-
-	public Map<String, Map<String, List<Object>>> getVectorMapGlobal() {
-		return vectorMapGlobal;
-	}
-
-	public void setVectorMapGlobal(Map<String, Map<String, List<Object>>> vectorMapGlobal) {
-		this.vectorMapGlobal = vectorMapGlobal;
-	}
-
-	public Map<String, List<List<Object>>> getVectorFinalMapGlobal() {
-		return vectorFinalMapGlobal;
-	}
-
-	public void setVectorFinalMapGlobal(Map<String, List<List<Object>>> vectorFinalMapGlobal) {
-		this.vectorFinalMapGlobal = vectorFinalMapGlobal;
-	}
 }

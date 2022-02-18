@@ -14,7 +14,6 @@ import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
 import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
 import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 public interface IPairStrength {
 
@@ -47,11 +46,5 @@ public interface IPairStrength {
 	public void setPairStrengthMap(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap);
 	public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMaps();
 	public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps);
-	public IReadingStrategy getReadingStrategy();
-	public void setReadingStrategy(IReadingStrategy readingStrategy);
-	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMapIn();
-	public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMapsIn();
-	
-	
 
 }

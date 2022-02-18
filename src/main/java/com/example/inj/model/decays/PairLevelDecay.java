@@ -1,29 +1,33 @@
 package com.example.inj.model.decays;
 
-import com.example.inj.model.strength.pair.PairStrength;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
-import com.google.common.collect.Table;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.model.storage.DataRepository;
+import com.example.inj.model.strength.pair.PairStrength;
 
 @Component
 public class PairLevelDecay {
 
-    IReadingStrategy readingStrategy;
-    @Autowired
-    public void setReadingStrategy(IReadingStrategy readingStrategy) {
-        this.readingStrategy = readingStrategy;
+    private DataRepository dataRepository;
+    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
+    private Map<String, List<String>> yearMapPair;
+    Logger logger = LoggerFactory.getLogger(PairStrength.class);
+    
+    public PairLevelDecay() {
+    	dataRepository = DataRepository.getInstance();
     }
 
-    Logger logger = LoggerFactory.getLogger(PairStrength.class);
-
-
-    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
 
     public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
         return pairLevelDecayMap;
@@ -33,7 +37,6 @@ public class PairLevelDecay {
         this.pairLevelDecayMap = pairLevelDecayMap;
     }
 
-    private Map<String, List<String>> yearMapPair;
 
     public Map<String, List<String>> getYearMapPair() {
         return yearMapPair;
@@ -56,7 +59,7 @@ public class PairLevelDecay {
 
         Map<String, Map<String, Integer>> timeSlotAccumulate;
         Map<String, Map<String, Map<String, Integer>>> timeFull = new LinkedHashMap<>();
-        Map<String, Map<String, Map<Integer, List<Object>>>> cellMap = readingStrategy.getReadableMappingFinalI().rowMap();
+        Map<String, Map<String, Map<Integer, List<Object>>>> cellMap = dataRepository.getReadableMappingFinal().rowMap();
         Map<String, List<String>> yearMap = new LinkedHashMap<>();
         Map<String, Integer> timeSlot;
         List<String> yearCount;
@@ -74,7 +77,7 @@ public class PairLevelDecay {
                 sortedList.addAll(listObj.values());
                 Collections.sort(sortedList, Comparator.comparing(o -> String.valueOf(o.get(10))));
 
-                Iterator listIterator = sortedList.listIterator();
+                Iterator<List<Object>> listIterator = sortedList.listIterator();
                 timeSlot = new LinkedHashMap<>();
                 while (listIterator.hasNext()) {
 
@@ -114,7 +117,7 @@ public class PairLevelDecay {
         Map<String, Map<String, Map<String, Double>>> globalDecay = new LinkedHashMap<>();
         Map<String, Map<String, Double>> columnGlobalDecay;
         Map<String, Double> dateGlobalDecay;
-        Iterator yearMapIterator;
+        Iterator<String> yearMapIterator;
 
 
         //Calculate Decay
@@ -174,7 +177,7 @@ public class PairLevelDecay {
             }
 
         }
-        setYearMapPair(yearMap);
+        dataRepository.setYearMapPair(yearMap);
         /*Start:  Bug 003: Explicity using garbage Collector */
         timeSlotAccumulate = null;
         timeFull = null;
@@ -188,8 +191,8 @@ public class PairLevelDecay {
         System.out.println("Inside Pair Global Decay");
 
         /*End:  Bug 003: Explicity using garbage Collector */
-        setPairLevelDecayMap(globalDecay);
-        setYearMapPair(yearMap);
+        dataRepository.setPairLevelDecayMap(globalDecay);
+        dataRepository.setYearMapPair(yearMap);
         logger.info("globalDecay");
         logger.info("globalDecay size = " + globalDecay.size());
         logger.info("yearMap");

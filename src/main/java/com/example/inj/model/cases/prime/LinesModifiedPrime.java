@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 
@@ -19,20 +20,24 @@ import com.example.inj.readingStrategy.strategy.IReadingStrategy;
      */
 @Component
 public class LinesModifiedPrime {
+	
 
-
-	private IReadingStrategy readingStrategy;
-
+	private DataRepository dataRepository;
+	
     Logger logger= LoggerFactory.getLogger(CoCommittedPrime.class);
 
     private Map<String, Map<String, Map<String, Float>>> linesModifiedSource= new HashMap<>();
     private Map<String, Map<String, Map<String, Float>>> linesModifiedDestination= new HashMap<>();
 
+    public LinesModifiedPrime() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public void getLinesModified()
     {
-        Map<String, Map<String, Map<Integer, List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
-        Map<Integer,String> dictMap= readingStrategy.getDictionaryI(); //id,commit_ID
-        Map<String,String> dictDate=readingStrategy.getDictionaryTimeI();//Commit_ID,Time&Date
+        Map<String, Map<String, Map<Integer, List<Object>>>> readMap= dataRepository.getReadableMappingFinal().rowMap();
+        Map<Integer,String> dictMap= dataRepository.getDictionary(); //id,commit_ID
+        Map<String,String> dictDate=dataRepository.getDictionaryTime();//Commit_ID,Time&Date
 
         for(String source: readMap.keySet())
         {
@@ -88,9 +93,9 @@ public class LinesModifiedPrime {
             linesModifiedSource.put(source,destinationModifiedLines );
             linesModifiedDestination.put(source, sourceModifiedLines);
         }
-
-        setLinesModifiedDestination(linesModifiedDestination);
-        setLinesModifiedSource(linesModifiedSource);
+        
+        dataRepository.setLinesModifiedDestination(linesModifiedDestination);
+        dataRepository.setLinesModifiedSource(linesModifiedSource);
         logger.info("Populated Lines Modified");
         ////logger.info(linesModifiedDestination.toString());
         //System.exit(0);
@@ -112,13 +117,4 @@ public class LinesModifiedPrime {
 		this.linesModifiedDestination = linesModifiedDestination;
 	}
 
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-        this.readingStrategy = readingStrategy;
-    }
-
-    
 }

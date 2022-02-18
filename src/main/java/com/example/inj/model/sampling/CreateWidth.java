@@ -10,14 +10,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.inj.model.decays.PairLevelDecay;
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 
 public class CreateWidth {
 
-	private PairLevelDecay pairLevelDecay;
-    private ISingleFileStrength singleFileStrength;
-    private Map<String, Integer> segmentWidth = new LinkedHashMap<>();
+    private DataRepository dataRepository;
     
+    public CreateWidth() {
+    	dataRepository = DataRepository.getInstance();
+    }
     
     /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
     file is committed between the intervals, like t1, t4, t8, t12. Whereas, global clock tick from t1,
@@ -28,8 +30,8 @@ public class CreateWidth {
     Mean of (TD1, TD2, TD3) will be the segment width.
     */
     public void createSegmentWidth() throws ParseException {
-        Map<String, List<String>> yearMapPairSame = pairLevelDecay.getYearMapPair();
-        Map<String, List<String>> yearMapAloneSame = singleFileStrength.getYearMapAloneSame();
+        Map<String, List<String>> yearMapPairSame = dataRepository.getYearMapPair();
+        Map<String, List<String>> yearMapAloneSame = dataRepository.getYearMapAloneSame();
         List<String> commitYear = new LinkedList<>();
         Map<String, List<String>> commitYearMap = new LinkedHashMap<>();
 
@@ -101,40 +103,8 @@ public class CreateWidth {
 
         System.out.println(" Mean Map ");
 
-        setSegmentWidth(meanMap);
-
-
-
+        dataRepository.setSegmentWidth(meanMap);
 
     }
 
-
-	public PairLevelDecay getPairLevelDecay() {
-		return pairLevelDecay;
-	}
-
-
-	public void setPairLevelDecay(PairLevelDecay pairLevelDecay) {
-		this.pairLevelDecay = pairLevelDecay;
-	}
-
-
-	public ISingleFileStrength getSingleFileStrength() {
-		return singleFileStrength;
-	}
-
-
-	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
-		this.singleFileStrength = singleFileStrength;
-	}
-
-
-	public Map<String, Integer> getSegmentWidth() {
-		return segmentWidth;
-	}
-
-
-	public void setSegmentWidth(Map<String, Integer> segmentWidth) {
-		this.segmentWidth = segmentWidth;
-	}
 }

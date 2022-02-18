@@ -1,26 +1,28 @@
 package com.example.inj.model.decays;
 
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import com.example.inj.model.storage.DataRepository;
 
-@Component
 public class GlobalDecay {
 
-    Map<String, Map<String, Float>> globalDecay;
-
-    IReadingStrategy readingStrategy;
-
-    public void setReadingStrategy(IReadingStrategy readingStrategy) {
-        this.readingStrategy = readingStrategy;
-    }
-
+    private Map<String, Map<String, Float>> globalDecay;
+    private DataRepository dataRepository;
     Logger logger = LoggerFactory.getLogger(DecayImplementation.class);
+
+    public GlobalDecay() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public Map<String, Map<String, Float>> getGlobalDecay() {
         return globalDecay;
     }
@@ -46,7 +48,7 @@ public class GlobalDecay {
         Then the time gap at time C4 will be 1, and at C8 will be 2
        */
     public void calculateGlobalDecay(List<String> commitSchedule, Map<String, Map<String, Float>> pairStrengthMap) {
-        Iterator commitScheduleIterator;
+        Iterator<String> commitScheduleIterator;
         TreeSet<String> pairSet = new TreeSet<>();
         List<String> listSet = new LinkedList<>();
         String iteratorValue = "";
@@ -60,7 +62,7 @@ public class GlobalDecay {
         Map<String, Map<String, Float>> globalDecay = new LinkedHashMap<>();
         Map<String, Float> globalDecayColumn = new LinkedHashMap<>();
         Map<String, Float> pairStrengthRevise = new LinkedHashMap<>();
-        Map<String,Map<String, Boolean>> booleanMapFix= readingStrategy.getReadableBugFixingI();
+        Map<String,Map<String, Boolean>> booleanMapFix= dataRepository.getReadableBugFixing();
 
 
 
@@ -130,7 +132,7 @@ public class GlobalDecay {
         }
 /*        System.out.println("Calculate Global Decay");
         globalDecay.get("caa7faee-1ed0-11eb-98c6-482ae32cf5b4").entrySet().forEach(e->System.out.print(e));*/
-        setGlobalDecay(globalDecay);
+        dataRepository.setGlobalDecay(globalDecay);
 
        /* booleanMapFix.entrySet().forEach(e-> System.out.print(  e));
 

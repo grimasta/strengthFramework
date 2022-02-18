@@ -12,28 +12,4 @@ public interface ISingleFileStrength{
 
 	public void finalStrengthSingleFile();
 
-	public IStrengthAccumulator getAccumulatedStrength();
-
-	public void setAccumulatedStrength(IStrengthAccumulator accumulatedStrength);
-
-	public IReadingStrategy getReadingStrategy();
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy);
-
-	public DecayImplementation getDecayImplementation();
-
-	public void setDecayImplementation(DecayImplementation decayImplementation);
-
-	public InsertExcel getInsertExcel();
-
-	public void setInsertExcel(InsertExcel insertExcel);
-
-	public Map<String, List<String>> getYearMapAloneSame();
-
-	public void setYearMapAloneSame(Map<String, List<String>> yearMapAloneSame);
-
-	public Map<String, Map<String, Float>> getFinalStrength();
-
-	public void setFinalStrength(Map<String, Map<String, Float>> finalStrength);
-
 }

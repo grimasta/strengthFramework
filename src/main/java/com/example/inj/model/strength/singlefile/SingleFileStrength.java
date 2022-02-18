@@ -11,27 +11,20 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import com.example.inj.model.decays.DecayImplementation;
-import com.example.inj.model.sampling.InsertExcel;
-import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.model.storage.DataRepository;
 import com.google.common.collect.Table;
 
-@Component
 public class SingleFileStrength implements ISingleFileStrength {
 
 
     Logger logger = LoggerFactory.getLogger(SingleFileStrength.class);
-    private IStrengthAccumulator accumulatedStrength;
-    private IReadingStrategy readingStrategy;
-    private DecayImplementation decayImplementation;
-    private InsertExcel insertExcel;
-    private Map<String, List<String>> yearMapAloneSame;
-    private Map<String, Map<String, Float>> finalStrength;
+    private DataRepository dataRepository;
 
-
+    public SingleFileStrength() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     /*
         finalStrengthSingleFile()-This function will calculate the strength of file even if the file is
         committed alone, for initial phase if file is committed alone we are just tracking the commit from the
@@ -40,10 +33,10 @@ public class SingleFileStrength implements ISingleFileStrength {
          */
 	public void finalStrengthSingleFile() {
 
-        Map<String, Map<String, Float>> finalStrength = decayImplementation.getAccumulatedSt();
+        Map<String, Map<String, Float>> finalStrength = dataRepository.getAccumulatedSt();
 
-        Table<String, String, Map<Integer, List<Object>>> readMappingSame = readingStrategy.getReadableMappingSameNI();
-        Map<String, Map<String, Boolean>>  bugFixMap= readingStrategy.getReadableBugFixingI();
+        Table<String, String, Map<Integer, List<Object>>> readMappingSame = dataRepository.getReadableMappingSameN();
+        Map<String, Map<String, Boolean>>  bugFixMap= dataRepository.getReadableBugFixing();
         Map<Integer, List<Object>> readMapVal;
         Map<String, Float> finalStrVal;
         List<String> readMap = new LinkedList<>();
@@ -105,12 +98,11 @@ public class SingleFileStrength implements ISingleFileStrength {
             finalSubStrengthSorted = new TreeMap<>();
         }
 
-        setYearMapAloneSame(yearMapAloneSame);
+        dataRepository.setYearMapAloneSame(yearMapAloneSame);
         System.out.println("Final Sorted Strength Including Sorted file");
 
 
-        setFinalStrength(finalStrengthSorted);
-        insertExcel.insertOverallStrength();
+        dataRepository.setFinalStrength(finalStrengthSorted);
 
      /*   System.out.println("FINAL SORTED STRENGTH");
 
@@ -124,51 +116,4 @@ public class SingleFileStrength implements ISingleFileStrength {
 
     }
 
-	public IStrengthAccumulator getAccumulatedStrength() {
-		return accumulatedStrength;
-	}
-
-	public void setAccumulatedStrength(IStrengthAccumulator accumulatedStrength) {
-		this.accumulatedStrength = accumulatedStrength;
-	}
-
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
-	}
-
-	public DecayImplementation getDecayImplementation() {
-		return decayImplementation;
-	}
-
-	public void setDecayImplementation(DecayImplementation decayImplementation) {
-		this.decayImplementation = decayImplementation;
-	}
-
-	public InsertExcel getInsertExcel() {
-		return insertExcel;
-	}
-
-	public void setInsertExcel(InsertExcel insertExcel) {
-		this.insertExcel = insertExcel;
-	}
-
-	public Map<String, List<String>> getYearMapAloneSame() {
-		return yearMapAloneSame;
-	}
-
-	public void setYearMapAloneSame(Map<String, List<String>> yearMapAloneSame) {
-		this.yearMapAloneSame = yearMapAloneSame;
-	}
-
-	public Map<String, Map<String, Float>> getFinalStrength() {
-		return finalStrength;
-	}
-
-	public void setFinalStrength(Map<String, Map<String, Float>> finalStrength) {
-		this.finalStrength = finalStrength;
-	}
 }

@@ -1,14 +1,25 @@
 package com.example.inj.model.cases;
 
-import javafx.util.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 //OLD refer WithoutCommitPrime
-import java.util.*;
-@Component
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.example.inj.model.storage.DataRepository;
+
+import javafx.util.Pair;
 public class TimeDifference {
 
-    Map<String, Map<String, Map<Integer, Map<String, Integer>>>> timeDifference;
+    private Map<String, Map<String, Map<Integer, Map<String, Integer>>>> timeDifference;
+    private DataRepository dataRepository;
+    
+    public TimeDifference() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public Map<String, Map<String, Map<Integer, Map<String, Integer>>>> getTimeDifference() {
         return timeDifference;
     }
@@ -109,7 +120,7 @@ TimeDifference-> How many times the A has been committed without B. --
         /*End:  Bug 003: Explicity using garbage Collector */
         System.out.println("Time Difference Excel");
         timeDiff3.entrySet().forEach(e->System.out.println(e));
-        setTimeDifference(timeDifferenceAggregate2);
+        dataRepository.setTimeDifference(timeDifferenceAggregate2);
         //timeDifferenceAggregate2.get("caa84917-1ed0-11eb-99c6-482ae32cf5b4").entrySet().forEach(e->System.out.print(e));
 
     }

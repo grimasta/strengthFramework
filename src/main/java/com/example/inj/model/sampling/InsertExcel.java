@@ -12,8 +12,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.model.strength.singlefile.ISingleFileStrength;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 /*This class will insert the data into the excel. As we have different requirement for inserting into excel,
 it is really helpful if we can have the logic separately
@@ -23,7 +23,11 @@ public class InsertExcel {
     private CreateSample createSample;
     private CreateWidth createWidth;
     private ISingleFileStrength singleFileStrength;
-    private IReadingStrategy readingStrategy;
+    private DataRepository dataRepository;
+    
+    public InsertExcel() {
+    	dataRepository = DataRepository.getInstance();
+    }
     
     /*
          We have used ApachePOI to insert into excel as it is quite fast as compared to normal I/O operation
@@ -46,11 +50,11 @@ public class InsertExcel {
         header.createCell(6).setCellValue("Slope");
         header.createCell(7).setCellValue("File Commits in Segment");
 
-        Map<String, List<List<Object>>> sampleVectors = createSample.getVectorsForExcel();
+        Map<String, List<List<Object>>> sampleVectors = dataRepository.getVectorsForExcel();
 
 //        sampleVectors.entrySet().forEach(e->System.out.println(e));
 
-        Map<String, Integer> segmentWidth = createWidth.getSegmentWidth();
+        Map<String, Integer> segmentWidth = dataRepository.getSegmentWidth();
         for (String key : sampleVectors.keySet()) {
             List<List<Object>> vectorList = sampleVectors.get(key);
             int width = segmentWidth.get(key);
@@ -103,8 +107,8 @@ public class InsertExcel {
     Created for Piyush Thesis. Called from Single File Strength
      */
     public void insertOverallStrength() {
-        Map<String, Map<String, Float>> strength= singleFileStrength.getFinalStrength();
-        Map<String, String> dateToCommit = readingStrategy.getDictionaryStringI();
+        Map<String, Map<String, Float>> strength= dataRepository.getFinalStrength();
+        Map<String, String> dateToCommit = dataRepository.getDictionaryString();
         int sheetCount = 1;
         Workbook workbook = null;
         workbook = new XSSFWorkbook();
@@ -180,13 +184,5 @@ public class InsertExcel {
 
 	public void setSingleFileStrength(ISingleFileStrength singleFileStrength) {
 		this.singleFileStrength = singleFileStrength;
-	}
-
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
 	}
 }

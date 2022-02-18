@@ -7,26 +7,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 import javafx.util.Pair;
 //Case-1 Number of times the file A&B are co-committed
-@Component
 public class CoCommittedFiles {
 
 
-    IReadingStrategy readingStrategy;
+    private DataRepository dataRepository;
+    private Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps;
 
-    @Autowired
-    public void setReadingStrategy(IReadingStrategy readingStrategy) {
-        this.readingStrategy = readingStrategy;
+    public CoCommittedFiles() {
+    	dataRepository = DataRepository.getInstance();
     }
-
-    Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps;
-
+    
     public Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> getPairMaps() {
         return pairMaps;
     }
@@ -37,7 +34,7 @@ public class CoCommittedFiles {
    //Case-1 Number of times the file A&B are co-committed
     public void coCommitABCD() {
 
-        Map<String, Map<String, Map<Integer, List<Object>>>> xyz = readingStrategy.getReadableMappingFinalI().rowMap();
+        Map<String, Map<String, Map<Integer, List<Object>>>> xyz = dataRepository.getReadableMappingFinal().rowMap();
 
         Map<String, Integer> yearMap = new HashMap<>();
         //Start: For Excel
@@ -167,7 +164,7 @@ public class CoCommittedFiles {
         }
         System.out.println("Co-Committed ABCD");
 
-        setPairMaps( new Pair(commitExcelxyzs, yearMapExcel3));
+        dataRepository.setPairMaps( new Pair(commitExcelxyzs, yearMapExcel3));
 
     }
 

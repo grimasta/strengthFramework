@@ -1,22 +1,21 @@
 package com.example.inj.automate;
 
 
-import com.example.inj.global.ProjectNameContainer;
-import com.example.inj.model.sampling.CreateSample;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.model.storage.DataRepository;
 
 public class Chi2Automate {
 
@@ -254,16 +253,18 @@ public class Chi2Automate {
     static int count4DDDDSecondLastSegmentIsBuggy = 0;
     static int count4DDDDLastSecondLastSegmentIsBuggy = 0;
     
-    private CreateSample createSample;
     private Logger logger = LoggerFactory.getLogger(Chi2Automate.class);
-    private boolean logging = false; 
+    private boolean logging = false;
+    private DataRepository dataRepository;
     		
     public Chi2Automate(Boolean logging) {
     	this.logging = logging;
+    	dataRepository = DataRepository.getInstance();
     }
+    
     public void getDetailsOfChi2() {
 
-        Map<String, List<List<Object>>> sampleVectors = createSample.getVectorsForExcel();
+        Map<String, List<List<Object>>> sampleVectors = dataRepository.getVectorsForExcel();
         for (String key : sampleVectors.keySet()) {
             List<List<Object>> vectorList = sampleVectors.get(key);
             int slope = 0;
@@ -2124,13 +2125,6 @@ public class Chi2Automate {
 
     }
 
-	public CreateSample getCreateSample() {
-		return createSample;
-	}
-
-	public void setCreateSample(CreateSample createSample) {
-		this.createSample = createSample;
-	}
 }
 
 

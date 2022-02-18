@@ -6,22 +6,25 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-@Component
 public class CoCommittedExcel {
 
 
-	private IReadingStrategy readingStrategy;
+	DataRepository dataRepository;
 	private Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits;
+	
+	public CoCommittedExcel() {
+		// TODO Auto-generated constructor stub
+		dataRepository = DataRepository.getInstance();
+	}
 	
     // Case 2 Start- Number of times A&B are co-committed together/ Number of time A is committed globally
     public void coCommitted() {
 
-        Table<String, String, Map<Integer, List<Object>>> abc=readingStrategy.getReadableMappingFinalI();
+        Table<String, String, Map<Integer, List<Object>>> abc = dataRepository.getReadableMappingFinal();
         List<Float> finalList = new ArrayList<>();
         Map<String, List<Float>> finalMap = new LinkedHashMap<>();
         Table<String, String, Map<Integer, Map<String, List<Float>>>> outputTable1 = HashBasedTable.create();
@@ -99,29 +102,13 @@ public class CoCommittedExcel {
         finalMap2 = null;
         finalList = null;
         /*End:  Bug 003: Explicity using garbage Collector */
-        setTableCommits(outputTable1);
+        dataRepository.setTableCommits(outputTable1);
 
     }
-
-
-
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
-	}
-
-
 
 	public Table<String, String, Map<Integer, Map<String, List<Float>>>> getTableCommits() {
 		return tableCommits;
 	}
-
-
 
 	public void setTableCommits(Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits) {
 		this.tableCommits = tableCommits;

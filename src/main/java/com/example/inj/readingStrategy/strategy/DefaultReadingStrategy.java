@@ -5,21 +5,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.SelectAttributes;
@@ -29,6 +23,7 @@ import com.example.inj.commitBuilder.TryFileDetails.TryFileDetailsBuilder;
 import com.example.inj.commitRepository.CommitDetails;
 import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.model.File2FileDetails.File2FileDetails;
+import com.example.inj.model.storage.DataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -36,12 +31,6 @@ import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import lombok.Data;
-
-//Bug 001: Committed as part of the file that is committed alone.
-//Bug 002: Committed as part of commitID to be added in the sample data
-//Bug 003: Explicity using garbage Collector
-//Imp 004: File and it's associated commit details
 
 public class DefaultReadingStrategy implements IReadingStrategy {
 	Logger logger = Logger.getLogger(this.getClass());
@@ -49,49 +38,48 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	private Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy = HashBasedTable
 			.create();
 	private Table<String, String, Map<Integer, List<Object>>> readableMappingSameN = HashBasedTable.create();// Bug 001:
-	// Committed as
-	// part of the
-	// file that is
-	// committed
-	// alone.
 	private Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
 	private HashMap<String, String> dictionaryString = new LinkedHashMap<>(); // Time, CommitId
 	private HashMap<String, String> dictionaryTime = new HashMap<>(); // CommitId, Time
 	private Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges3Copy = HashBasedTable
 			.create();
 	private Map<String, List<String>> fileCommits = new HashMap<>(); // Imp 004
-	private static DefaultReadingStrategy instance;
+	private DataRepository dataRepository;
+
+	public DefaultReadingStrategy() {
+		this.dataRepository = DataRepository.getInstance();
+	}
 
 	private boolean isBuilt() {
-		if (dictionary.isEmpty()) {
+		if (dataRepository.getDictionary().isEmpty()) {
 			System.out.println("dictionary variable is empty");
 			return false;
 		}
-		if (fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy.isEmpty()) {
+		if (dataRepository.getFileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy().isEmpty()) {
 			System.out.println("fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy variable is empty");
 			return false;
 		}
-		if (readableMappingSameN.isEmpty()) {
+		if (dataRepository.getReadableMappingSameN().isEmpty()) {
 			System.out.println("readableMappingSameN variable is empty");
 			return false;
 		}
-		if (readableBugFixing.isEmpty()) {
+		if (dataRepository.getReadableBugFixing().isEmpty()) {
 			System.out.println("readableBugFixing variable is empty");
 			return false;
 		}
-		if (dictionaryString.isEmpty()) {
+		if (dataRepository.getDictionaryString().isEmpty()) {
 			System.out.println("dictionaryString variable is empty");
 			return false;
 		}
-		if (dictionaryTime.isEmpty()) {
+		if (dataRepository.getDictionaryTime().isEmpty()) {
 			System.out.println("dictionaryTime variable is empty");
 			return false;
 		}
-		if (fileId2FileID2OccurencesNumber2ListOfChanges3Copy.isEmpty()) {
+		if (dataRepository.getReadableMappingFinal().isEmpty()) {
 			System.out.println("fileId2FileID2OccurencesNumber2ListOfChanges3Copy variable is empty");
 			return false;
 		}
-		if (fileCommits.isEmpty()) {
+		if (dataRepository.getFileCommits().isEmpty()) {
 			System.out.println("fileCommits variable is empty");
 			return false;
 		} else {
@@ -105,16 +93,6 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 
 	public void setFileCommits(Map<String, List<String>> fileCommits) {
 		this.fileCommits = fileCommits;
-	}
-
-	private DefaultReadingStrategy() {
-	}
-
-	public static DefaultReadingStrategy getInstance() {
-		if (instance == null) {
-			instance = new DefaultReadingStrategy();
-		}
-		return instance;
 	}
 
 	@Override
@@ -164,7 +142,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 
 //          create a new TryCommitDetails object (the hell if I know what it's used for and how it's different from the CommitDetails Object...
 //          TODO investigate if it's possible to safely delete
-			TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
+//			TryCommitDetails com = 
+			new TryCommitDetails.UserBuilder(af.getId()).build();
 //			create a new TryFileDetails object using the necessary fields from the current AttributesField object
 //          TODO clean up the TryFileDetails class and calls, its a huge mess
 			TryFileDetailsBuilder tfdBuilder = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId());
@@ -174,7 +153,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 			tfdBuilder.setCommitDate(af.getCommitted_at());
 			tfdBuilder.setCaddition(af.getCadditions());
 			tfdBuilder.setCdeletion(af.getCdeletions());
-			TryFileDetails tryFileDetails = tfdBuilder.build();
+//			TryFileDetails tryFileDetails = 
+			tfdBuilder.build();
 //			TODO this line should be possible to be safely deleted            
 //            TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
 		}
@@ -199,18 +179,13 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 				.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMapping2Pure = new HashMap<>();
 //      TODO give a proper name
-		Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges3 = HashBasedTable
-				.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMapping3Pure = new HashMap<>();
 		// Check4 is created to capture the commitID
 		Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4 = HashBasedTable
 				.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingCheck4Pure = new HashMap<>();
 		// For each commit we will have list of file objects
-		Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2TryFileDetailsMapIterator = commitDetails2TryFileDetailsMap
-				.entrySet().iterator();
 		// Integer for occurrence and List of changes
-		Map<Integer, List<Object>> numberOfOccurences2ListOfChangesMap = new HashMap<>();
 		Map<String, List<Object>> commitId2ListofChangesMap = new HashMap<>();
 		int cadd = 0;
 //      TODO provide proper names to the following 2 Maps getting rid of the "samesies" conventions (STRONG ROLL OF EYES)
@@ -235,6 +210,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 					TryFileDetails tf = singleFileChangeList.get(0);
 					cadd = tf.getAddition() + tf.getDeletion();
 
+//					TODO weave into logic
+					@SuppressWarnings("unused")
 					File2FileDetails detailedCrossFileData = new File2FileDetails(0, 0, cadd, cadd, cadd, cadd, cadd,
 							0.0, 0.0, 0.0, tf.getDate(), "RRRR", tf.isBugFixing(), tf.getCaddition(), tf.getCdeletion(),
 							tf.isBugFixing());
@@ -273,7 +250,7 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 					// 16. CommitID
 					fileToFileDataForAParticularCommitInListFormat.add(commitDetails.getCommitID());
 
-//              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elmenets of the List is for luck of a better word.. random  	
+//              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elements of the List is for luck of a better word.. random  	
 					commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
 
 					if (fileId2fileId2CommitId2ListOfFileToFileData.contains(tf.getFileId(), tf.getFileId())) {
@@ -287,34 +264,29 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 //                commitId2CollectionOfDataTemp = new LinkedHashMap<>();
 
 				} else {
-					
 
 					// End: Bug 001: Committed as part of the file that is committed alone.
 
 					// Populating and Creating the data structure with "X" for the (FN,FN)
 
 					// Iterator on FileDetails of HashMap
-					Iterator<TryFileDetails> listOfTryFileDetailsIterator;
-					listOfTryFileDetailsIterator = commitDetails2TryFileDetailsMap.get(commitDetails).iterator();
 					int cAddition = 0;
 					int cDeletion = 0;
 					int avgLinesChangedInCommit = 0;
 					int noOflinesChangedInSourceFile = 0;
 					int noOfLinesChangedInTargetFile = 0;
-					int index = 0;
 					List<Object> buggyList = new ArrayList<>();
 					int buggy = 0;
 					int nonbuggy = 0;
 					boolean tryFileDetailsSourceIsNotBugFixing = false;
 					boolean tryFileDetailsTargetIsNotBugFixing = false;
-					
+
 					dictionaryString.put(singleFileChangeList.get(0).getDate(), commitDetails.getCommitID());
 					dictionaryTime.put(commitDetails.getCommitID(), singleFileChangeList.get(0).getDate());
-					
+
 					for (TryFileDetails tryFileDetailSource : singleFileChangeList) {
 						for (TryFileDetails tryFileDetailTarget : singleFileChangeList) {
 //						calculating characteristics of file interaction within given commit
-							index = 0;
 							cAddition = tryFileDetailSource.getCaddition();
 							cDeletion = tryFileDetailSource.getCdeletion();
 							avgLinesChangedInCommit = (tryFileDetailSource.getAddition()
@@ -329,7 +301,7 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 							if (!tryFileDetailTarget.isBugFixing()) {
 								tryFileDetailsTargetIsNotBugFixing = true;
 							}
-							
+
 							if (tryFileDetailsSourceIsNotBugFixing && tryFileDetailsTargetIsNotBugFixing) {
 								++nonbuggy;
 							} else {
@@ -370,65 +342,73 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 							buggyList.add(tryFileDetailSource.isBugFixing() && tryFileDetailTarget.isBugFixing());
 							// 16. CommitID
 							buggyList.add(commitDetails.getCommitID());
-							
+
 							String sourceFileId = tryFileDetailSource.getFileId();
 							String targetFileId = tryFileDetailTarget.getFileId();
 
 							if (!sourceFileId.equals(targetFileId)) {
 								if (!fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles.contains(sourceFileId,
 										targetFileId)) {
-									fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles.put(sourceFileId, targetFileId,
-											new HashMap<>());
+									fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles.put(sourceFileId,
+											targetFileId, new HashMap<>());
 									fileId2FileID2OccurencesNumber2ListOfChangesCheck4.put(sourceFileId, targetFileId,
 											new HashMap<>());
 									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
 											.get(sourceFileId, targetFileId);
-									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4.get(sourceFileId, targetFileId);
+									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4
+											.get(sourceFileId, targetFileId);
 									listOfChanges.put(listOfChanges.size(), buggyList);
-									commitId2ListofChangesMap.put(commitDetails.getCommitID(),  buggyList);
+									commitId2ListofChangesMap.put(commitDetails.getCommitID(), buggyList);
 
 								} else {
-									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4.get(sourceFileId, targetFileId);
-									commitId2ListofChangesMap.put(commitDetails.getCommitID(),  buggyList);									
+									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4
+											.get(sourceFileId, targetFileId);
+									commitId2ListofChangesMap.put(commitDetails.getCommitID(), buggyList);
 									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
 											.get(sourceFileId, targetFileId);
 									listOfChanges.put(listOfChanges.size(), buggyList);
 								}
-								
-								dictionary.put(fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
-										.get(sourceFileId, targetFileId).size() - 1, commitDetails.getCommitID());
-								
+
+								dictionary.put(
+										fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
+												.get(sourceFileId, targetFileId).size() - 1,
+										commitDetails.getCommitID());
+
 							}
 						}
 						String fileId = tryFileDetailSource.getFileId();
 						if (!fileIds.contains(fileId)) {
 							fileIds.add(fileId);
-							fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges.put(fileId, fileId, new HashMap<>());
-							dictionary.put(-(fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges.get(fileId, fileId).size() - 1), commitDetails.getCommitID());
+							fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges.put(fileId, fileId,
+									new HashMap<>());
+							dictionary.put(-(fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges
+									.get(fileId, fileId).size() - 1), commitDetails.getCommitID());
 						}
 					}
 				}
 			}
 //			setDictionary(dictionary);
-			setfileId2FileID2OccurencesNumber2ListOfChanges3Copy(fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles);
-			setReadableMappingSameN(fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges);
-			setDictionaryString(dictionaryString); // Bug 002: Committed as part of commitID to be added in the sample data
-			setDictionaryTime(dictionaryTime);
-			IsBugFixing();
-			fileId2FileID2OccurencesNumber2ListOfChanges3Copy.putAll(fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles);
-			fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy
-					.putAll(fileId2FileID2OccurencesNumber2ListOfChangesCheck4); // Added for parameters in excel
+			dataRepository.setFileId2FileID2OccurencesNumber2ListOfChanges3Copy(
+					fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles);
+			dataRepository.setReadableMappingSameN(fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges);
+			dataRepository.setDictionary(dictionary);
+			dataRepository.setDictionaryString(dictionaryString);
+			dataRepository.setDictionaryTime(dictionaryTime);
+//			setDictionaryString(dictionaryString); // Bug 002: Committed as part of commitID to be added in the sample data
+//			setDictionaryTime(dictionaryTime);
 
-			setFileCommits(makeFileIds2CommitIdsMap(commitDetails2TryFileDetailsMap));
+			IsBugFixing();
+			dataRepository.getReadableMappingFinal().putAll(fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles);
+			dataRepository.getFileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy()
+					.putAll(fileId2FileID2OccurencesNumber2ListOfChangesCheck4);
+			// Added for parameters in excel
+
+			dataRepository.setFileCommits(makeFileIds2CommitIdsMap(commitDetails2TryFileDetailsMap));
 			if (!isBuilt())
 				System.exit(1);
 		} catch (Exception e) {
 			System.out.println(e.getClass() + "\n");
 		}
-
-
-		
-
 
 //		setDictionary(dictionary);
 //		setfileId2FileID2OccurencesNumber2ListOfChanges3Copy(fileId2FileID2OccurencesNumber2ListOfChanges3);
@@ -460,7 +440,6 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 		System.out.println("Mapping is generated");
 		/* End: Bug 003: Explicity using garbage Collector */
 
-
 	}
 
 	private Map<String, List<String>> makeFileIds2CommitIdsMap(
@@ -478,8 +457,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	}
 
 	public void IsBugFixing() {
-		Table<String, String, Map<Integer, List<Object>>> readableMappingPair = getfileId2FileID2OccurencesNumber2ListOfChanges3Copy();
-		Table<String, String, Map<Integer, List<Object>>> readableMappingSame = getReadableMappingSameNI();
+		Table<String, String, Map<Integer, List<Object>>> readableMappingPair = dataRepository.getReadableMappingFinal();
+		Table<String, String, Map<Integer, List<Object>>> readableMappingSame = dataRepository.getReadableMappingSameN();
 		Map<Integer, List<Object>> readSubRow = new HashMap<>();
 		List<Object> obj = new ArrayList<>();
 		Map<String, Map<String, Boolean>> outp = new LinkedHashMap<>();
@@ -523,9 +502,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 			subOut = new LinkedHashMap<>();
 
 		}
-		setReadableBugFixing(outp);
-
-
+		dataRepository.setReadableBugFixing(outp);
+//		setReadableBugFixing(outp);
 
 	}
 
@@ -548,11 +526,6 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 		return jsonArray;
 	}
 
-	@Override
-	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI() {
-		return readableMappingSameN;
-	}
-
 	/*
 	 * @Override public Table<String, String, Map<String, List<Object>>>
 	 * getReadableMappingNI() { return getReadableMappingN(); }
@@ -562,33 +535,8 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	 */
 
 	@Override
-	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI() {
+	public Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinal() {
 		return fileId2FileID2OccurencesNumber2ListOfChanges3Copy;
-	}
-
-	@Override
-	public HashMap<String, String> getDictionaryStringI() {
-		return dictionaryString;
-	}
-
-	@Override
-	public HashMap<Integer, String> getDictionaryI() {
-		return dictionary;
-	}
-
-	@Override
-	public Map<String, Map<String, Boolean>> getReadableBugFixingI() {
-		return readableBugFixing;
-	}
-
-	@Override
-	public Map<String, List<String>> getFileCommitsI() {
-		return fileCommits;
-	}
-
-	@Override
-	public Map<String, String> getDictionaryTimeI() {
-		return dictionaryTime;
 	}
 
 	public void setReadableMappingSameN(Table<String, String, Map<Integer, List<Object>>> readableMappingSameN) {
@@ -665,10 +613,6 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 
 	public HashMap<String, String> getDictionaryString() {
 		return dictionaryString;
-	}
-
-	public static void setInstance(DefaultReadingStrategy instance) {
-		DefaultReadingStrategy.instance = instance;
 	}
 
 }

@@ -10,16 +10,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.model.storage.DataRepository;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-
-import lombok.Getter;
-import lombok.Setter;
 
 
 //Case6:Number of calls between A to B/ Average number of calls from A to all other co-committed files.
@@ -27,12 +22,16 @@ import lombok.Setter;
 public class ParseCoupledCSV {
     Logger logger = LoggerFactory.getLogger(ParseCoupledCSV.class);
 
-    private IReadingStrategy readingStrategy;
+    private DataRepository dataRepository;
     private HashMap<String,HashMap<String,HashMap<String, Float>>> finalCallsValue= new HashMap<>();
     private HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls = new HashMap<>();
     private HashMap<String,HashMap<String,Integer>> maxCommitCalls = new HashMap<>();
     private HashMap<String,Float> avgCommitCalls= new HashMap<>();
 
+    public ParseCoupledCSV() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public void parseData() {
 
         try {
@@ -45,7 +44,7 @@ public class ParseCoupledCSV {
             parserSettings.setHeaders("CommitID", "Source_File_ID", "Destination_File_ID", "Calls");
             parserSettings.selectFields(CallAttributes.values());
             CsvParser parser = new CsvParser(parserSettings);
-            //D:\Thesis-Analysis\Extras-Thesis\Project_CSV_Files\Calls_Data_Latest\Solved
+//            TODO debug file location for calls information
             parser.parse(new FileReader(new File("D:\\Thesis-Analysis\\Extras-Thesis\\Project_CSV_Files\\Calls_Data_Latest\\Solved\\Korganizer_Calls.csv")));
 
             System.out.println("I am after parseData");
@@ -76,7 +75,7 @@ public class ParseCoupledCSV {
                 }
             }
             //Setting the hashmap
-            setMapCalls(mapCalls);
+            dataRepository.setMapCalls(mapCalls);
             System.out.println("Here is the map:-");
 
             for(Attributes attr: beans)
@@ -129,7 +128,7 @@ public class ParseCoupledCSV {
                 }
             }
 
-            setFinalCallsValue(finalCallsValue);
+            dataRepository.setFinalCallsValue(finalCallsValue);
 
             System.out.println("Final Calls Value");
             finalCallsValue.entrySet().forEach(e->System.out.print(e));
@@ -143,13 +142,8 @@ public class ParseCoupledCSV {
             System.exit(0);
         }
     }
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
-	}
-	public HashMap<String, HashMap<String, HashMap<String, Float>>> getFinalCallsValue() {
+
+    public HashMap<String, HashMap<String, HashMap<String, Float>>> getFinalCallsValue() {
 		return finalCallsValue;
 	}
 	public void setFinalCallsValue(HashMap<String, HashMap<String, HashMap<String, Float>>> finalCallsValue) {

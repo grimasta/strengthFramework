@@ -1,13 +1,10 @@
 package com.example.inj.model.strength.pair;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
-import org.apache.catalina.mbeans.GlobalResourcesLifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +17,9 @@ import com.example.inj.model.cases.prime.CoCommittedPrime;
 import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
 import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.google.common.collect.Table;
 
 import javafx.util.Pair;
@@ -41,11 +38,14 @@ public class PairStrength implements IPairStrength{
     private IStrengthAccumulator accumulatedStrength;
     private Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap;
     private Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
-    private IReadingStrategy readingStrategy;
+    private DataRepository dataRepository;
     Logger logger = LoggerFactory.getLogger(PairStrength.class);
     private IPairStrengthStrategy theStrategy = null;
 
-
+    public PairStrength() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public void calculatePairStrength2(){
     	
 //        HashMap<Integer, String> dictionary = readingStrategy.getDictionaryI();
@@ -175,20 +175,12 @@ public class PairStrength implements IPairStrength{
     }
     
     public void setUpObjects() {
-//    	committedSoFar = new CommittedSoFar();
-    	committedSoFar.setReadingStrategy(readingStrategy);
-//    	coCommittedPrime = new CoCommittedPrime();
-    	coCommittedPrime.setCommittedSoFar(committedSoFar);
-    	coCommittedPrime.setReadingStrategy(readingStrategy);
-//    	withoutCommitPrime = new WithoutCommitPrime();
-    	withoutCommitPrime.setCommittedSoFar(committedSoFar);
-    	withoutCommitPrime.setReadingStrategy(readingStrategy);
+    	committedSoFar = new CommittedSoFar();
+    	coCommittedPrime = new CoCommittedPrime();
+    	withoutCommitPrime = new WithoutCommitPrime();
     	linesModifiedPrime = new LinesModifiedPrime();
-    	linesModifiedPrime.setReadingStrategy(readingStrategy);
     	parseCoupledCSV = new ParseCoupledCSV();
-    	parseCoupledCSV.setReadingStrategy(readingStrategy);
-//    	coCommittedFiles = new CoCommittedFiles();
-    	coCommittedFiles.setReadingStrategy(readingStrategy);
+    	coCommittedFiles = new CoCommittedFiles();
     }
     
     public void setStrategy(IPairStrengthStrategy newStrategy) {
@@ -199,10 +191,10 @@ public class PairStrength implements IPairStrength{
     	setUpObjects();
         logger.info("inside calculate Pair Strength");
         System.out.println("inside calculate Pair Strength ");
-        Map<String,Map<String, Map<Integer,List<Object>>>> readMap= readingStrategy.getReadableMappingFinalI().rowMap();
-        Map<Integer,String> dictionaryKey= readingStrategy.getDictionaryI();
-        Map<String,String> dictionaryStringDate=readingStrategy.getDictionaryTimeI();
-        Map<String,Map<String,Boolean>> bugFixingMap= readingStrategy.getReadableBugFixingI();
+        Map<String,Map<String, Map<Integer,List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
+        Map<Integer,String> dictionaryKey = dataRepository.getDictionary();
+        Map<String,String> dictionaryStringDate = dataRepository.getDictionaryTime();
+        Map<String,Map<String,Boolean>> bugFixingMap = dataRepository.getReadableBugFixing();
         //Populate Committed So Far
         logger.info("Before Committed So Far");
         committedSoFar.committedSoFar();
@@ -211,16 +203,16 @@ public class PairStrength implements IPairStrength{
         logger.info("Before coCommittedPrime");
         coCommittedPrime.getCoCommittedFiles();
         logger.info("After coCommittedPrime");
-        Map<String,Map<String,Map<String, Float>>> coCommit=coCommittedPrime.getCommittedPrimeValue();
+        Map<String,Map<String,Map<String, Float>>> coCommit=dataRepository.getCommittedPrimeValue();
         //Case 2: Number of time (A&B) are co-committed/ Number of time A is committed so far
         logger.info("After Case 2");
         System.out.println("After Case 2");
-        Map<String,Map<String,Map<String, Float>>> coCommitTogether=coCommittedPrime.getCommittedTogetherValue();
+        Map<String,Map<String,Map<String, Float>>> coCommitTogether=dataRepository.getCommittedTogetherValue();
         //How many times the File A has been committed without File B/ Number of time A is committed so far
         logger.info("coCommitTogether");
         withoutCommitPrime.getTimeDifference();
         logger.info("After Case 3");
-        Map<String,Map<String,Map<String, Float>>> committedNotTogether=withoutCommitPrime.getCoTimeDifference(); //Todo Need to check at that particular point when files are committed together
+        Map<String,Map<String,Map<String, Float>>> committedNotTogether=dataRepository.getCoTimeDifference(); //Todo Need to check at that particular point when files are committed together
         //Case 6: ’: Number of calls between A to B/ Average number of calls from A to all other co-committed files. (Ignore the self calls
         //parseCoupledCSV.parseData();
         logger.info("After Case 6");
@@ -228,79 +220,17 @@ public class PairStrength implements IPairStrength{
 
         linesModifiedPrime.getLinesModified();
         System.out.println("After Case-4");
-        Map<String, Map<String, Map<String, Float>>> sourceLinesModified = linesModifiedPrime.getLinesModifiedSource();
+        Map<String, Map<String, Map<String, Float>>> sourceLinesModified = dataRepository.getLinesModifiedSource();
         //case-5
-        Map<String, Map<String, Map<String, Float>>> destinationLinesModified = linesModifiedPrime.getLinesModifiedDestination();
+        Map<String, Map<String, Map<String, Float>>> destinationLinesModified = dataRepository.getLinesModifiedDestination();
 //        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
-        setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
-//        float pairStrength=0.0f;
-//        Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
-//        for(String source: readMap.keySet())
-//        {
-//            Map<String, List<Map<Integer, Map<String, Float>>>> pairStrengthSubMap = new LinkedHashMap<>();
-//            for(String destination: readMap.get(source).keySet())
-//            {
-//                Map<String, Float> pairStrengthSubThreeMap = new TreeMap<>();
-//                Map<Integer, Map<String, Float>> pairStrengthSubTwoMap = new TreeMap<>();
-//                List<Map<Integer, Map<String, Float>>> pairSubTwoMapList = new LinkedList<>();
-//                for(int commitKey: readMap.get(source).get(destination).keySet())
-//                {
-//                    String commitTime=dictionaryStringDate.get(dictionaryKey.get(commitKey));
-//
-//                    float coCommitValue=coCommit.get(source).get(destination).get(commitTime); //Case 1''
-//                    float coCommitTogetherValue=coCommitTogether.get(source).get(destination).get(commitTime); //Case 2
-////                    float callsValue=0.0f;
-//                    /*if(callsMap.containsKey(source) && callsMap.get(source).containsKey(destination) && callsMap.get(source).get(destination).containsKey(commitTime))
-//                    {
-//                        callsValue=callsMap.get(source).get(destination).get(commitTime);
-//                    }*/
-//                    float commitNotTog=0.0f;
-//                    if(committedNotTogether.containsKey(source) && committedNotTogether.get(source).containsKey(destination) && committedNotTogether.get(source).get(destination).containsKey(commitTime))
-//                    {
-//                        commitNotTog=committedNotTogether.get(source).get(destination).get(commitTime);
-//                    }
-//
-//                    float sourceLinesModify=0.0f;
-//                    if(sourceLinesModified.containsKey(source) && sourceLinesModified.get(source).containsKey(destination) && sourceLinesModified.get(source).get(destination).containsKey(commitTime))
-//                    {
-//                        //logger.info("Inside 1");
-//                        sourceLinesModify=sourceLinesModified.get(source).get(destination).get(commitTime);
-//                    }
-//                    float destinationLinesModify=0.0f;
-//                    if(destinationLinesModified.containsKey(source) && destinationLinesModified.get(source).containsKey(destination) && destinationLinesModified.get(source).get(destination).containsKey(commitTime))
-//                    {
-//                        //logger.info("Inside 2");
-//                        destinationLinesModify=destinationLinesModified.get(source).get(destination).get(commitTime);
-//                    }
-//                    //replce- with+
-//                    if((bugFixingMap.containsKey(source) && bugFixingMap.get(source).containsKey(commitTime) && bugFixingMap.get(source).get(commitTime)) && (bugFixingMap.containsKey(source) && bugFixingMap.get(destination).containsKey(commitTime) && bugFixingMap.get(destination).get(commitTime)))
-//                    {
-//                        pairStrength =1.5f*(coCommitValue +coCommitTogetherValue + sourceLinesModify + destinationLinesModify) - commitNotTog;
-//                    }
-//                    else {
-//                        //pairStrength=coCommitValue+coCommitTogetherValue+ callsValue  + sourceLinesModify + destinationLinesModify - commitNotTog;
-//                        //0.50  //0.20
-//                        pairStrength =  0.20f*(coCommitValue + coCommitTogetherValue + sourceLinesModify + destinationLinesModify - commitNotTog);
-//                    }
-//                    //logger.info(" callsValue "+ callsValue + " coCommitValue " + coCommitValue + " coCommitTogetherValue " + coCommitTogetherValue +  " commitNotTog " + commitNotTog + " sourceLinesModify " + sourceLinesModify + " destinationLinesModify " + destinationLinesModify);
-//
-//                    pairStrengthSubThreeMap.put(commitTime,pairStrength);
-//                    pairStrengthSubTwoMap.put(commitKey, pairStrengthSubThreeMap);
-//                    pairSubTwoMapList.add(pairStrengthSubTwoMap);
-//                    pairStrengthSubThreeMap=new TreeMap<>();
-//                    pairStrengthSubTwoMap= new TreeMap<>();
-//                }
-//                pairStrengthSubMap.put(destination, pairSubTwoMapList);
-//
-//            }
-//            localPairStrength.put(source, pairStrengthSubMap);
-//        }
-        //System.exit(0);
+        dataRepository.setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
+//       
 
         coCommittedFiles.coCommitABCD();
-        Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = coCommittedFiles.getPairMaps();
+        Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = dataRepository.getPairMaps();
         Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();
-        setExcelYearMaps(excelYearMap);
+        dataRepository.setExcelYearMaps(excelYearMap);
 //        setPairStrengthMap(localPairStrength);
         //logger.info("Pair Strength");
         //logger.info(localPairStrength.toString());
@@ -402,22 +332,5 @@ public class PairStrength implements IPairStrength{
 	public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps) {
 		this.excelYearMaps = excelYearMaps;
 	}
-
-	public IReadingStrategy getReadingStrategy() {
-		return readingStrategy;
-	}
-
-	public void setReadingStrategy(IReadingStrategy readingStrategy) {
-		this.readingStrategy = readingStrategy;
-	}
-	
-	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> getPairStrengthMapIn() {
-        return getPairStrengthMap();
-    }
-
-    public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMapsIn() {
-        return getExcelYearMaps();
-    }
-
 
 }

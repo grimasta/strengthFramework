@@ -5,7 +5,7 @@ public class ReadingStrategyFactory {
 	public static IReadingStrategy create(ReadingStrategyEnumeration type) {
 		switch(type) {
 		case DEFAULT:
-			return DefaultReadingStrategy.getInstance();
+			return new DefaultReadingStrategy();
 		default:
 			System.err.println("ERROR TRYING TO INSTANTIATE IReadingStrategy in ReadingStrategyFactory");
 			System.exit(1);

@@ -19,20 +19,19 @@ public interface IReadingStrategy {
 
     ArrayList<String> convertJson(List<AttributesField> attf) throws IOException;
 
-    Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameNI();
+    Table<String, String, Map<Integer, List<Object>>> getReadableMappingSameN();
 
+    Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinal();
 
-    Table<String, String, Map<Integer, List<Object>>> getReadableMappingFinalI();
+    HashMap<String, String> getDictionaryString();
 
-    HashMap<String, String> getDictionaryStringI();
+    HashMap<Integer, String> getDictionary();
 
-    HashMap<Integer, String> getDictionaryI();
+    Map<String, Map<String, Boolean>> getReadableBugFixing();
 
-    Map<String, Map<String, Boolean>> getReadableBugFixingI();
+    Map<String, List<String>> getFileCommits();
 
-    Map<String, List<String>> getFileCommitsI();
-
-    Map<String,String> getDictionaryTimeI();
+    Map<String,String> getDictionaryTime();
 
 
 

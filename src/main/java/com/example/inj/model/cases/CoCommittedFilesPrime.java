@@ -1,31 +1,27 @@
 package com.example.inj.model.cases;
 
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
-import com.google.common.collect.Table;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
-import java.util.*;
+import com.example.inj.model.storage.DataRepository;
 
-@Component
-@Data
 public class CoCommittedFilesPrime {
 
-    IReadingStrategy readingStrategy;
-
-    @Autowired
-    public void setReadingStrategy(DefaultReadingStrategy readingStrategy) {
-        this.readingStrategy = DefaultReadingStrategy.getInstance();
-    }
-
+    private DataRepository dataRepository;
     Map<String, Map<Integer, Map<String, Integer>>> yearMap = new HashMap<>();
     Map<String, Map<String, Map<String, Integer>>>  coCommittedFiles = new HashMap<>();
 
+    public CoCommittedFilesPrime() {
+    	dataRepository = DataRepository.getInstance();
+    }
+    
     public void coCommitABCD()
     {
-        Map<String, Map<String, Map<Integer, List<Object>>>> readMap=readingStrategy.getReadableMappingFinalI().rowMap();
+        Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
         TreeSet<String> yearSet= new TreeSet<>();
 
         for(String source: readMap.keySet())
@@ -54,7 +50,7 @@ public class CoCommittedFilesPrime {
 
 
 
-        setCoCommittedFiles(coCommittedFiles);
+        dataRepository.setCoCommittedFiles(coCommittedFiles);
 
     }
 }

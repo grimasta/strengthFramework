@@ -1,25 +1,18 @@
 package com.example.inj.model.cases;
 
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
-import com.google.common.collect.Table;
-import javafx.util.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.example.inj.model.storage.DataRepository;
 //Donot Use for now
-@Component
 public class LinesModified {
 
-    IReadingStrategy readingStrategy;
-
-    @Autowired
-    public void setReadingStrategy(DefaultReadingStrategy readingStrategy) {
-        this.readingStrategy = DefaultReadingStrategy.getInstance();
+    private DataRepository dataRepository;
+    
+    public LinesModified() {
+    	dataRepository = DataRepository.getInstance();
     }
 
     Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesModifyA;
@@ -70,20 +63,20 @@ public class LinesModified {
         Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesBBBP = new LinkedHashMap<>(); //For Excel
 
         /*Map<String, Float> linesModifiedB = new LinkedHashMap<>();*/
-        Map<String, Map<String, Map<Integer, List<Object>>>> pqr = readingStrategy.getReadableMappingFinalI().rowMap();
+        Map<String, Map<String, Map<Integer, List<Object>>>> pqr = dataRepository.getReadableMappingFinal().rowMap();
 
         for (String row : pqr.keySet()) {
             Map<String, Map<Integer, List<Object>>> column = pqr.get(row);
 
             for (String c : column.keySet()) {
                 hm = column.get(c);
-                Iterator hmIterator = hm.entrySet().iterator();
+                Iterator<Map.Entry<Integer, List<Object>>> hmIterator = hm.entrySet().iterator();
                 modifiedLinesA = 0;
                 modifiedLinesB = 0;
                 cAddition = 0;
                 while (hmIterator.hasNext()) {    //for( int key: hm.keySet())
                     //cAddition = 0;  //NEED TO CONFIRM
-                    Map.Entry mapElement = (Map.Entry) hmIterator.next();
+                    Map.Entry<Integer, List<Object>> mapElement = (Map.Entry<Integer, List<Object>>) hmIterator.next();
                     Map<String, Float> linesModifiedAA = new LinkedHashMap<>(); //For Excel
                     Map<String, Float> linesModifiedBB = new LinkedHashMap<>(); //For Excel
                     xyz = (List<Object>) mapElement.getValue(); //xyz= hm.get(key);
@@ -145,8 +138,8 @@ public class LinesModified {
 
 
         System.out.println("lines Modified AAP");
-        setLinesModifyA(linesAAAP);
-        setLinesModifyB(linesBBBP);
+        dataRepository.setLinesModifyA(linesAAAP);
+        dataRepository.setLinesModifyB(linesBBBP);
 
         System.out.println("Lines Modified in A");
         //linesAAAP.get("caa84917-1ed0-11eb-99c6-482ae32cf5b4").entrySet().forEach(e-> System.out.print(e));

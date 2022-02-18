@@ -9,21 +9,27 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.inj.model.storage.DataRepository;
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 public class CommittedSoFar {
 
 	private IReadingStrategy readingStrategy;
 	private Map<String, Map<String, Integer>> yearMap = new HashMap<>();
+	private DataRepository dataRepository;
 	Logger logger = LoggerFactory.getLogger(CommittedSoFar.class);
 
 	// Number of times a file is committed so far
 
+	public CommittedSoFar() {
+		dataRepository = DataRepository.getInstance();		
+	}
+	
 	public void committedSoFar() {
 
-		Map<String, Map<String, Map<Integer, List<Object>>>> readMap = readingStrategy.getReadableMappingFinalI()
+		Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal()
 				.rowMap();
-		Map<Integer, String> dictionary = readingStrategy.getDictionaryI();
+		Map<Integer, String> dictionary = dataRepository.getDictionary();
 		// ID,Commit_ID
 		// Commit_ID,Date
 		System.out.println("Inside Committed So Far");
@@ -66,7 +72,7 @@ public class CommittedSoFar {
 			yearMap.put(source, subYearMap);
 		}
 
-		setYearMap(yearMap);
+		dataRepository.setYearMap(yearMap);
 		/*
 		 * logger.info("Year Map Value fd57217c-1ed0-11eb-9afd-482ae32cf5b4");
 		 * logger.info(yearMap.get("fd57217c-1ed0-11eb-9afd-482ae32cf5b4").toString());

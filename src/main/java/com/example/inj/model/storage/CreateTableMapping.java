@@ -1,4 +1,4 @@
-package com.example.inj.model.bootstrap;
+package com.example.inj.model.storage;
 
 import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 import com.example.inj.readingStrategy.strategy.ReadingStrategyContext;
