@@ -53,7 +53,7 @@ public class CommittedSoFar {
 //                    }
 //                    if(!commitKeys.contains(dictionary.get(sequence)))
 //                    {
-					commitKeys.add((String) readMap.get(source).get(destination).get(sequence).get(16));
+//					commitKeys.add((String) readMap.get(source).get(destination).get(sequence).get(16));
 //                    }
 
 				}
@@ -71,7 +71,7 @@ public class CommittedSoFar {
 			}
 			yearMap.put(source, subYearMap);
 		}
-
+//		YearMap contains a Map of 
 		dataRepository.setYearMap(yearMap);
 		/*
 		 * logger.info("Year Map Value fd57217c-1ed0-11eb-9afd-482ae32cf5b4");

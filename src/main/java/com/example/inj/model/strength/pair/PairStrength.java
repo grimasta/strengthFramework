@@ -203,11 +203,11 @@ public class PairStrength implements IPairStrength{
         logger.info("Before coCommittedPrime");
         coCommittedPrime.getCoCommittedFiles();
         logger.info("After coCommittedPrime");
-        Map<String,Map<String,Map<String, Float>>> coCommit=dataRepository.getCommittedPrimeValue();
+        Map<String,Map<String,Map<String, Float>>> coCommit=dataRepository.getΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations();
         //Case 2: Number of time (A&B) are co-committed/ Number of time A is committed so far
         logger.info("After Case 2");
         System.out.println("After Case 2");
-        Map<String,Map<String,Map<String, Float>>> coCommitTogether=dataRepository.getCommittedTogetherValue();
+        Map<String,Map<String,Map<String, Float>>> coCommitTogether=dataRepository.getΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations();
         //How many times the File A has been committed without File B/ Number of time A is committed so far
         logger.info("coCommitTogether");
         withoutCommitPrime.getTimeDifference();
@@ -224,9 +224,11 @@ public class PairStrength implements IPairStrength{
         //case-5
         Map<String, Map<String, Map<String, Float>>> destinationLinesModified = dataRepository.getLinesModifiedDestination();
 //        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
+//        TODO REVIEW THE ACTUAL STRENGTH CALCULATION STRATEGY
+        
         dataRepository.setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
 //       
-
+//		why the hell do we need this??? call (coCommitABCD)
         coCommittedFiles.coCommitABCD();
         Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = dataRepository.getPairMaps();
         Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();

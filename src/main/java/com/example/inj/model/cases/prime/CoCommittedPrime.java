@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,8 @@ public class CoCommittedPrime {
 
 	private IReadingStrategy readingStrategy;
 	private CommittedSoFar committedSoFar;
-	private Map<String,Map<String,Map<String, Float>>> committedPrimeValue= new HashMap<>();//Source,Destination,Commit_Date,Value
-	private Map<String,Map<String, Map<String,Float>>> committedTogetherValue= new HashMap<>();
+	private Map<String,Map<String,Map<String, Float>>> mapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations= new HashMap<>();//Source,Destination,Commit_Date,Value
+	private Map<String,Map<String, Map<String,Float>>> mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations= new HashMap<>();
 	private DataRepository dataRepository;
     Logger logger= LoggerFactory.getLogger(CoCommittedPrime.class);
     
@@ -40,24 +41,24 @@ public class CoCommittedPrime {
     {
 
         Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
-        Map<Integer,String> dictMap = dataRepository.getDictionary(); //id,commit_ID
-        Map<String,String> dictDate = dataRepository.getDictionaryTime();//Commit_ID,Time&Date
+//        Map<Integer,String> dictMap = dataRepository.getDictionary(); //id,commit_ID
+//        Map<String,String> dictDate = dataRepository.getDictionaryTime();//Commit_ID,Time&Date
         Map<String,Map<String, Integer>> yearMap = dataRepository.getYearMap();
        /*System.out.println("Inside getCoCommittedFiles");*/
 
         for(String source: readMap.keySet())
         {
-            Map<String,Map<String,Float>> subCommittedPrime= new HashMap<>();
-            Map<String,Map<String,Float>> subCommittedPrime2= new HashMap<>();
+            Map<String,Map<String,Float>> coCommitOverSumOfCommitsRatioForSpecificTargetFile= new HashMap<>();
+            Map<String,Map<String,Float>> coCommitOverSourceFileCommitRatioForSpecificTargetFile= new HashMap<>();
             /*System.out.println("Before");*/
             for(String destination: readMap.get(source).keySet())
             {
                 /*System.out.println("After");*/
                 //logger.info("Inside co-committed Prime - STage 1");
-                Map<String,Float> commitPrime= new HashMap<>();
-                Map<String,Float> commitPrime2= new HashMap<>();
-                int sourceFile=0;
-                int destinationFile=0;
+                Map<String,Float> coCommitOverSumOfCommitsRatio= new HashMap<>();
+                Map<String,Float> coCommitOverSourceFileCommitRatio= new HashMap<>();
+                int sourceFileCommitsSoFar=0;
+                int destinationFileCommitsSoFar=0;
 //                boolean flag=false;
                 List<Integer> commitKeys= new ArrayList<>();
                 List<String> commitDates= new ArrayList<>();
@@ -73,56 +74,49 @@ public class CoCommittedPrime {
                 for(String cDate: commitDates)
                 {
                     int countTogether=(commitDates.indexOf(cDate)+1)*2;
-                    int coutTogether2=(commitDates.indexOf(cDate)+1);
+                    int countTogether2=(commitDates.indexOf(cDate)+1);
                     if(yearMap.containsKey(source))
                     {
-                        TreeSet<String> sourceSet= new TreeSet<>();
-                        sourceSet.addAll(yearMap.get(source).keySet());
-                        String sourceDate=sourceSet.floor(cDate);
-                        if(yearMap.get(source).containsKey(sourceDate)) {
-                            sourceFile = yearMap.get(source).get(sourceDate);
-                        }
-                        else
-                        {
-                           /* logger.info("Uff Key doesn't exist sourceFile " + sourceFile);*/
-                        }
-
-                        //logger.info("Inside co-committed Prime - STage 4");
+//                        TreeSet<String> sourceSet= new TreeSet<>();
+//                        sourceSet.addAll(yearMap.get(source).keySet());
+//                        String sourceDate=sourceSet.floor(cDate);
+//                        if(yearMap.get(source).containsKey(sourceDate)) {
+                        sourceFileCommitsSoFar = yearMap.get(source).get(cDate);
+//                        }
                     }
                     if(yearMap.containsKey(destination))
                     {
-                        TreeSet<String> destinationSet= new TreeSet<>();
-                        destinationSet.addAll(yearMap.get(destination).keySet());
-                        String destinationDate=destinationSet.floor(cDate);
-                        if(yearMap.get(destination).containsKey(destinationDate)) {
-                            destinationFile = yearMap.get(destination).get(destinationDate);
-                        }
-                        else
-                        {
-
-                           /* logger.info("Uff Key doesn't exist destinationFile " + destinationFile);*/
-                        }
-
-                        //logger.info("Inside co-committed Prime - STage 5");
-
+//                        TreeSet<String> destinationSet= new TreeSet<>();
+//                        destinationSet.addAll(yearMap.get(destination).keySet());
+//                        String destinationDate=destinationSet.floor(cDate);
+//                        if(yearMap.get(destination).containsKey(destinationDate)) {
+                            destinationFileCommitsSoFar = yearMap.get(destination).get(cDate);
+//                        }
                     }
 
                     //logger.info("Inside co-committed Prime - STage 3");
-                    int countIndividual= sourceFile + destinationFile;
+                    int countIndividual= sourceFileCommitsSoFar + destinationFileCommitsSoFar;
+//                  number of times the two files have been committed together over the times the have been committed in total so far 
+//                  TimesCommitted(SourceFile With TargetFile) / (TimesCommitted(SourceFile) + TimesCommitted(TargetFile))
                     float overall=(float)countTogether/(float)countIndividual;
-                    float overall2=(float)coutTogether2/(float)sourceFile;
-                    commitPrime.put(cDate,overall);
-                    commitPrime2.put(cDate,overall2);
+//                  2 * TimesCommitted(SourceFile With TargetFile) / TimesCommitted(SourceFile)
+                    float overall2=(float)countTogether2/(float)sourceFileCommitsSoFar;
+                    coCommitOverSumOfCommitsRatio.put(cDate,overall);
+                    coCommitOverSourceFileCommitRatio.put(cDate,overall2);
                 }
-                subCommittedPrime.put(destination,commitPrime);
-                subCommittedPrime2.put(destination,commitPrime2);
+                coCommitOverSumOfCommitsRatioForSpecificTargetFile.put(destination,coCommitOverSumOfCommitsRatio);
+                coCommitOverSourceFileCommitRatioForSpecificTargetFile.put(destination,coCommitOverSourceFileCommitRatio);
 
+//                readMap.get(source).get(destination).entrySet().
+//				stream().map(Map.Entry::getValue).collect(Collectors.toList()).
+//				stream().map(x -> {return (String) x.get(10);}).collect(Collectors.toList());
+                
             }
 
-            committedPrimeValue.put(source,subCommittedPrime);
-            committedTogetherValue.put(source, subCommittedPrime2);
-            dataRepository.setCommittedPrimeValue(committedPrimeValue);
-            dataRepository.setCommittedTogetherValue(committedTogetherValue);
+            mapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations.put(source,coCommitOverSumOfCommitsRatioForSpecificTargetFile);
+            mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations.put(source, coCommitOverSourceFileCommitRatioForSpecificTargetFile);
+            dataRepository.setΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations(mapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations);
+            dataRepository.setΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations(mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations);
 
             /*logger.info("Inside co-committed Prime - STage 6");*/
 
@@ -134,22 +128,22 @@ public class CoCommittedPrime {
 
 
 	public Map<String, Map<String, Map<String, Float>>> getCommittedPrimeValue() {
-		return committedPrimeValue;
+		return mapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations;
 	}
 
 
 	public void setCommittedPrimeValue(Map<String, Map<String, Map<String, Float>>> committedPrimeValue) {
-		this.committedPrimeValue = committedPrimeValue;
+		this.mapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations = committedPrimeValue;
 	}
 
 
 	public Map<String, Map<String, Map<String, Float>>> getCommittedTogetherValue() {
-		return committedTogetherValue;
+		return mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
 	}
 
 
 	public void setCommittedTogetherValue(Map<String, Map<String, Map<String, Float>>> committedTogetherValue) {
-		this.committedTogetherValue = committedTogetherValue;
+		this.mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations = committedTogetherValue;
 	}
 
 

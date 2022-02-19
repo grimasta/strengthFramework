@@ -39,22 +39,22 @@ public class LinesModifiedPrime {
         Map<Integer,String> dictMap= dataRepository.getDictionary(); //id,commit_ID
         Map<String,String> dictDate=dataRepository.getDictionaryTime();//Commit_ID,Time&Date
 
-        for(String source: readMap.keySet())
+        for(String sourceFileId: readMap.keySet())
         {
             Map<String, Map<String, Float>> destinationModifiedLines=new HashMap<>();
             Map<String, Map<String, Float>>  sourceModifiedLines= new HashMap<>();
-            for(String destination: readMap.get(source).keySet())
+            for(String targetFileId: readMap.get(sourceFileId).keySet())
             {
-                Map<String, Float> linesModfiedMapSource= new HashMap<>();
+                Map<String, Float> linesModifiedMapSource= new HashMap<>();
                 //Date and Time, Value
                 Map<String,Float> linesModifiedMapDestination= new HashMap<>();
                 //Date and Time, Value
-                for(int key: readMap.get(source).get(destination).keySet()) {
+                for(int coCommitOccasionNumber : readMap.get(sourceFileId).get(targetFileId).keySet()) {
 
-                    List<Object> listObj= readMap.get(source).get(destination).get(key);
+                    List<Object> listObj = readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber);
                     float modifiedSource = (int) listObj.get(2); //Source
                     float modifiedDestination = (int) listObj.get(3); //Destination
-                    float commit=  (int)listObj.get(13) + (int)listObj.get(14);//Number of Lines added in the commit + Number of lines Deleted in the commit
+                    float commit =  (int)listObj.get(13) + (int)listObj.get(14);//Number of Lines added in the commit + Number of lines Deleted in the commit
                     float denominator=(float)( commit-modifiedSource-modifiedDestination);
                     if(denominator!=0) {
                         float valueOfA = (float) modifiedSource / (float) (commit - modifiedSource - modifiedDestination);
@@ -70,28 +70,28 @@ public class LinesModifiedPrime {
                         }
 
 //                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
-                            String dateAndTime = (String) readMap.get(source).get(destination).get(key).get(10);
-                            linesModfiedMapSource.put(dateAndTime, valueOfA);
+                            String dateAndTime = (String) readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber).get(10);
+                            linesModifiedMapSource.put(dateAndTime, valueOfA);
                             linesModifiedMapDestination.put(dateAndTime, valueOfB);
 //                        }
                     }
                     else
                     {
 //                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
-                            String dateAndTime = (String) readMap.get(source).get(destination).get(key).get(10);
-                            linesModfiedMapSource.put(dateAndTime, 0.0f);
+                            String dateAndTime = (String) readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber).get(10);
+                            linesModifiedMapSource.put(dateAndTime, 0.0f);
                             linesModifiedMapDestination.put(dateAndTime, 0.0f);
 //                        }
                     }
 
                 }
 
-                destinationModifiedLines.put(destination, linesModifiedMapDestination);
-                sourceModifiedLines.put(destination, linesModfiedMapSource);
+                destinationModifiedLines.put(targetFileId, linesModifiedMapDestination);
+                sourceModifiedLines.put(targetFileId, linesModifiedMapSource);
             }
 
-            linesModifiedSource.put(source,destinationModifiedLines );
-            linesModifiedDestination.put(source, sourceModifiedLines);
+            linesModifiedSource.put(sourceFileId,destinationModifiedLines );
+            linesModifiedDestination.put(sourceFileId, sourceModifiedLines);
         }
         
         dataRepository.setLinesModifiedDestination(linesModifiedDestination);

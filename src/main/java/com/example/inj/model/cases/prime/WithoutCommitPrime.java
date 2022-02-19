@@ -6,16 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
-
-import lombok.Data;
 
 //Case 3’- How many times the File A has been committed without File B/ Number of time A is committed so far
 public class WithoutCommitPrime {
@@ -29,12 +25,12 @@ public class WithoutCommitPrime {
 	}
 
 	public void getTimeDifference() {
-		Map<String, Map<String, Integer>> commitYears = dataRepository.getYearMap();
+		Map<String, Map<String, Integer>> committedSoFarMap = dataRepository.getYearMap();
 		Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal()
 				.rowMap();
-		Map<Integer, String> dict = dataRepository.getDictionary();
+//		Map<Integer, String> dict = dataRepository.getDictionary();
 //        Map<String,String> dictCommit=readingStrategy.getDictionaryStringI();
-		Map<String, String> dictDate = dataRepository.getDictionaryTime();
+//		Map<String, String> dictDate = dataRepository.getDictionaryTime();
 		Map<String, Map<String, Map<String, Float>>> coTimeDifferences = new HashMap<>();
 
 		for (String source : readMap.keySet()) {
@@ -44,52 +40,55 @@ public class WithoutCommitPrime {
 
 				/* System.out.println("Inside-2"); */
 				Map<String, Float> subCoTimeDifference = new HashMap<>();
-				List<Integer> committedTogetherKeys = new ArrayList<>();
+				List<Integer> committedTogetherKeys = new ArrayList<Integer>();
 				committedTogetherKeys.addAll(readMap.get(source).get(destination).keySet());
 				/* System.out.println("Inside-3"); */
-				List<String> sourceCommitKeys = new ArrayList<>();
-				sourceCommitKeys.addAll(commitYears.get(source).keySet());
+				List<String> sourceCommitDates = new ArrayList<>();
+				sourceCommitDates.addAll(committedSoFarMap.get(source).keySet());
 				/* System.out.println("Inside-4"); */
-				Collections.sort(sourceCommitKeys);
-				TreeSet<String> sourceSetCommitKeys = new TreeSet<>();
-				sourceSetCommitKeys.addAll(sourceCommitKeys);
-				TreeSet<String> destinationCommitKeys = new TreeSet<>();
-				if (commitYears.containsKey(destination)) {
-					destinationCommitKeys.addAll(commitYears.get(destination).keySet());
-				}
+				Collections.sort(sourceCommitDates);
+				TreeSet<String> sourceSetCommitDates = new TreeSet<>();
+				sourceSetCommitDates.addAll(committedSoFarMap.get(source).keySet());
+				TreeSet<String> destinationCommitDates = new TreeSet<>();
+				destinationCommitDates.addAll(committedSoFarMap.get(destination).keySet());
 				/* System.out.println("Inside-5"); */
-				List<String> togetherKeys = new ArrayList<>();
+				List<String> committedTogetherDates = new ArrayList<>();
 				for (int key : committedTogetherKeys) {
 //                        if(dict.containsKey(key) && dictDate.containsKey(dict.get(key)))
 //                        {
-					togetherKeys.add((String) readMap.get(source).get(destination).get(key).get(10));
+					committedTogetherDates.add((String) readMap.get(source).get(destination).get(key).get(10));
 //                        }
 				}
-				Collections.sort(togetherKeys);
-				TreeSet<String> togetherSetKeys = new TreeSet<>();
-				togetherSetKeys.addAll(togetherKeys);
-
-				for (String src : sourceCommitKeys) {
-					if (togetherSetKeys.floor(src) != null) {
-						String dest = togetherSetKeys.floor(src);
+				Collections.sort(committedTogetherDates);
+				TreeSet<String> committedTogetherSetDates = new TreeSet<>();
+				committedTogetherSetDates.addAll(committedTogetherDates);
+//				it looks like we calculate the time elapsed (in a very broad sense) between consecutive commits of 
+//				file Source with file Target. and putting them in a Map according to present date, pointing to the difference from the past date
+//				for each destination file of each source file.
+//				the formula used is IndexOfCurrentCommit in list of Commits of Source file minus IndexOfLastCoCommit in list of Commits of Source File with Destination file
+//				over IndexOfSourceFile... indexOfSource is the index of the date of the current commit in the list of a file's dates of commits
+				
+				for (String srcDate : sourceCommitDates) {
+					if (committedTogetherSetDates.floor(srcDate) != null) {
+						String destDate = committedTogetherSetDates.floor(srcDate);
 						// System.out.println("Stage-3");
-						if (dest.equals(src)) {
-							int indexOfSource = sourceCommitKeys.indexOf(src) + 1; // 2+1 =3
-							int idxs = sourceCommitKeys.indexOf(src); // 2
+						if (destDate.equals(srcDate)) {
+							int indexOfSource = sourceCommitDates.indexOf(srcDate) + 1; // 2+1 =3
+							int idxs = sourceCommitDates.indexOf(srcDate); // 2
 							// System.out.println("Stage-1");
 							int indexOfDestination = 0;
 							float difference = 0;
 							for (int idx = idxs - 1; idx >= 0; idx--) {
-								String sourceKey = sourceCommitKeys.get(idx);
-								if (destinationCommitKeys.contains(sourceKey)) {
-									indexOfDestination = sourceCommitKeys.indexOf(sourceKey) + 1; // 0+1
+								String sourceDate = sourceCommitDates.get(idx);
+								if (destinationCommitDates.contains(sourceDate)) {
+									indexOfDestination = sourceCommitDates.indexOf(sourceDate) + 1; // 0+1
 									// System.out.println("Stage-2");
 									difference = ((float) indexOfSource - (float) indexOfDestination - 1)
 											/ (float) indexOfSource; // 3-1/3 =2/3
 									break;
 								}
 							}
-							subCoTimeDifference.put(src, difference);
+							subCoTimeDifference.put(srcDate, difference);
 						}
 					}
 

@@ -3,6 +3,7 @@ package com.example.inj.readingStrategy.strategy;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -200,14 +201,14 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 		List<Object> fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
 		try {
 			for (CommitDetails commitDetails : commitDetails2TryFileDetailsMap.keySet()) {
-				List<TryFileDetails> singleFileChangeList = new LinkedList<>();
+				List<TryFileDetails> FileChangeList = new LinkedList<>();
 //          sameFile will contain all the TryFileDetails Objects for a particular commitDetails object :O why is it called sameFile????
-				singleFileChangeList = commitDetails2TryFileDetailsMap.get(commitDetails);
+				FileChangeList = commitDetails2TryFileDetailsMap.get(commitDetails);
 				commitId2CollectionOfData = new LinkedHashMap<>();
 				fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
 //          if current commitDetails has a single modified file then populate the statistics for this commit and add to the map	commitId2CollectionOfData
-				if (singleFileChangeList.size() == 1) {
-					TryFileDetails tf = singleFileChangeList.get(0);
+				if (FileChangeList.size() == 1) {
+					TryFileDetails tf = FileChangeList.get(0);
 					cadd = tf.getAddition() + tf.getDeletion();
 
 //					TODO weave into logic
@@ -278,34 +279,43 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 					List<Object> buggyList = new ArrayList<>();
 					int buggy = 0;
 					int nonbuggy = 0;
-					boolean tryFileDetailsSourceIsNotBugFixing = false;
-					boolean tryFileDetailsTargetIsNotBugFixing = false;
+//					boolean tryFileDetailsSourceIsNotBugFixing = false;
+//					boolean tryFileDetailsTargetIsNotBugFixing = false;
 
-					dictionaryString.put(singleFileChangeList.get(0).getDate(), commitDetails.getCommitID());
-					dictionaryTime.put(commitDetails.getCommitID(), singleFileChangeList.get(0).getDate());
+//					create the map between a commit Date and a commitID <- that's supposed to be unique not sure it's the best approach
+					dictionaryString.put(FileChangeList.get(0).getDate(), commitDetails.getCommitID());
+//					create the map between a commitID and a date <- that's supposed to be unique not sure it's the best approach
+					dictionaryTime.put(commitDetails.getCommitID(), FileChangeList.get(0).getDate());
 
-					for (TryFileDetails tryFileDetailSource : singleFileChangeList) {
-						for (TryFileDetails tryFileDetailTarget : singleFileChangeList) {
+					for (TryFileDetails tryFileDetailSource : FileChangeList) {
+						for (TryFileDetails tryFileDetailTarget : FileChangeList) {
 //						calculating characteristics of file interaction within given commit
+//							number of lines added to all files in entire commit
 							cAddition = tryFileDetailSource.getCaddition();
+//							number of lines deleted from all files in entire commit
 							cDeletion = tryFileDetailSource.getCdeletion();
+//							Average number of lines modified in this commit
 							avgLinesChangedInCommit = (tryFileDetailSource.getAddition()
-									+ tryFileDetailSource.getDeletion()) / singleFileChangeList.size();
+									+ tryFileDetailSource.getDeletion()) / FileChangeList.size();
+//							Total number of lines modified in SourceFile
 							noOflinesChangedInSourceFile = tryFileDetailSource.getAddition()
 									+ tryFileDetailSource.getDeletion();
-							if (!tryFileDetailSource.isBugFixing()) {
-								tryFileDetailsSourceIsNotBugFixing = true;
-							}
+//							The most complicated thing since PeterQuills' plan in Avengers:Infinity War
+//							if (!tryFileDetailSource.isBugFixing()) {
+//								tryFileDetailsSourceIsNotBugFixing = true;
+//							}
+//							Total number of lines modified in TargetFile
 							noOfLinesChangedInTargetFile = tryFileDetailTarget.getAddition()
 									+ tryFileDetailTarget.getDeletion();
-							if (!tryFileDetailTarget.isBugFixing()) {
-								tryFileDetailsTargetIsNotBugFixing = true;
-							}
-
-							if (tryFileDetailsSourceIsNotBugFixing && tryFileDetailsTargetIsNotBugFixing) {
-								++nonbuggy;
-							} else {
+////							The most complicated thing since the last time I referenced PeterQuills' plan in Avengers:Infinity War
+//							if (!tryFileDetailTarget.isBugFixing()) {
+//								tryFileDetailsTargetIsNotBugFixing = true;
+//							}
+//							Seriously???
+							if (tryFileDetailTarget.isBugFixing() || tryFileDetailSource.isBugFixing()) {
 								++buggy;
+							} else {
+								++nonbuggy;
 							}
 							// 0.
 							buggyList.add(buggy);
@@ -315,30 +325,30 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 							buggyList.add(noOflinesChangedInSourceFile);
 							// 3. How many lines of Fj is changed
 							buggyList.add(noOfLinesChangedInTargetFile);
-							// 4. Average number of lines changed in a particular commit
+							// 4. Average number of lines changed in current commit
 							buggyList.add(avgLinesChangedInCommit);
-							// 5. Minimum number of lines changed in a particular commit
+							// 5. Minimum number of lines changed in current commit
 							buggyList.add(commitDetails.getSortedListOfChanges().get(0));
-							// 6. Maximum number of lines changed in a particular commit
+							// 6. Maximum number of lines changed in current commit
 							buggyList.add(commitDetails.getSortedListOfChanges()
 									.get(commitDetails.getSortedListOfChanges().size() - 1));
-							// 7. Median of lines changed in a particular commit
+							// 7. Median of lines changed in current commit
 							buggyList.add(commitDetails.getMedianModifiedLines());
-							// 8. Percentile of Fi in a particular commit
+							// 8. Percentile of SourceFiles lines changed in current commit
 							buggyList.add(tryFileDetailSource.getPercentile());
-							// 9. Percentile of Fj in a particular commit
+							// 9. Percentile of TargetFiles lines changed in current commit
 							buggyList.add(tryFileDetailTarget.getPercentile());
-							// 10. Date of committed file Fj
+							// 10. Date of commit
 							buggyList.add(tryFileDetailSource.getDate());
-							// 11.
+							// TODO 11. understand what the 11 spot in the list represents 
 							buggyList.add("RRRR");
-							// 12. Buggy List Fi
+							// 12. is Buggy SourceFile
 							buggyList.add(tryFileDetailSource.isBugFixing());
-							// 13. Number of lines in a commit has modified
+							// 13. Number of lines added in a commit
 							buggyList.add(cAddition);
-							// 14. Number of lines in a commit is deleted
+							// 14. Number of lines deleted in a commit
 							buggyList.add(cDeletion);
-							// 15. BugFixing Or Not
+							// 15. BugFixing Or Not combination of Files (in case we have file level granularity instead of Commit level granularity)
 							buggyList.add(tryFileDetailSource.isBugFixing() && tryFileDetailTarget.isBugFixing());
 							// 16. CommitID
 							buggyList.add(commitDetails.getCommitID());
@@ -355,15 +365,12 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 											new HashMap<>());
 									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
 											.get(sourceFileId, targetFileId);
-									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4
-											.get(sourceFileId, targetFileId);
 									listOfChanges.put(listOfChanges.size(), buggyList);
-									commitId2ListofChangesMap.put(commitDetails.getCommitID(), buggyList);
-
+									fileId2FileID2OccurencesNumber2ListOfChangesCheck4
+											.get(sourceFileId, targetFileId).put(commitDetails.getCommitID(), buggyList);
 								} else {
-									commitId2ListofChangesMap = fileId2FileID2OccurencesNumber2ListOfChangesCheck4
-											.get(sourceFileId, targetFileId);
-									commitId2ListofChangesMap.put(commitDetails.getCommitID(), buggyList);
+									fileId2FileID2OccurencesNumber2ListOfChangesCheck4
+											.get(sourceFileId, targetFileId).put(commitDetails.getCommitID(), buggyList);
 									Map<Integer, List<Object>> listOfChanges = fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles
 											.get(sourceFileId, targetFileId);
 									listOfChanges.put(listOfChanges.size(), buggyList);
@@ -388,6 +395,9 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 				}
 			}
 //			setDictionary(dictionary);
+//			Readable Mapping Final and fileId2FileID2OccurencesNumber2ListOfChanges3Copy and fileId2FileID2OccurencesNumber2ListOfChangesCheck4
+//			all contain the exact same data
+			
 			dataRepository.setFileId2FileID2OccurencesNumber2ListOfChanges3Copy(
 					fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles);
 			dataRepository.setReadableMappingSameN(fileId2FileID2OccurencesNumber2ListOfChangesForSingleFileChanges);
@@ -445,12 +455,12 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	private Map<String, List<String>> makeFileIds2CommitIdsMap(
 			Map<CommitDetails, List<TryFileDetails>> Commits2FileChangesMap) {
 		Map<String, List<String>> efficientlyComputedCommitsPerFile = new HashMap<>();
-		for (Entry<CommitDetails, List<TryFileDetails>> commitDetails2TryFileDetailsList : Commits2FileChangesMap
+		for (Entry<CommitDetails, List<TryFileDetails>> commitDetails2TryFileDetailsListEntry : Commits2FileChangesMap
 				.entrySet())
-			for (TryFileDetails currentFileWithinCommit : commitDetails2TryFileDetailsList.getValue()) {
+			for (TryFileDetails currentFileWithinCommit : commitDetails2TryFileDetailsListEntry.getValue()) {
 				List<String> currentFileCommitIds = efficientlyComputedCommitsPerFile
 						.getOrDefault(currentFileWithinCommit.getFileId(), new ArrayList<>());
-				currentFileCommitIds.add(commitDetails2TryFileDetailsList.getKey().getCommitID());
+				currentFileCommitIds.add(commitDetails2TryFileDetailsListEntry.getKey().getCommitID());
 				efficientlyComputedCommitsPerFile.put(currentFileWithinCommit.getFileId(), currentFileCommitIds);
 			}
 		return efficientlyComputedCommitsPerFile;
@@ -459,49 +469,38 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	public void IsBugFixing() {
 		Table<String, String, Map<Integer, List<Object>>> readableMappingPair = dataRepository.getReadableMappingFinal();
 		Table<String, String, Map<Integer, List<Object>>> readableMappingSame = dataRepository.getReadableMappingSameN();
-		Map<Integer, List<Object>> readSubRow = new HashMap<>();
-		List<Object> obj = new ArrayList<>();
 		Map<String, Map<String, Boolean>> outp = new LinkedHashMap<>();
+//		subOut is a list from commitDates to CommitIsBugFixing values
 		Map<String, Boolean> subOut = new LinkedHashMap<>();
 		Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingPairMap = readableMappingPair.rowMap();
-		Map<String, Map<Integer, List<Object>>> readableMappingPairSubMap = new LinkedHashMap<>();
 		for (String row : readableMappingPairMap.keySet()) {
-			readableMappingPairSubMap = readableMappingPairMap.get(row);
-
-			for (String col : readableMappingPairSubMap.keySet()) {
-				readSubRow = readableMappingPairSubMap.get(col);
-				for (int i : readSubRow.keySet()) {
-					obj = readSubRow.get(i);
-
-					if (!subOut.containsKey((String) obj.get(10))) {
-						subOut.put((String) obj.get(10), (Boolean) obj.get(15));
+			for (String col : readableMappingPairMap.get(row).keySet()) {
+				for (Entry<Integer, List<Object>> file2FileEntry : readableMappingPairMap.get(row).get(col).entrySet()) {
+					if (!subOut.containsKey((String) file2FileEntry.getValue().get(10))) {
+						subOut.put((String) file2FileEntry.getValue().get(10), (Boolean) file2FileEntry.getValue().get(15));
 						/*
 						 * if(row.equals("333f55df-1ed0-11eb-af13-482ae32cf5b4")); {
 						 * System.out.println("Date "+ obj.get(10)+ " Boolean " + subOut.put((String)
 						 * obj.get(10), (Boolean) obj.get(15))); }
 						 */
 					}
-					obj = new ArrayList<>();
 				}
 			}
 
-			readSubRow = new HashMap<>();
 			if (readableMappingSame.contains(row, row)) {
-				readSubRow = readableMappingSame.get(row, row);
-				for (int i : readSubRow.keySet()) {
-					obj = readSubRow.get(i);
-					if (!subOut.containsKey((String) obj.get(10))) {
-						subOut.put((String) obj.get(10), (Boolean) obj.get(15));
+				for (Entry<Integer, List<Object>> file2SelfEntry : readableMappingSame.get(row, row).entrySet()) {
+					if (!subOut.containsKey((String) file2SelfEntry.getValue().get(10))) {
+						subOut.put((String) file2SelfEntry.getValue().get(10), (Boolean) file2SelfEntry.getValue().get(15));
 					}
-					obj = new ArrayList<>();
 				}
 			}
 
 			outp.put(row, subOut);
-			readSubRow = new HashMap<>();
 			subOut = new LinkedHashMap<>();
 
 		}
+//		outp (which is a horrible name) contains a Map from each fileId to a Map from dates to whether the change was bugFixing or not on that particular data...
+//		go figure how this is used
 		dataRepository.setReadableBugFixing(outp);
 //		setReadableBugFixing(outp);
 

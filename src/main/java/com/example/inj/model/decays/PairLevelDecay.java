@@ -19,186 +19,179 @@ import com.example.inj.model.strength.pair.PairStrength;
 @Component
 public class PairLevelDecay {
 
-    private DataRepository dataRepository;
-    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
-    private Map<String, List<String>> yearMapPair;
-    Logger logger = LoggerFactory.getLogger(PairStrength.class);
-    
-    public PairLevelDecay() {
-    	dataRepository = DataRepository.getInstance();
-    }
+	private DataRepository dataRepository;
+	private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
+	private Map<String, List<String>> yearMapPair;
+	Logger logger = LoggerFactory.getLogger(PairStrength.class);
 
+	public PairLevelDecay() {
+		dataRepository = DataRepository.getInstance();
+	}
 
-    public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
-        return pairLevelDecayMap;
-    }
+	public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
+		return pairLevelDecayMap;
+	}
 
-    public void setPairLevelDecayMap(Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap) {
-        this.pairLevelDecayMap = pairLevelDecayMap;
-    }
+	public void setPairLevelDecayMap(Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap) {
+		this.pairLevelDecayMap = pairLevelDecayMap;
+	}
 
+	public Map<String, List<String>> getYearMapPair() {
+		return yearMapPair;
+	}
 
-    public Map<String, List<String>> getYearMapPair() {
-        return yearMapPair;
-    }
+	public void setYearMapPair(Map<String, List<String>> yearMapPair) {
+		this.yearMapPair = yearMapPair;
+	}
 
-    public void setYearMapPair(Map<String, List<String>> yearMapPair) {
-        this.yearMapPair = yearMapPair;
-    }
+	/*
+	 * It is a Pair level decay based on below function and scenario: If File A is
+	 * committed with File B, File C, File D, File E in Commit X at 11-Sept-2010,
+	 * and again in next Commit Y at 12-Sept-2010 File A is committed only with File
+	 * B, and File C then we are applying decay for File D, and File E. PAIR DECAY
+	 * AFTER CALCULATING THE ACCUMULATED STRENGTH OF A FILE NOTE: WE WILL AGAIN
+	 * DECAY IT AT GLOBAL LEVEL TO NORMALIZE IT FURTHER Pair Decay (
+	 * Multiply)->Math.exp( Number of commits passed since A&B are co-committed*0.5)
+	 */
+	public void globalDecay() {
 
+		Map<String, Map<String, Integer>> timeSlotAccumulate;
+		Map<String, Map<String, Map<String, Integer>>> timeFull = new LinkedHashMap<>();
+		Map<String, Map<String, Map<Integer, List<Object>>>> cellMap = dataRepository.getReadableMappingFinal()
+				.rowMap();
+		Map<String, List<String>> yearMap = new LinkedHashMap<>();
+		Map<String, Integer> timeSlot;
+		List<String> yearCount;
+		int time = 0;
+		for (String sourceFileId : cellMap.keySet()) {
+			yearCount = new LinkedList<>();
+			Map<String, Map<Integer, List<Object>>> targetFileIdsMap = cellMap.get(sourceFileId);
+			timeSlot = new LinkedHashMap<>();
+			timeSlotAccumulate = new LinkedHashMap<>();
+			for (String targetFileId : targetFileIdsMap.keySet()) {
+				Map<Integer, List<Object>> occurrenceNumber2ListOfObject = new LinkedHashMap<>();
+				occurrenceNumber2ListOfObject.putAll(targetFileIdsMap.get(targetFileId));
+				time = 0;
+				List<List<Object>> sortedList = new LinkedList<>();
+				sortedList.addAll(occurrenceNumber2ListOfObject.values());
+				Collections.sort(sortedList, Comparator.comparing(o -> String.valueOf(o.get(10))));
 
+				timeSlot = new LinkedHashMap<>();
+				for (List<Object> lst : sortedList) {
 
-    /*
-    It is a Pair level decay based on below function and scenario:
-    If File A is committed with File B, File C, File D, File E in Commit X at 11-Sept-2010, and again in next Commit Y at 12-Sept-2010 File A is committed only with File B, and File C then we are applying decay for File D, and File E.
-    PAIR DECAY AFTER CALCULATING THE ACCUMULATED STRENGTH OF A FILE
-    NOTE: WE WILL AGAIN DECAY IT AT GLOBAL LEVEL TO NORMALIZE IT FURTHER
-    Pair Decay ( Multiply)->Math.exp( Number of commits passed since A&B are co-committed*0.5)
-    */
-    public void globalDecay() {
+					time = time + 1;
+					String dateOfCoCommitBetweenSourceAndTargetFileIds = lst.get(10).toString();
+					{
+						timeSlot.put(dateOfCoCommitBetweenSourceAndTargetFileIds, time);
+						if (!yearCount.contains(dateOfCoCommitBetweenSourceAndTargetFileIds)) {
+							yearCount.add(dateOfCoCommitBetweenSourceAndTargetFileIds);
+						}
+					}
 
-        Map<String, Map<String, Integer>> timeSlotAccumulate;
-        Map<String, Map<String, Map<String, Integer>>> timeFull = new LinkedHashMap<>();
-        Map<String, Map<String, Map<Integer, List<Object>>>> cellMap = dataRepository.getReadableMappingFinal().rowMap();
-        Map<String, List<String>> yearMap = new LinkedHashMap<>();
-        Map<String, Integer> timeSlot;
-        List<String> yearCount;
-        int time = 0;
-        for (String row : cellMap.keySet()) {
-            yearCount = new LinkedList<>();
-            Map<String, Map<Integer, List<Object>>> columnMap = cellMap.get(row);
-            timeSlot = new LinkedHashMap<>();
-            timeSlotAccumulate = new LinkedHashMap<>();
-            for (String column : columnMap.keySet()) {
-                Map<Integer, List<Object>> listObj = new LinkedHashMap<>();
-                listObj.putAll(columnMap.get(column));
-                time = 0;
-                List<List<Object>> sortedList = new LinkedList<>();
-                sortedList.addAll(listObj.values());
-                Collections.sort(sortedList, Comparator.comparing(o -> String.valueOf(o.get(10))));
+				}
 
-                Iterator<List<Object>> listIterator = sortedList.listIterator();
-                timeSlot = new LinkedHashMap<>();
-                while (listIterator.hasNext()) {
+				{
+					timeSlotAccumulate.put(targetFileId, timeSlot);
+				}
 
-                    List<Object> lst = (List<Object>) listIterator.next();
-                    time = time + 1;
-                    String dateMap = lst.get(10).toString();
-                    {
-                        timeSlot.put(dateMap, time);
-                        if (!yearCount.contains(dateMap)) {
-                            yearCount.add(dateMap);
-                        }
-                    }
+			}
 
-                }
-                listIterator = null;//Bug 003: Explicity using garbage Collector
+			timeFull.put(sourceFileId, timeSlotAccumulate);
 
-                {
-                    timeSlotAccumulate.put(column, timeSlot);
-                }
+			Collections.sort(yearCount);
+			yearMap.put(sourceFileId, yearCount);
 
+		}
 
-            }
+		Map<String, Map<String, Map<String, Double>>> globalDecay = new LinkedHashMap<>();
+		Map<String, Map<String, Double>> columnGlobalDecay;
+		Map<String, Double> dateGlobalDecay;
+		Iterator<String> yearMapIterator;
 
+		// Calculate Decay
+		for (String sourceFileId : yearMap.keySet()) // yearMap number of time A is committed
+		{
+//			for (String sourceFileId2 : timeFull.keySet()) // timeFull:
+													// 27c1feb9-3e41-11ea-b4ad-482ae32cf5b4={27c1b0a5-3e41-11ea-851b-482ae32cf5b4={2018-11-11
+													// 22:17:32+00:00=1, 2019-02-26 03:09:37+00:00=2, 2019-04-13
+													// 15:24:13+00:00=3}
+//			{
+//				if (sourceFileId == sourceFileId2) {
+			if (timeFull.containsKey(sourceFileId)) {
+					timeSlotAccumulate = timeFull.get(sourceFileId); // timeSlotAccumulate:
+															// {27c1b0a5-3e41-11ea-851b-482ae32cf5b4={2018-11-11
+															// 22:17:32+00:00=1, 2019-02-26 03:09:37+00:00=2, 2019-04-13
+															// 15:24:13+00:00=3}
+					columnGlobalDecay = new LinkedHashMap<>();
+					for (String column : timeSlotAccumulate.keySet()) {
+						dateGlobalDecay = new LinkedHashMap<>();
+						timeSlot = timeSlotAccumulate.get(column);
 
-            {
-                timeFull.put(row, timeSlotAccumulate);
-            }
+						yearCount = yearMap.get(sourceFileId);
+						yearMapIterator = yearCount.listIterator();
 
-            {
-                Collections.sort(yearCount);
-                yearMap.put(row, yearCount);
-            }
+						while (yearMapIterator.hasNext()) {
+							String yearMapValue = (String) yearMapIterator.next(); // 2017, 2018,2019, 2020, 2021
 
+							// Start: Adding as per new function of global decay
+							List<String> timeSlotList = new LinkedList<>();
+							timeSlotList.addAll(timeSlot.keySet());
+							Collections.sort(timeSlotList);
+							TreeSet<String> timeSlotTreeSet = new TreeSet<String>();
+							timeSlotTreeSet.addAll(timeSlotList);
+							String compareValue = timeSlotTreeSet.floor(yearMapValue);
+							int index1 = 0;
+							int index2 = 0;
+							int val = 0;
+							double finalIndex = 0;
 
-        }
+							if (timeSlotTreeSet.floor(yearMapValue) != null || timeSlotTreeSet.contains(yearMapValue)) {
+								index1 = yearCount.indexOf(compareValue) + 1;
+								index2 = yearCount.indexOf(yearMapValue) + 1;
+								finalIndex = Math.exp(-((index2 - index1) * 0.5));
 
-        Map<String, Map<String, Map<String, Double>>> globalDecay = new LinkedHashMap<>();
-        Map<String, Map<String, Double>> columnGlobalDecay;
-        Map<String, Double> dateGlobalDecay;
-        Iterator<String> yearMapIterator;
+							} else {
+								val = 0;
+								finalIndex = Math.exp(val);
+							}
+							dateGlobalDecay.put(yearMapValue, finalIndex);
 
+						}
 
-        //Calculate Decay
-        for (String row : yearMap.keySet()) //yearMap number of time A is committed
-        {
-            for (String subRow : timeFull.keySet()) //timeFull: 27c1feb9-3e41-11ea-b4ad-482ae32cf5b4={27c1b0a5-3e41-11ea-851b-482ae32cf5b4={2018-11-11 22:17:32+00:00=1, 2019-02-26 03:09:37+00:00=2, 2019-04-13 15:24:13+00:00=3}
-            {
-                if (row == subRow) {
-                    timeSlotAccumulate = timeFull.get(row); //timeSlotAccumulate: {27c1b0a5-3e41-11ea-851b-482ae32cf5b4={2018-11-11 22:17:32+00:00=1, 2019-02-26 03:09:37+00:00=2, 2019-04-13 15:24:13+00:00=3}
-                    columnGlobalDecay = new LinkedHashMap<>();
-                    for (String column : timeSlotAccumulate.keySet()) {
-                        dateGlobalDecay = new LinkedHashMap<>();
-                        timeSlot = timeSlotAccumulate.get(column);
+						yearMapIterator = null; // Bug 003: Explicity using garbage Collector
 
-                        yearCount = yearMap.get(row);
-                        yearMapIterator = yearCount.listIterator();
+						columnGlobalDecay.put(column, dateGlobalDecay);
 
+					}
 
-                        while (yearMapIterator.hasNext()) {
-                            String yearMapValue = (String) yearMapIterator.next(); // 2017, 2018,2019, 2020, 2021
+					globalDecay.put(sourceFileId, columnGlobalDecay);
 
-                            //Start: Adding as per new function of global decay
-                            List<String> timeSlotList = new LinkedList<>();
-                            timeSlotList.addAll(timeSlot.keySet());
-                            Collections.sort(timeSlotList);
-                            TreeSet<String> timeSlotTreeSet = new TreeSet<String>();
-                            timeSlotTreeSet.addAll(timeSlotList);
-                            String compareValue = timeSlotTreeSet.floor(yearMapValue);
-                            int index1 = 0;
-                            int index2 = 0;
-                            int val = 0;
-                            double finalIndex = 0;
+				}
 
-                            if (timeSlotTreeSet.floor(yearMapValue) != null || timeSlotTreeSet.contains(yearMapValue)) {
-                                index1 = yearCount.indexOf(compareValue) + 1;
-                                index2 = yearCount.indexOf(yearMapValue) + 1;
-                                finalIndex = Math.exp(-((index2 - index1) * 0.5));
+//			}
 
-                            } else {
-                                val = 0;
-                                finalIndex = Math.exp(val);
-                            }
-                            dateGlobalDecay.put(yearMapValue, finalIndex);
+		}
+		dataRepository.setYearMapPair(yearMap);
+		/* Start: Bug 003: Explicity using garbage Collector */
+		timeSlotAccumulate = null;
+		timeFull = null;
+		cellMap = null;
+		timeSlot = null;
+		yearCount = null;
+		columnGlobalDecay = null;
+		dateGlobalDecay = null;
+		yearMapIterator = null;
 
-                        }
+		System.out.println("Inside Pair Global Decay");
 
-                        yearMapIterator = null; //Bug 003: Explicity using garbage Collector
+		/* End: Bug 003: Explicity using garbage Collector */
+		dataRepository.setPairLevelDecayMap(globalDecay);
+		dataRepository.setYearMapPair(yearMap);
+		logger.info("globalDecay");
+		logger.info("globalDecay size = " + globalDecay.size());
+		logger.info("yearMap");
+		logger.info("yearMap size = " + yearMap.size());
 
-                        columnGlobalDecay.put(column, dateGlobalDecay);
-
-                    }
-
-                    globalDecay.put(subRow, columnGlobalDecay);
-
-                }
-
-            }
-
-        }
-        dataRepository.setYearMapPair(yearMap);
-        /*Start:  Bug 003: Explicity using garbage Collector */
-        timeSlotAccumulate = null;
-        timeFull = null;
-        cellMap = null;
-        timeSlot = null;
-        yearCount = null;
-        columnGlobalDecay = null;
-        dateGlobalDecay = null;
-        yearMapIterator = null;
-
-        System.out.println("Inside Pair Global Decay");
-
-        /*End:  Bug 003: Explicity using garbage Collector */
-        dataRepository.setPairLevelDecayMap(globalDecay);
-        dataRepository.setYearMapPair(yearMap);
-        logger.info("globalDecay");
-        logger.info("globalDecay size = " + globalDecay.size());
-        logger.info("yearMap");
-        logger.info("yearMap size = " + yearMap.size());
-
-    }
-
+	}
 
 }

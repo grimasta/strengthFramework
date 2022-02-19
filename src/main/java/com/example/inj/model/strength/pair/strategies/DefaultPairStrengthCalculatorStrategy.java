@@ -19,17 +19,17 @@ public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrat
 			Map<String, Map<String, Map<String, Float>>> destinationLinesModified) {
 		float pairStrength = 0.0f;
 		Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
-		for (String source : readMap.keySet()) {
+		for (String sourceFileId : readMap.keySet()) {
 			Map<String, List<Map<Integer, Map<String, Float>>>> pairStrengthSubMap = new LinkedHashMap<>();
-			for (String destination : readMap.get(source).keySet()) {
+			for (String destinationFileId : readMap.get(sourceFileId).keySet()) {
 				Map<String, Float> pairStrengthSubThreeMap = new TreeMap<>();
 				Map<Integer, Map<String, Float>> pairStrengthSubTwoMap = new TreeMap<>();
 				List<Map<Integer, Map<String, Float>>> pairSubTwoMapList = new LinkedList<>();
-				for (int commitKey : readMap.get(source).get(destination).keySet()) {
+				for (int coCommitOccurrenceNumber : readMap.get(sourceFileId).get(destinationFileId).keySet()) {
 //					String commitTime = dictionaryStringDate.get(dictionaryKey.get(commitKey));
-					String commitTime = (String) readMap.get(source).get(destination).get(commitKey).get(10);
-					float coCommitValue = coCommit.get(source).get(destination).get(commitTime); // Case 1''
-					float coCommitTogetherValue = coCommitTogether.get(source).get(destination).get(commitTime); // Case
+					String commitTime = (String) readMap.get(sourceFileId).get(destinationFileId).get(coCommitOccurrenceNumber).get(10);
+					float coCommitValue = coCommit.get(sourceFileId).get(destinationFileId).get(commitTime); // Case 1''
+					float coCommitTogetherValue = coCommitTogether.get(sourceFileId).get(destinationFileId).get(commitTime); // Case
 																													// 2
 //		                    float callsValue=0.0f;
 					/*
@@ -39,32 +39,32 @@ public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrat
 					 * callsValue=callsMap.get(source).get(destination).get(commitTime); }
 					 */
 					float commitNotTog = 0.0f;
-					if (committedNotTogether.containsKey(source)
-							&& committedNotTogether.get(source).containsKey(destination)
-							&& committedNotTogether.get(source).get(destination).containsKey(commitTime)) {
-						commitNotTog = committedNotTogether.get(source).get(destination).get(commitTime);
+					if (committedNotTogether.containsKey(sourceFileId)
+							&& committedNotTogether.get(sourceFileId).containsKey(destinationFileId)
+							&& committedNotTogether.get(sourceFileId).get(destinationFileId).containsKey(commitTime)) {
+						commitNotTog = committedNotTogether.get(sourceFileId).get(destinationFileId).get(commitTime);
 					}
 
 					float sourceLinesModify = 0.0f;
-					if (sourceLinesModified.containsKey(source)
-							&& sourceLinesModified.get(source).containsKey(destination)
-							&& sourceLinesModified.get(source).get(destination).containsKey(commitTime)) {
+					if (sourceLinesModified.containsKey(sourceFileId)
+							&& sourceLinesModified.get(sourceFileId).containsKey(destinationFileId)
+							&& sourceLinesModified.get(sourceFileId).get(destinationFileId).containsKey(commitTime)) {
 						// logger.info("Inside 1");
-						sourceLinesModify = sourceLinesModified.get(source).get(destination).get(commitTime);
+						sourceLinesModify = sourceLinesModified.get(sourceFileId).get(destinationFileId).get(commitTime);
 					}
 					float destinationLinesModify = 0.0f;
-					if (destinationLinesModified.containsKey(source)
-							&& destinationLinesModified.get(source).containsKey(destination)
-							&& destinationLinesModified.get(source).get(destination).containsKey(commitTime)) {
+					if (destinationLinesModified.containsKey(sourceFileId)
+							&& destinationLinesModified.get(sourceFileId).containsKey(destinationFileId)
+							&& destinationLinesModified.get(sourceFileId).get(destinationFileId).containsKey(commitTime)) {
 						// logger.info("Inside 2");
-						destinationLinesModify = destinationLinesModified.get(source).get(destination).get(commitTime);
+						destinationLinesModify = destinationLinesModified.get(sourceFileId).get(destinationFileId).get(commitTime);
 					}
 					// replce- with+
-					if ((bugFixingMap.containsKey(source) && bugFixingMap.get(source).containsKey(commitTime)
-							&& bugFixingMap.get(source).get(commitTime))
-							&& (bugFixingMap.containsKey(source)
-									&& bugFixingMap.get(destination).containsKey(commitTime)
-									&& bugFixingMap.get(destination).get(commitTime))) {
+					if ((bugFixingMap.containsKey(sourceFileId) && bugFixingMap.get(sourceFileId).containsKey(commitTime)
+							&& bugFixingMap.get(sourceFileId).get(commitTime))
+							&& (bugFixingMap.containsKey(sourceFileId)
+									&& bugFixingMap.get(destinationFileId).containsKey(commitTime)
+									&& bugFixingMap.get(destinationFileId).get(commitTime))) {
 						pairStrength = 1.5f
 								* (coCommitValue + coCommitTogetherValue + sourceLinesModify + destinationLinesModify)
 								- commitNotTog;
@@ -81,15 +81,15 @@ public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrat
 					// destinationLinesModify " + destinationLinesModify);
 
 					pairStrengthSubThreeMap.put(commitTime, pairStrength);
-					pairStrengthSubTwoMap.put(commitKey, pairStrengthSubThreeMap);
+					pairStrengthSubTwoMap.put(coCommitOccurrenceNumber, pairStrengthSubThreeMap);
 					pairSubTwoMapList.add(pairStrengthSubTwoMap);
 					pairStrengthSubThreeMap = new TreeMap<>();
 					pairStrengthSubTwoMap = new TreeMap<>();
 				}
-				pairStrengthSubMap.put(destination, pairSubTwoMapList);
+				pairStrengthSubMap.put(destinationFileId, pairSubTwoMapList);
 
 			}
-			localPairStrength.put(source, pairStrengthSubMap);
+			localPairStrength.put(sourceFileId, pairStrengthSubMap);
 		}
 		return localPairStrength;
 	}

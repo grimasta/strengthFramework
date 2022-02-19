@@ -24,8 +24,8 @@ public class DataRepository {
 	private Map<String, Map<String, Map<String, Float>>> linesModifiedSource;
 	private Map<String, Map<String, Map<String, Float>>> linesModifiedDestination;
 	private Map<String, Map<String, Integer>> yearMap;
-	private Map<String, Map<String, Map<String, Float>>> committedPrimeValue;// Source,Destination,Commit_Date,Value
-	private Map<String, Map<String, Map<String, Float>>> committedTogetherValue;
+	private Map<String, Map<String, Map<String, Float>>> mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations;// Source,Destination,Commit_Date,Value
+	private Map<String, Map<String, Map<String, Float>>> mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
 	private Map<String, Map<String, Map<String, Float>>> coTimeDifference;
 	private Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits;
 	private Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps;
@@ -155,20 +155,20 @@ public class DataRepository {
 		this.yearMap = yearMap;
 	}
 
-	public Map<String, Map<String, Map<String, Float>>> getCommittedPrimeValue() {
-		return committedPrimeValue;
+	public Map<String, Map<String, Map<String, Float>>> getΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations() {
+		return mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations;
 	}
 
-	public void setCommittedPrimeValue(Map<String, Map<String, Map<String, Float>>> committedPrimeValue) {
-		this.committedPrimeValue = committedPrimeValue;
+	public void setΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations(Map<String, Map<String, Map<String, Float>>> mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations) {
+		this.mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations = mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations;
 	}
 
-	public Map<String, Map<String, Map<String, Float>>> getCommittedTogetherValue() {
-		return committedTogetherValue;
+	public Map<String, Map<String, Map<String, Float>>> getΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations() {
+		return mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
 	}
 
-	public void setCommittedTogetherValue(Map<String, Map<String, Map<String, Float>>> committedTogetherValue) {
-		this.committedTogetherValue = committedTogetherValue;
+	public void setΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations(Map<String, Map<String, Map<String, Float>>> mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations) {
+		this.mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations = mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
 	}
 
 	public Map<String, Map<String, Map<String, Float>>> getCoTimeDifference() {
