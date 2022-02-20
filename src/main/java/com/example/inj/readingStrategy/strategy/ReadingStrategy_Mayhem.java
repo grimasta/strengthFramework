@@ -21,26 +21,32 @@ import com.google.common.collect.Table;
 public class ReadingStrategy_Mayhem {
 
 	Logger logger = Logger.getLogger(this.getClass());
-	private HashMap<Integer, String> dictionary = new HashMap<>();
+	private HashMap<Integer, String> dictionary = new HashMap<>();@SuppressWarnings("unused")
 	private Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy = HashBasedTable
 			.create();
+	@SuppressWarnings("unused")
 	private Table<String, String, Map<Integer, List<Object>>> readableMappingSameN = HashBasedTable.create();// Bug 001:
 	// Committed as
 	// part of the
 	// file that is
 	// committed
 	// alone.
+	@SuppressWarnings("unused")
 	private Map<String, Map<String, Boolean>> readableBugFixing = new LinkedHashMap<>();
 	private HashMap<String, String> dictionaryString = new LinkedHashMap<>(); // Time, CommitId
 	private HashMap<String, String> dictionaryTime = new HashMap<>(); // CommitId, Time
+	@SuppressWarnings("unused")
 	private Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges3Copy = HashBasedTable
 			.create();
+	@SuppressWarnings("unused")
 	private Map<String, List<String>> fileCommits = new HashMap<>(); // Imp 004
+	@SuppressWarnings("unused")
 	private static DefaultReadingStrategy instance;
 	
 	
 	
 	public void storage(HashMap<CommitDetails, List<TryFileDetails>> commitDetails2TryFileDetailsMap) {
+		@SuppressWarnings("unused")
 		List<String> fileIds = new ArrayList<>();
 //      TODO give a proper name
 		Table<String, String, Map<Integer, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChanges = HashBasedTable
@@ -59,11 +65,13 @@ public class ReadingStrategy_Mayhem {
 				.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingCheck4Pure = new HashMap<>();
 		// For each commit we will have list of file objects
+		@SuppressWarnings("unused")
 		Iterator<Map.Entry<CommitDetails, List<TryFileDetails>>> commitDetails2TryFileDetailsMapIterator = commitDetails2TryFileDetailsMap
 				.entrySet().iterator();
 		// Integer for occurrence and List of changes
 		Map<Integer, List<Object>> numberOfOccurences2ListOfChangesMap = new HashMap<>();
 		Map<String, List<Object>> commitId2ListofChangesMap = new HashMap<>();
+		@SuppressWarnings("unused")
 		int cadd = 0;
 //      TODO provide proper names to the following 2 Maps getting rid of the "samesies" conventions (STRONG ROLL OF EYES)
 //      TODO probably the "same" in the original name signified that that's a Map between a file and itself to "their" data ...
@@ -72,8 +80,10 @@ public class ReadingStrategy_Mayhem {
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSamePure = new HashMap<>();
 		Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo = HashBasedTable.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSameTwoPure = new HashMap<>();
+		@SuppressWarnings("unused")
 		Map<String, List<Object>> commitId2CollectionOfData = new HashMap<>();
 //        Map<String, List<Object>> commitId2CollectionOfDataTemp = new HashMap<>();
+		@SuppressWarnings("unused")
 		List<Object> fileToFileDataForAParticularCommitInListFormat = new LinkedList<>();
 		int i = 0;
 		int buggy;
@@ -135,7 +145,9 @@ public class ReadingStrategy_Mayhem {
 						int bugFi = 0;
 						int cAddition = 0;
 						int cDeletion = 0;
+						@SuppressWarnings("unused")
 						boolean bug = false;
+						@SuppressWarnings("unused")
 						boolean nonBug = true;
 						boolean secondBug = false;
 						// Improvising

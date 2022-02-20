@@ -262,7 +262,8 @@ public class Chi2Automate {
     	dataRepository = DataRepository.getInstance();
     }
     
-    public void getDetailsOfChi2() {
+    @SuppressWarnings("unchecked")
+	public void getDetailsOfChi2() {
 
         Map<String, List<List<Object>>> sampleVectors = dataRepository.getVectorsForExcel();
         for (String key : sampleVectors.keySet()) {

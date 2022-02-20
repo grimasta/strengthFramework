@@ -34,7 +34,8 @@ TimeDifference-> How many times the A has been committed without B. --
 */
     public void timeDifferenceExcel(Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> mapPair) {
         Map<String, Map<String, Map<Integer, Map<String, Integer>>>> excelxyzz = new LinkedHashMap<>();
-        Map<Integer, Map<String, Integer>> timeDifferenceAggregate = new TreeMap();
+        
+        Map<Integer, Map<String, Integer>> timeDifferenceAggregate = new TreeMap<Integer, Map<String, Integer>>();
         Map<String, Map<String, Map<Integer, Map<String, Integer>>>> timeDifferenceAggregate2 = new TreeMap<>();
         Map<String, Map<String, Map<Integer, Map<String, Integer>>>> timeDiff3 = new TreeMap<>();
         Map<String, Map<Integer, Map<String, Integer>>> timeDifferenceAggregateColumn = new TreeMap<>();
@@ -69,7 +70,7 @@ TimeDifference-> How many times the A has been committed without B. --
                             }
 
                             Collections.sort(listABKeySet);
-                            ListIterator iteratorAB = listABKeySet.listIterator();
+                            ListIterator<String> iteratorAB = listABKeySet.listIterator();
 
 
                             while (iteratorAB.hasNext()) {

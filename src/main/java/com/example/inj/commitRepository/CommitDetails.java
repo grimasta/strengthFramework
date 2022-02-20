@@ -11,6 +11,7 @@ public class CommitDetails {
     private String commitID;
     
     private List<Integer> sortedListOfChanges = new ArrayList<Integer>(){
+    	static final long serialVersionUID = 0;
         public boolean add(Integer mt) {
             super.add(mt);
             Collections.sort(sortedListOfChanges, Comparator.naturalOrder());

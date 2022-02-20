@@ -23,9 +23,13 @@ public class CreateSample {
 
 	
 	private DataRepository dataRepository;
+	@SuppressWarnings("unused")
     private CreateVector createVector;
+	@SuppressWarnings("unused")
     private Map<String, List<List<Object>>> vectorsForExcel;
+	@SuppressWarnings("unused")
     private Chi2Automate chi2Automate;
+	@SuppressWarnings("unused")
     private InsertExcel insertExcel;
     Logger logger = LoggerFactory.getLogger(CreateSample.class);
 

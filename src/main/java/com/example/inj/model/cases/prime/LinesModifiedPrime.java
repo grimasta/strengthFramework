@@ -6,10 +6,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 
 //Fourth And Fifth Case
@@ -18,7 +16,6 @@ import com.example.inj.readingStrategy.strategy.IReadingStrategy;
      And,
      Case-5 Number of lines of B is modified/ Total number of lines are modified in the commit excluding A&B
      */
-@Component
 public class LinesModifiedPrime {
 	
 
@@ -36,7 +33,9 @@ public class LinesModifiedPrime {
     public void getLinesModified()
     {
         Map<String, Map<String, Map<Integer, List<Object>>>> readMap= dataRepository.getReadableMappingFinal().rowMap();
+        @SuppressWarnings("unused")
         Map<Integer,String> dictMap= dataRepository.getDictionary(); //id,commit_ID
+        @SuppressWarnings("unused")
         Map<String,String> dictDate=dataRepository.getDictionaryTime();//Commit_ID,Time&Date
 
         for(String sourceFileId: readMap.keySet())

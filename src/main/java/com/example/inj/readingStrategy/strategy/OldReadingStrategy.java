@@ -130,9 +130,9 @@ public class OldReadingStrategy {
             CommitDetails cm = new CommitDetails(af.getId());
             cm.createCommitHashMap(af.getId());
 
-
+            @SuppressWarnings("unused")
             TryCommitDetails com = new TryCommitDetails.UserBuilder(af.getId()).build();
-
+            @SuppressWarnings("unused")
             TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
 
         }
@@ -212,9 +212,12 @@ public class OldReadingStrategy {
         //Integer for occurence and List of changes
         Map<Integer, List<Object>> scalarVector = new HashMap<>();
         Map<String, List<Object>> scalarVectorCheck4 = new HashMap<>();
+        @SuppressWarnings("unused")
         int count2=0;
+        @SuppressWarnings("unused")
         int count1 = 0;
         //Start: Bug 001: Committed as part of the file that is committed alone.
+        @SuppressWarnings("unused")
         int caCount = 0;
         int cadd = 0;
         Table<String, String, Map<String, List<Object>>> readableMappingSame = HashBasedTable.create();
@@ -397,7 +400,9 @@ public class OldReadingStrategy {
                         int bugFi = 0;
                         int cAddition = 0;
                         int cDeletion = 0;
+                        @SuppressWarnings("unused")
                         boolean bug = false;
+                        @SuppressWarnings("unused")
                         boolean nonBug = true;
                         boolean secondBug=false;
                         //Improvising
@@ -633,7 +638,7 @@ public class OldReadingStrategy {
 
 
         }
-
+        @SuppressWarnings("unused")
         Map<String, Map<String, Map<String, List<Object>>>> printMap=  readableMappingCheck4.rowMap();
 
         rowReadableItr=null; //Bug 003: Explicity using garbage Collector

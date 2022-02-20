@@ -7,16 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.example.inj.model.storage.DataRepository;
+
 public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrategy {
 
 	@Override
-	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> calculate(Map<String, Map<String, Map<Integer, List<Object>>>> readMap,
-			Map<Integer, String> dictionaryKey, Map<String, String> dictionaryStringDate,
-			Map<String, Map<String, Boolean>> bugFixingMap, Map<String, Map<String, Map<String, Float>>> coCommit,
-			Map<String, Map<String, Map<String, Float>>> coCommitTogether,
-			Map<String, Map<String, Map<String, Float>>> committedNotTogether,
-			Map<String, Map<String, Map<String, Float>>> sourceLinesModified,
-			Map<String, Map<String, Map<String, Float>>> destinationLinesModified) {
+	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> calculate(DataRepository dataRepository){
+		Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
+		Map<String, Map<String, Boolean>> bugFixingMap = dataRepository.getReadableBugFixing();
+		Map<String, Map<String, Map<String, Float>>> coCommit = dataRepository.getΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations();
+		Map<String, Map<String, Map<String, Float>>> coCommitTogether = dataRepository.getΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations();
+		Map<String, Map<String, Map<String, Float>>> committedNotTogether = dataRepository.getCoTimeDifference();
+		Map<String, Map<String, Map<String, Float>>> sourceLinesModified = dataRepository.getLinesModifiedSource();
+		Map<String, Map<String, Map<String, Float>>> destinationLinesModified = dataRepository.getLinesModifiedDestination();
 		float pairStrength = 0.0f;
 		Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> localPairStrength = new HashMap<>();
 		for (String sourceFileId : readMap.keySet()) {

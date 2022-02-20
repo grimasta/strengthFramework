@@ -29,6 +29,7 @@ public class CommittedSoFar {
 
 		Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal()
 				.rowMap();
+		@SuppressWarnings("unused")
 		Map<Integer, String> dictionary = dataRepository.getDictionary();
 		// ID,Commit_ID
 		// Commit_ID,Date
@@ -37,6 +38,7 @@ public class CommittedSoFar {
 			Map<String, Integer> subYearMap = new HashMap<>();
 
 			List<String> commitDates = new ArrayList<>();
+			@SuppressWarnings("unused")
 			List<String> commitKeys = new ArrayList<>();
 
 			for (String destination : readMap.get(source).keySet()) {

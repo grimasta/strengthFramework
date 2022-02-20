@@ -11,10 +11,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.inj.model.decays.DecayImplementation;
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.singlefile.ISingleFileStrength;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 //Modification 003- We have modify the current selection of segment to include a value if any file in the next segment is
 //bugfixing or not.
@@ -254,27 +251,41 @@ public class CreateVector {
 
     }
 
-    public void createVectorSecondStrategy() {
+    @SuppressWarnings("unlikely-arg-type")
+	public void createVectorSecondStrategy() {
         Map<String, Float> accStrength;
+        @SuppressWarnings("unused")
         HashMap<String, String> dictionaryString = dataRepository.getDictionaryString(); //Bug 002: Committed as part of commitID to be added in the sample data
+        @SuppressWarnings("unused")
         Map<String, Integer> segmentWidths = dataRepository.getSegmentWidth();
         Map<String, Map<String, Float>> acStren = dataRepository.getFinalStrength();
         Map<String, List<String>> fileCommits = dataRepository.getFileCommits(); //Imp 004: File and it's associated commit details
         System.out.println("Strength");
         List<Object> xList = new ArrayList<>();
         List<List<Object>> xDoubleList = new ArrayList<>();
-
+        @SuppressWarnings("unused")
         Map<String, Map<String, List<Object>>> vectorMap = new LinkedHashMap<>();
+        @SuppressWarnings("unused")
         Map<String, List<Object>> vectorSubMap = new LinkedHashMap<>();
+        @SuppressWarnings("unused")
         Map<String, List<List<Object>>> vectorFinalMap = new LinkedHashMap<>();
+        @SuppressWarnings("unused")
         List<List<Object>> vectorDoubleList = new ArrayList<>();
+        @SuppressWarnings("unused")
         String dateVal = "";
+        @SuppressWarnings("unused")
         int max = 0;
+        @SuppressWarnings("unused")
         int i = 0;
+        @SuppressWarnings("unused")
         int segmentI = 0;
+        @SuppressWarnings("unused")
         int segmentWid = 0;
+        @SuppressWarnings("unused")
         Map<String, Map<String, Boolean>> booleanFix = dataRepository.getReadableBugFixing(); //<FileId, <Date, Boolean>>
+        @SuppressWarnings("unused")
         Map<String, Boolean> booleanSubFix = new LinkedHashMap<>();
+        @SuppressWarnings("unused")
         String anDate = "";
 
         for (String file : acStren.keySet()) {

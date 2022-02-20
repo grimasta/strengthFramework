@@ -59,8 +59,8 @@ public class TryCommitDetails {
         }
 
         public void createCommitHashMap(TryCommitDetails user, String commitID) {
-            if (!user.CommitDetailsPojo.containsKey(commitID)) {
-                user.CommitDetailsPojo.put(commitID, new CommitDetails(commitID));
+            if (!TryCommitDetails.CommitDetailsPojo.containsKey(commitID)) {
+            	TryCommitDetails.CommitDetailsPojo.put(commitID, new CommitDetails(commitID));
             }
         }
     }

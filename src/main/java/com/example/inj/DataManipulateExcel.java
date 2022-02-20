@@ -91,8 +91,7 @@ public class DataManipulateExcel {
 		// Todo: I am using the instance to get the values here, any better way of
 		// achieving this\
 		pairLevelDecay.globalDecay();
-		strengthAccumulator.calculateAccumulatedStrength(dataRepository.getPairStrengthMap(),
-				dataRepository.getExcelYearMaps());
+		strengthAccumulator.calculateAccumulatedStrength(dataRepository);
 //        overallStrength is calculated and available through the dataRepository dataRepository.getAccumulatedStrength();
 
 		List<String> commitDatesSchedule = commitSchedule(dataRepository.getAccumulatedStrength());

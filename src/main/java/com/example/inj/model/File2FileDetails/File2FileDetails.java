@@ -1,10 +1,5 @@
 package com.example.inj.model.File2FileDetails;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joda.time.DateTime;
-
 public class File2FileDetails {
 
 //	buggyList.add(buggy);

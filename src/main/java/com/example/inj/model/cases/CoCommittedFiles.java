@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.springframework.stereotype.Component;
-
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
 
 import javafx.util.Pair;
 
@@ -113,7 +110,8 @@ public class CoCommittedFiles {
 
 //		System.out.println(commitExcelxyzs);
 //		System.out.println(yearMapExcel3);
-		dataRepository.setPairMaps(new Pair(commitExcelxyzs, yearMapExcel3));
+//		
+		dataRepository.setPairMaps(new Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>>(commitExcelxyzs, yearMapExcel3));
 
 	}
 

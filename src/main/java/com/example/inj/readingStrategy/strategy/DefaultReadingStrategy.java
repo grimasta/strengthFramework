@@ -3,7 +3,6 @@ package com.example.inj.readingStrategy.strategy;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -187,6 +186,7 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingCheck4Pure = new HashMap<>();
 		// For each commit we will have list of file objects
 		// Integer for occurrence and List of changes
+		@SuppressWarnings("unused")
 		Map<String, List<Object>> commitId2ListofChangesMap = new HashMap<>();
 		int cadd = 0;
 //      TODO provide proper names to the following 2 Maps getting rid of the "samesies" conventions (STRONG ROLL OF EYES)
@@ -194,6 +194,7 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 		Table<String, String, Map<String, List<Object>>> fileId2fileId2CommitId2ListOfFileToFileData = HashBasedTable
 				.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSamePure = new HashMap<>();
+		@SuppressWarnings("unused")
 		Table<String, String, Map<Integer, List<Object>>> readableMappingSameTwo = HashBasedTable.create();
 //        Map<String, Map<String, Map<Integer, List<Object>>>> readableMappingSameTwoPure = new HashMap<>();
 		Map<String, List<Object>> commitId2CollectionOfData = new HashMap<>();

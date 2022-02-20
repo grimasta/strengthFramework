@@ -1,9 +1,5 @@
 package com.example.inj.model.strength.pair.strategies;
 
-import com.example.inj.model.strength.pair.PairCalculatorEnum;
-import com.example.inj.model.strength.pair.IPairStrength;
-import com.example.inj.model.strength.pair.PairStrength;
-
 public class PairStrengthStrategyFactory {
 
 	public static IPairStrengthStrategy createPairStrengthStrategy(PairStrengthStrategyEnum type) {

@@ -9,9 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.example.inj.model.decays.PairLevelDecay;
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 
 public class CreateWidth {
 

@@ -94,7 +94,7 @@ public class FileDetails {
             fileListPojo = fileDetailsPojoHashMap.get(commitDetails);
             fileListPojo.add(fileDetails);
             FileDetails.fileDetailsPojoHashMap.replace(commitDetails, fileListPojo);
-        } else if ((fileDetailsPojoHashMap.isEmpty() || (!fileDetailsPojoHashMap.containsKey(fileDetails.getFileId())))) {
+        } else if ((fileDetailsPojoHashMap.isEmpty() || (!fileDetailsPojoHashMap.containsKey(commitDetails)))) {
             fileListPojo = new ArrayList<>();
             fileListPojo.add(fileDetails);
             FileDetails.fileDetailsPojoHashMap.put(commitDetails, fileListPojo);

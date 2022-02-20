@@ -8,7 +8,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import javafx.util.Pair;
-
+// TODO future refactoring make it an abstract class subclassed to specific subtypes (ADataRepository
 public class DataRepository {
 	// variables
 	private Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy = HashBasedTable

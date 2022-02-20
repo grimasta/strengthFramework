@@ -188,13 +188,10 @@ public class PairStrength implements IPairStrength{
     }
     
     public void calculatePairStrength(){
+//    	TODO may be possible to be completely cleaned up of external dependencies
     	setUpObjects();
         logger.info("inside calculate Pair Strength");
         System.out.println("inside calculate Pair Strength ");
-        Map<String,Map<String, Map<Integer,List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();
-        Map<Integer,String> dictionaryKey = dataRepository.getDictionary();
-        Map<String,String> dictionaryStringDate = dataRepository.getDictionaryTime();
-        Map<String,Map<String,Boolean>> bugFixingMap = dataRepository.getReadableBugFixing();
         //Populate Committed So Far
         logger.info("Before Committed So Far");
         committedSoFar.committedSoFar();
@@ -203,16 +200,13 @@ public class PairStrength implements IPairStrength{
         logger.info("Before coCommittedPrime");
         coCommittedPrime.getCoCommittedFiles();
         logger.info("After coCommittedPrime");
-        Map<String,Map<String,Map<String, Float>>> coCommit=dataRepository.getΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations();
         //Case 2: Number of time (A&B) are co-committed/ Number of time A is committed so far
         logger.info("After Case 2");
         System.out.println("After Case 2");
-        Map<String,Map<String,Map<String, Float>>> coCommitTogether=dataRepository.getΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations();
         //How many times the File A has been committed without File B/ Number of time A is committed so far
         logger.info("coCommitTogether");
         withoutCommitPrime.getTimeDifference();
         logger.info("After Case 3");
-        Map<String,Map<String,Map<String, Float>>> committedNotTogether=dataRepository.getCoTimeDifference(); //Todo Need to check at that particular point when files are committed together
         //Case 6: ’: Number of calls between A to B/ Average number of calls from A to all other co-committed files. (Ignore the self calls
         //parseCoupledCSV.parseData();
         logger.info("After Case 6");
@@ -220,13 +214,10 @@ public class PairStrength implements IPairStrength{
 
         linesModifiedPrime.getLinesModified();
         System.out.println("After Case-4");
-        Map<String, Map<String, Map<String, Float>>> sourceLinesModified = dataRepository.getLinesModifiedSource();
         //case-5
-        Map<String, Map<String, Map<String, Float>>> destinationLinesModified = dataRepository.getLinesModifiedDestination();
-//        HashMap<String,HashMap<String,HashMap<String,Float>>> callsMap=parseCoupledCSV.getFinalCallsValue();
 //        TODO REVIEW THE ACTUAL STRENGTH CALCULATION STRATEGY
         
-        dataRepository.setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
+        dataRepository.setPairStrengthMap(theStrategy.calculate(dataRepository));
 //       
 //		why the hell do we need this??? call (coCommitABCD)
 //        looks like we need the value of the pair later on in StrengthAccumulator

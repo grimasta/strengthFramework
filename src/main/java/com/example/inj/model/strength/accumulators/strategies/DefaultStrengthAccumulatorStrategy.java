@@ -8,17 +8,18 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+
+import com.example.inj.model.storage.DataRepository;
 
 public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorStrategy {
 
 	@Override
-	public Map<String, Map<String, Float>> calculate(
-			Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap,
-			Map<String, Map<Integer, Map<String, Integer>>> sourceFileId2SomeNumber2Date2CommitsOnDate,
-			Map<String, Map<String, Map<String, Double>>> globalDecay) {
+	public Map<String, Map<String, Float>> calculate(DataRepository dataRepository){			
+		Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap = dataRepository.getPairStrengthMap();
+		Map<String, Map<Integer, Map<String, Integer>>> sourceFileId2SomeNumber2Date2CommitsOnDate = dataRepository.getExcelYearMaps();;
+		Map<String, Map<String, Map<String, Double>>> globalDecay = dataRepository.getPairLevelDecayMap();
 
 		Double decay = 0.0;
 		List<String> contributingToTotalStrengthTargetFileIds = null;
