@@ -229,6 +229,7 @@ public class PairStrength implements IPairStrength{
         dataRepository.setPairStrengthMap(theStrategy.calculate(readMap, dictionaryKey, dictionaryStringDate, bugFixingMap, coCommit, coCommitTogether, committedNotTogether, sourceLinesModified, destinationLinesModified));
 //       
 //		why the hell do we need this??? call (coCommitABCD)
+//        looks like we need the value of the pair later on in StrengthAccumulator
         coCommittedFiles.coCommitABCD();
         Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = dataRepository.getPairMaps();
         Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();

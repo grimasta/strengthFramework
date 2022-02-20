@@ -7,106 +7,148 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorStrategy {
 
 	@Override
-	public Map<String, Map<String, Float>> calculate(Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap,
-			Map<String, Map<Integer, Map<String, Integer>>> excelYearMap,
+	public Map<String, Map<String, Float>> calculate(
+			Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap,
+			Map<String, Map<Integer, Map<String, Integer>>> sourceFileId2SomeNumber2Date2CommitsOnDate,
 			Map<String, Map<String, Map<String, Double>>> globalDecay) {
+
+		Double decay = 0.0;
+		List<String> contributingToTotalStrengthTargetFileIds = null;
+		int indexOfCurrentDateInSourceFileSortedListOfCommitDates = 0;
+		Map<String, Map<String, Float>> overallStrengthDateMap = new HashMap<>();
+		Map<String, List<Map<Integer, Map<String, Float>>>> targetFileIdPairStrengthSubMap;
+		Map<String, Integer> targetFileIdStrengthContributionCountMap;
+		Map<String, Integer> targetFileIdCountExistenceMap;
+		List<String> sortedListOfCommitDatesForFile;
+//		Map<String, Map<String, Float>> perFileTotalStrength = new HashMap<String, Map<String, Float>>();
+//		List<String> listOfDatesRenamed = new ArrayList<>();
+//		 figure out a way of maintaining the last valid value for a source - target fileId Pair to be contributed to the globalStrength for each date.
+//		for (Entry<String, Map<String, List<Map<Integer, Map<String, Float>>>>> sourceFileEntry : pairStrengthMap
+//				.entrySet()) {
+//			for (Entry<String, List<Map<Integer, Map<String, Float>>>> targetFileEntry : sourceFileEntry.getValue()
+//					.entrySet()) {
+//				for (Map<Integer, Map<String, Float>> listOfDifferentRelationsForTarget : targetFileEntry.getValue()) {
+//					for (Entry<Integer, Map<String, Float>> contents_unknown : listOfDifferentRelationsForTarget
+//							.entrySet()) {
+//						for (Entry<String, Float> pairWiseStrength : contents_unknown.getValue().entrySet()) {
+//							if (!listOfDatesRenamed.contains(pairWiseStrength.getKey()))
+//								listOfDatesRenamed.add(pairWiseStrength.getKey());
+//						}
+//					}
+//				}
+//			}
+//			Collections.sort(listOfDatesRenamed);
+//			Map<String, Float> strengthValues = new HashMap<String, Float>();
+//			for (Entry<String, List<Map<Integer, Map<String, Float>>>> targetFileEntry : sourceFileEntry.getValue()
+//					.entrySet()) {
+//				for (Map<Integer, Map<String, Float>> listOfDifferentRelationsForTarget : targetFileEntry.getValue()) {
+//					for (Entry<Integer, Map<String, Float>> contents_unknown : listOfDifferentRelationsForTarget
+//							.entrySet()) {
+//						List<Entry<String, Float>> pairWiseStrength = new ArrayList<Entry<String, Float>>();
+//						pairWiseStrength.addAll(contents_unknown.getValue().entrySet());
+//						for (int pairWiseStrengthEntrIndex = 0; pairWiseStrengthEntrIndex < pairWiseStrength.size()
+//								- 1; pairWiseStrengthEntrIndex++) {
+//							for (int validStrengthValues = listOfDatesRenamed.indexOf(pairWiseStrength
+//									.get(pairWiseStrengthEntrIndex).getKey()); validStrengthValues < listOfDatesRenamed
+//											.indexOf(pairWiseStrength.get(pairWiseStrengthEntrIndex + 1)
+//													.getKey()); validStrengthValues++) {
+//								float strength = strengthValues
+//										.getOrDefault(listOfDatesRenamed.get(validStrengthValues), 0f);
+//								strengthValues.put(pairWiseStrength.get(pairWiseStrengthEntrIndex).getKey(),
+//										(float) (strength + globalDecay.get(sourceFileEntry.getKey())
+//												.get(targetFileEntry.getKey())
+//												.get(pairWiseStrength.get(pairWiseStrengthEntrIndex).getKey())
+//												* pairWiseStrength.get(pairWiseStrengthEntrIndex).getValue()));
+//							}
+//						}
+//					}
+//				}
+//			}
+//			perFileTotalStrength.put(sourceFileEntry.getKey(), strengthValues);
+//		}
+//		for (Entry<String, Map<String, Float>> entryOfAccumulatedStrength : perFileTotalStrength.entrySet())
+//			System.out.println(entryOfAccumulatedStrength.getValue());
+//		System.out.println("Before Rias Strength Accumulation Code");
+//		for each sourceFileId look into the list of pairwise strengths and find all dates for which there are calculated pairwise strengths 
+//		for each of the dates add all the pairwise strenghts calculated for each date plus all pairwise strengths from previous pairwise calculations (appropriately decayed)
+
 		
-		Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMapSecond = new LinkedHashMap<>();
-        pairStrengthMapSecond.putAll(pairStrengthMap);
-        Double decay = 0.0;
-        List<String> acceptString = null;
-        int index = 0;
-        Map<String, Map<String, Float>> overallStrengthDateMap = new HashMap<>();
-        Map<String, List<Map<Integer, Map<String, Float>>>> columnPairs;
-        Map<String, Integer> countColumn;
-        Map<String, Integer> countExistenceColumn;
-        List<String> datesMap;
-		for (String row : excelYearMap.keySet()) {
-			columnPairs = pairStrengthMap.get(row);
-			countColumn = new LinkedHashMap<>();
-			countExistenceColumn = new LinkedHashMap<>();
-			for (String cPair : columnPairs.keySet()) {
-				countColumn.put(cPair, 0);
-				countExistenceColumn.put(cPair, 0);
+		for (String sourceFileId : sourceFileId2SomeNumber2Date2CommitsOnDate.keySet()) {
+			targetFileIdPairStrengthSubMap = pairStrengthMap.get(sourceFileId);
+			targetFileIdStrengthContributionCountMap = new LinkedHashMap<>();
+			targetFileIdCountExistenceMap = new LinkedHashMap<>();
+			for (String targetFileId : targetFileIdPairStrengthSubMap.keySet()) {
+				targetFileIdStrengthContributionCountMap.put(targetFileId, 0);
+				targetFileIdCountExistenceMap.put(targetFileId, 0);
 			}
-			for (String rowPair : pairStrengthMap.keySet()) {
+			for (String sourceFileIdInPairStrengthMap : pairStrengthMap.keySet()) {
 
-				if (rowPair.equals(row)) {
-					datesMap = new ArrayList<>();
-					Map<Integer, Map<String, Integer>> yearColumn = excelYearMap.get(row);
-					for (int key : yearColumn.keySet()) {
-						Map<String, Integer> yearSubColumn = yearColumn.get(key);
-						datesMap.addAll(yearSubColumn.keySet());
+				if (sourceFileIdInPairStrengthMap.equals(sourceFileId)) {
+					sortedListOfCommitDatesForFile = new ArrayList<>();
+//					whats is yearColumn??
+					Map<Integer, Map<String, Integer>> number2Date2NumberOfCommitsOnDate = sourceFileId2SomeNumber2Date2CommitsOnDate
+							.get(sourceFileId);
+					for (int unimportantKey : number2Date2NumberOfCommitsOnDate.keySet()) {
+						Map<String, Integer> date2NumberOfCommitsOnDate = number2Date2NumberOfCommitsOnDate
+								.get(unimportantKey);
+						sortedListOfCommitDatesForFile.addAll(date2NumberOfCommitsOnDate.keySet());
 					}
-					Collections.sort(datesMap);
-					Map<String, List<Map<Integer, Map<String, Float>>>> columnPair = pairStrengthMap.get(rowPair);
-					List<String> listColumns = new ArrayList<>();
-					listColumns.addAll(columnPair.keySet());
+					Collections.sort(sortedListOfCommitDatesForFile);
+					Map<String, List<Map<Integer, Map<String, Float>>>> targetFileId2ListOfCoCommitIndex2Date2PairWiseStrengthOnDate = pairStrengthMap
+							.get(sourceFileIdInPairStrengthMap);
 
-					ListIterator<String> datesMapIterator = datesMap.listIterator();
 					Map<String, Float> overallStrengthMap = new LinkedHashMap<>();
-					String firstDate = null;
-					float overallStrength = 0.0f;
-					while (datesMapIterator.hasNext()) {
-						overallStrength = 0.0f;
-						firstDate = datesMapIterator.next();
-						acceptString = new LinkedList<>();
-						for (String columnKey : columnPair.keySet()) {
-							{
+					for (String currentDate : sortedListOfCommitDatesForFile) {
+						float overallStrengthOnCurrentDate = 0.0f;
+						contributingToTotalStrengthTargetFileIds = new LinkedList<>();
+						for (String targetFileId : targetFileId2ListOfCoCommitIndex2Date2PairWiseStrengthOnDate
+								.keySet()) {
+							for (Map<Integer, Map<String, Float>> numberOfCoCommits2Dates2PairwiseStrengthOnDate : targetFileId2ListOfCoCommitIndex2Date2PairWiseStrengthOnDate
+									.get(targetFileId)) {
+								for (int unimportantKey : numberOfCoCommits2Dates2PairwiseStrengthOnDate.keySet()) {
+									Map<String, Float> date2PairwiseStrengthMap = numberOfCoCommits2Dates2PairwiseStrengthOnDate
+											.get(unimportantKey);
+									if (date2PairwiseStrengthMap.containsKey(currentDate)) {
+										float pairwiseStrengthOnCurrentDateForTargetFileId = 0.0f;
+										pairwiseStrengthOnCurrentDateForTargetFileId = date2PairwiseStrengthMap
+												.get(currentDate);
+										targetFileIdStrengthContributionCountMap.put(targetFileId, 1);
 
-								List<Map<Integer, Map<String, Float>>> columnPairList = columnPair.get(columnKey);
-								ListIterator<Map<Integer, Map<String, Float>>> columnPairListIterator = columnPairList
-										.listIterator();
-
-								while (columnPairListIterator.hasNext()) {
-									Map<Integer, Map<String, Float>> columnMapPair = (Map<Integer, Map<String, Float>>) columnPairListIterator
-											.next();
-									for (int keys : columnMapPair.keySet()) {
-										Map<String, Float> pairStrength = columnMapPair.get(keys);
-										if (pairStrength.containsKey(firstDate)) {
-											float strength = 0.0f;
-											strength = pairStrength.get(firstDate);
-											countColumn.put(columnKey, 1);
-
-											acceptString.add(columnKey);
-											overallStrength += strength;
-										}
-
+										contributingToTotalStrengthTargetFileIds.add(targetFileId);
+										overallStrengthOnCurrentDate += pairwiseStrengthOnCurrentDateForTargetFileId;
 									}
+
 								}
-								columnPairListIterator = null; // Bug 003: Explicity using garbage Collector
 							}
 						}
 
-						List<String> validValue = new LinkedList<>();
-						if (!acceptString.isEmpty()) {
-							{
-
-								for (String rowCount : countColumn.keySet()) {
-									if (!(acceptString.contains(rowCount)) && (countColumn.get(rowCount) == 1)) {
-										validValue.add(rowCount);
-									}
+						List<String> listOfTargetFileIdsHavingValidValuesForCurrentDatesOverallStrengthCalculation = new LinkedList<>();
+						if (!contributingToTotalStrengthTargetFileIds.isEmpty()) {
+							for (String targetFileIdLocal : targetFileIdStrengthContributionCountMap.keySet()) {
+//								if the targetFileIdLocal has been found in a previous date but not the current date then add it 
+//								to listOfTargetFileIdsHavingValidValuesForCurrentDatesOverallStrengthCalculation
+								if (!(contributingToTotalStrengthTargetFileIds.contains(targetFileIdLocal))
+										&& (targetFileIdStrengthContributionCountMap.get(targetFileIdLocal) == 1)) {
+									listOfTargetFileIdsHavingValidValuesForCurrentDatesOverallStrengthCalculation.add(targetFileIdLocal);
 								}
-
 							}
-							Iterator<String> validValueIterator = validValue.listIterator();
-							index = datesMap.indexOf(firstDate);
-							if (index > 0) {
-
-								while (validValueIterator.hasNext()) {
-									String val = (String) validValueIterator.next();
+							indexOfCurrentDateInSourceFileSortedListOfCommitDates = sortedListOfCommitDatesForFile.indexOf(currentDate);
+//							if this is not the first commit date for the sourceFileId
+							if (indexOfCurrentDateInSourceFileSortedListOfCommitDates > 0) {
+//								for each of the TargetFileIds in the listOfTargetFileIdsHavingValidValuesForCurrentDatesOverallStrengthCalculation
+								for (String targetFileIdForValidValue : listOfTargetFileIdsHavingValidValuesForCurrentDatesOverallStrengthCalculation) {
 									float decaySt = 0;
 									float st = 0;
 									Iterator<Map<Integer, Map<String, Float>>> pairIteratorTry = pairStrengthMap
-											.get(row).get(val).iterator();
+											.get(sourceFileId).get(targetFileIdForValidValue).iterator();
 									Map<Integer, Map<String, Float>> pairMapping;
 									Set<String> pairTry = new TreeSet<>();
 									while (pairIteratorTry.hasNext()) {
@@ -120,10 +162,10 @@ public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorS
 										}
 									}
 									pairIteratorTry = null; // Bug 003: Explicity using garbage Collector
-									String prev = ((TreeSet<String>) pairTry).floor(firstDate);
+									String prev = ((TreeSet<String>) pairTry).floor(currentDate);
 									if (prev != null) {
 										Iterator<Map<Integer, Map<String, Float>>> pairIterator = pairStrengthMap
-												.get(row).get(val).iterator();
+												.get(sourceFileId).get(targetFileIdForValidValue).iterator();
 										Map<Integer, Map<String, Float>> pairMappings;
 										while (pairIterator.hasNext()) {
 											pairMappings = (Map<Integer, Map<String, Float>>) pairIterator.next();
@@ -137,28 +179,31 @@ public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorS
 										pairIterator = null;// Bug 003: Explicity using garbage Collector
 									}
 
-									decay = globalDecay.get(row).get(val).get(firstDate);
+									decay = globalDecay.get(sourceFileId).get(targetFileIdForValidValue).get(currentDate);
 									decaySt = (float) (st * decay);
-									overallStrength += decaySt;
+									overallStrengthOnCurrentDate += decaySt;
 
 								}
-								validValueIterator = null; // Bug 003: Explicity using garbage Collector
 
 							}
 						}
 
-						overallStrengthMap.put(firstDate, overallStrength);
+						overallStrengthMap.put(currentDate, overallStrengthOnCurrentDate);
 
 					}
 
-					datesMapIterator = null; // Bug 003: Explicity using garbage Collector
-
-					overallStrengthDateMap.put(row, overallStrengthMap);
+					overallStrengthDateMap.put(sourceFileId, overallStrengthMap);
 				}
 
 			}
 
 		}
+		System.out.println("After Rias Strength Accumulation Code");
+
+//		for (Entry<String, Map<String, Float>> strength : overallStrengthDateMap.entrySet())
+//			for (Entry<String, Float> dateStrength : strength.getValue().entrySet())
+//				if (perFileTotalStrength.get(strength.getKey()).get(dateStrength.getKey()) != dateStrength.getValue())
+//					System.out.println("false");
 		return overallStrengthDateMap;
 	}
 

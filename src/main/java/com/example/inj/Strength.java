@@ -25,22 +25,20 @@ public class Strength {
 
 		ProjectNameContainer.PROJECT_NAME = "kolourpaint";
 //		try {
+		
 //	            ConfigurableApplicationContext ack = SpringApplication.run(Strength.class, args);
-			System.out.println(ProjectNameContainer.PROJECT_NAME);
-			long heapMaxSize = Runtime.getRuntime().maxMemory();
-			// To print the JVM Heap Size
-			System.out.println("Heap Size: " + heapMaxSize);
-			// System.exit(0);
+		System.out.println(ProjectNameContainer.PROJECT_NAME);
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		// To print the JVM Heap Size
+		System.out.println("Heap Size: " + heapMaxSize);
+		// System.exit(0);
 
-			Strength theStrengthCalculator = new Strength();
+		Strength theStrengthCalculator = new Strength();
 //	        DataManipulateExcel dataManipulate= ack.getBean("dataManipulateExcel", DataManipulateExcel.class);
 
-			theStrengthCalculator.setupObjects();
-			theStrengthCalculator.runSystem();
+		theStrengthCalculator.setupObjects();
+		theStrengthCalculator.runSystem();
 
-
-			
-			
 //	        ack.close();
 //		} catch (Exception e) {
 //			System.out.println(e.getMessage());
@@ -54,31 +52,33 @@ public class Strength {
 
 	private void setupObjects() {
 		dataManipulate = new DataManipulateExcel();
-		dataManipulate.setStrengthAccumulator( 	// This is where you can change the overall
-											   	// strength calculation Strategy
-			StrengthAccumulatorFactory.create( 	// Look into the com.example.inj.model.strength.accumulators
-											   	// package
-				StrengthAccumulators.DEFAULT   	// For more details on how to implement your own version and
-											   	// how to add it
-				)								// to the StrengthAccumulator types enumerations and the factory
-		); 										//
-		
-		dataManipulate.getStrengthAccumulator().setStrategy(StrengthAccumulatorStrategiesFactory.createStrengthAccumulatorStrategy(StrengthAccumulatorStrategiesEnum.DEFAULT));
-		
-		dataManipulate.setPairStrength( 				// This is where you can set the Pairwise
-														// Strength Calculator
-			PairFactory.getPairStrengthType(			// Look into the com.example.inj.model.strength.pair
-														// package
-				PairCalculatorEnum.RIA_S_PAIRWISE_CALCULATOR 	// for more details on how to implement your
-														// own version and how to add it
-			) 											// to the PairFactory types enumerations 
-		);							 					// and the corresponding factory
-		
+		dataManipulate.setStrengthAccumulator( // This is where you can change the overall
+												// strength calculation Strategy
+				StrengthAccumulatorFactory.create( // Look into the com.example.inj.model.strength.accumulators
+													// package
+						StrengthAccumulators.DEFAULT // For more details on how to implement your own version and
+														// how to add it
+				) // to the StrengthAccumulator types enumerations and the factory
+		); //
+
+		dataManipulate.getStrengthAccumulator().setStrategy(StrengthAccumulatorStrategiesFactory
+				.createStrengthAccumulatorStrategy(StrengthAccumulatorStrategiesEnum.DEFAULT));
+
+		dataManipulate.setPairStrength( // This is where you can set the Pairwise
+										// Strength Calculator
+				PairFactory.getPairStrengthType( // Look into the com.example.inj.model.strength.pair
+													// package
+						PairCalculatorEnum.RIA_S_PAIRWISE_CALCULATOR // for more details on how to implement your
+				// own version and how to add it
+				) // to the PairFactory types enumerations
+		); // and the corresponding factory
+
 //		Set Concrete pairStrength Calculation Strategy
-		dataManipulate.getPairStrength().setStrategy(PairStrengthStrategyFactory.createPairStrengthStrategy(PairStrengthStrategyEnum.DEFAULT));
-		
+		dataManipulate.getPairStrength()
+				.setStrategy(PairStrengthStrategyFactory.createPairStrengthStrategy(PairStrengthStrategyEnum.DEFAULT));
+
 	}
-	
+
 	private void runSystem() {
 		try {
 			ReadingStrategyFactory.create(ReadingStrategyEnumeration.DEFAULT).parseData();

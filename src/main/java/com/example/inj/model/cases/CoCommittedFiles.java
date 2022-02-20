@@ -48,71 +48,71 @@ public class CoCommittedFiles {
 		// Start: Commit-ID
 		Map<String, Map<String, Map<Integer, Map<String, Integer>>>> commitExcelxyzs = new LinkedHashMap<>();
 		Map<String, Map<Integer, Map<String, Integer>>> commitExcelmaps = new LinkedHashMap<>();
-		Map<Integer, Map<String, Integer>> commitFinalMaps = new LinkedHashMap<>();
+		Map<Integer, Map<String, Integer>> potentiallyTargetFileIdToDatesAndMultiplicitiesOfCoCommitsWithAnArbitrarySourceFileId = new LinkedHashMap<>();
 		// End: Commit-ID
 
 		List<Map<String, Integer>> ListAB;
 
-		for (String sourceId : fileId2fileId2CoOccurrence2Data.keySet()) {
+		for (String sourceFileId : fileId2fileId2CoOccurrence2Data.keySet()) {
 			ListAB = new ArrayList<>();
 			Map<String, Map<Integer, List<Object>>> allTargetIds2CoOccurrence2DataSubMaps = fileId2fileId2CoOccurrence2Data
-					.get(sourceId);
+					.get(sourceFileId);
 			String targetId = "";
 			for (Map.Entry<String, Map<Integer, List<Object>>> targetId2CoOccurences2DataEntry : allTargetIds2CoOccurrence2DataSubMaps
 					.entrySet()) {
-				int countAB = 0;
+				int numberOfTimesSourceFileIdAndTargetFileIdWereCoCommittedOnParticularDate = 0;
 				int count = 0;
 //                targetId = targetId2CoOccurences2DataEntry.getKey();
-				Map<String, Integer> MapAB = new TreeMap<>();
-				commitFinalMaps = new TreeMap<>();
+				Map<String, Integer> datesOfCoOccurrenceBetweenSourceFileIdAndTargetFileId = new TreeMap<>();
+				potentiallyTargetFileIdToDatesAndMultiplicitiesOfCoCommitsWithAnArbitrarySourceFileId = new TreeMap<>();
 //                Map<Integer, List<Object>> coOccurences2Data = 
 				List<Object> coOccurrenceData = null;
-				String coOccurrenceDate = "";
+				String coCommitDate = "";
 				for (Map.Entry<Integer, List<Object>> coOccurrenceNumber2Data : targetId2CoOccurences2DataEntry
 						.getValue().entrySet()) {
-					Map<String, Integer> MapABC = new TreeMap<>();// For excel
+					Map<String, Integer> datesOfCoCommitsToNumberOfCommitsOnParticularDate = new TreeMap<>();// For excel
 					Map<String, Integer> yearMap33 = new TreeMap<>();// For excel
 					count = 0;
-					countAB = 0;
-					int coOccurrenceNumber = coOccurrenceNumber2Data.getKey();
+					numberOfTimesSourceFileIdAndTargetFileIdWereCoCommittedOnParticularDate = 0;
+					int increasingIndexOfSourceTargetCoCommits = coOccurrenceNumber2Data.getKey();
 					coOccurrenceData = coOccurrenceNumber2Data.getValue();
 
-					coOccurrenceDate = coOccurrenceData.get(10).toString();
+					coCommitDate = coOccurrenceData.get(10).toString();
 
-					if (MapAB.containsKey(coOccurrenceDate))
-						countAB = MapAB.get(coOccurrenceDate);
-					MapAB.put(coOccurrenceDate, ++countAB);
+					if (datesOfCoOccurrenceBetweenSourceFileIdAndTargetFileId.containsKey(coCommitDate))
+						numberOfTimesSourceFileIdAndTargetFileIdWereCoCommittedOnParticularDate = datesOfCoOccurrenceBetweenSourceFileIdAndTargetFileId.get(coCommitDate);
+					datesOfCoOccurrenceBetweenSourceFileIdAndTargetFileId.put(coCommitDate, ++numberOfTimesSourceFileIdAndTargetFileIdWereCoCommittedOnParticularDate);
 					// For Excel
-					MapABC.put(coOccurrenceDate, countAB);
-					commitFinalMaps.put(coOccurrenceNumber, MapABC);
+					datesOfCoCommitsToNumberOfCommitsOnParticularDate.put(coCommitDate, numberOfTimesSourceFileIdAndTargetFileIdWereCoCommittedOnParticularDate);
+					potentiallyTargetFileIdToDatesAndMultiplicitiesOfCoCommitsWithAnArbitrarySourceFileId.put(increasingIndexOfSourceTargetCoCommits, datesOfCoCommitsToNumberOfCommitsOnParticularDate);
 
-					if (yearMap.containsKey(coOccurrenceDate))
-						count = yearMap.get(coOccurrenceDate);
-					if (!yearMapExcel33.containsKey(coOccurrenceNumber)) {
+					if (yearMap.containsKey(coCommitDate))
+						count = yearMap.get(coCommitDate);
+					if (!yearMapExcel33.containsKey(increasingIndexOfSourceTargetCoCommits)) {
 						count = count + 1;
-						yearMap.put(coOccurrenceDate, count);
+						yearMap.put(coCommitDate, count);
 						// For Excel
-						yearMap33.put(coOccurrenceDate, count);
-						yearMapExcel33.put(coOccurrenceNumber, yearMap33);
+						yearMap33.put(coCommitDate, count);
+						yearMapExcel33.put(increasingIndexOfSourceTargetCoCommits, yearMap33);
 					}
 					// For Excel
 				}
 
-				ListAB.add(MapAB);
-				commitExcelmaps.put(targetId, commitFinalMaps); // For Excel
+				ListAB.add(datesOfCoOccurrenceBetweenSourceFileIdAndTargetFileId);
+				commitExcelmaps.put(targetId, potentiallyTargetFileIdToDatesAndMultiplicitiesOfCoCommitsWithAnArbitrarySourceFileId); // For Excel
 
 
 			}
 
-			commitExcelxyzs.put(sourceId, commitExcelmaps);
-			yearMapExcel3.put(sourceId, yearMapExcel33); // For Excel
+			commitExcelxyzs.put(sourceFileId, commitExcelmaps);
+			yearMapExcel3.put(sourceFileId, yearMapExcel33); // For Excel
 			commitExcelmaps = new LinkedHashMap<>();
 			yearMapExcel33 = new HashMap<>();
 		}
 		System.out.println("Co-Committed ABCD");
 
-		System.out.println(commitExcelxyzs);
-		System.out.println(yearMapExcel3);
+//		System.out.println(commitExcelxyzs);
+//		System.out.println(yearMapExcel3);
 		dataRepository.setPairMaps(new Pair(commitExcelxyzs, yearMapExcel3));
 
 	}
