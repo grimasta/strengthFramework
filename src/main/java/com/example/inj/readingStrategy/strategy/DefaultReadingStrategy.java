@@ -22,6 +22,7 @@ import com.example.inj.commitBuilder.TryFileDetails;
 import com.example.inj.commitBuilder.TryFileDetails.TryFileDetailsBuilder;
 import com.example.inj.commitRepository.CommitDetails;
 import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.global.ProjectPathContainer;
 import com.example.inj.model.File2FileDetails.File2FileDetails;
 import com.example.inj.model.storage.DataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,7 +129,7 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 		// Excel_11_9_2020\Without_Merge_Reconciled\Done
 		try {
 			parser.parse(
-					new FileReader(new File("src\\main\\resources\\" + ProjectNameContainer.PROJECT_NAME + ".csv")));
+					new FileReader(new File(ProjectPathContainer.SOURCE_PATH + ProjectNameContainer.PROJECT_NAME + ".csv")));
 		} catch (Exception e) {
 			System.out.println("File Not Found" + e.getMessage());
 		}

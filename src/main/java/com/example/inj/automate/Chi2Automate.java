@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.global.ProjectPathContainer;
 import com.example.inj.model.storage.DataRepository;
 
 public class Chi2Automate {
@@ -2115,7 +2116,7 @@ public class Chi2Automate {
 
 
         try {
-            FileOutputStream fileOut = new FileOutputStream("results\\" + ProjectNameContainer.PROJECT_NAME + "Chi-Results.xlsx");
+            FileOutputStream fileOut = new FileOutputStream(ProjectPathContainer.RESULT_PATH + "\\chiSquare\\"  + ProjectNameContainer.PROJECT_NAME + "Chi-Results.xlsx");
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();

@@ -6,6 +6,7 @@ import java.text.ParseException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.global.ProjectPathContainer;
 import com.example.inj.model.strength.accumulators.StrengthAccumulatorFactory;
 import com.example.inj.model.strength.accumulators.StrengthAccumulators;
 import com.example.inj.model.strength.accumulators.strategies.StrengthAccumulatorStrategiesEnum;
@@ -26,10 +27,12 @@ public class Strength {
 		if (args.length > 0) {
 			ProjectNameContainer.PROJECT_NAME = args[0];
 			System.out.println(ProjectNameContainer.PROJECT_NAME);
+			ProjectPathContainer.SOURCE_PATH = args[1];
+			ProjectPathContainer.RESULT_PATH = args[2];
 			
 		}
 		else {
-			ProjectNameContainer.PROJECT_NAME = "amarok";
+			ProjectNameContainer.PROJECT_NAME = "kmymoney";
 		}
 		System.out.println(ProjectNameContainer.PROJECT_NAME);
 		long heapMaxSize = Runtime.getRuntime().maxMemory();

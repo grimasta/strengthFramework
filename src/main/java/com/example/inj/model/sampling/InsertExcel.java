@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.example.inj.global.ProjectNameContainer;
+import com.example.inj.global.ProjectPathContainer;
 import com.example.inj.model.storage.DataRepository;
 import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 
@@ -95,7 +96,7 @@ public class InsertExcel {
 		}
 		// Slope writer
 		FileOutputStream fileOut = new FileOutputStream(
-				"results\\" + ProjectNameContainer.PROJECT_NAME + "_slope.xlsx");
+				ProjectPathContainer.RESULT_PATH + "\\slopes\\" + ProjectNameContainer.PROJECT_NAME + "_slope.xlsx");
 		workbook.write(fileOut);
 		fileOut.close();
 		workbook.close();
@@ -155,7 +156,7 @@ public class InsertExcel {
 		try {
 			// Strength writer
 			FileOutputStream fileOut = new FileOutputStream(
-					"results\\" + ProjectNameContainer.PROJECT_NAME + "_strengths.xlsx");
+					ProjectPathContainer.RESULT_PATH + "\\strengths\\" + ProjectNameContainer.PROJECT_NAME + "_strengths.xlsx");
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();
