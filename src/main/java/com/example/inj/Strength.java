@@ -23,18 +23,20 @@ public class Strength {
 
 	public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
 
-		ProjectNameContainer.PROJECT_NAME = "kolourpaint";
-//		try {
-		
-//	            ConfigurableApplicationContext ack = SpringApplication.run(Strength.class, args);
+		if (args.length > 0) {
+			ProjectNameContainer.PROJECT_NAME = args[0];
+			System.out.println(ProjectNameContainer.PROJECT_NAME);
+			
+		}
+		else {
+			ProjectNameContainer.PROJECT_NAME = "amarok";
+		}
 		System.out.println(ProjectNameContainer.PROJECT_NAME);
 		long heapMaxSize = Runtime.getRuntime().maxMemory();
 		// To print the JVM Heap Size
 		System.out.println("Heap Size: " + heapMaxSize);
-		// System.exit(0);
 
 		Strength theStrengthCalculator = new Strength();
-//	        DataManipulateExcel dataManipulate= ack.getBean("dataManipulateExcel", DataManipulateExcel.class);
 
 		theStrengthCalculator.setupObjects();
 		theStrengthCalculator.runSystem();

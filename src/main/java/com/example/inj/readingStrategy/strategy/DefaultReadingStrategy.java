@@ -51,10 +51,10 @@ public class DefaultReadingStrategy implements IReadingStrategy {
 	}
 
 	private boolean isBuilt() {
-		if (dataRepository.getDictionary().isEmpty()) {
-			System.out.println("dictionary variable is empty");
-			return false;
-		}
+//		if (dataRepository.getDictionary().isEmpty()) {
+//			System.out.println("dictionary variable is empty");
+//			return false;
+//		}
 		if (dataRepository.getFileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy().isEmpty()) {
 			System.out.println("fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy variable is empty");
 			return false;

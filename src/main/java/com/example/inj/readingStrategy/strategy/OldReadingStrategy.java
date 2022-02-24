@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
-
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
@@ -32,16 +29,12 @@ import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import lombok.Data;
-
 //Bug 001: Committed as part of the file that is committed alone.
 //Bug 002: Committed as part of commitID to be added in the sample data
 //Bug 003: Explicity using garbage Collector
 //Imp 004: File and it's associated commit details
-@Component("reading")
-@Data
 public class OldReadingStrategy {
-    private Logger logger = Logger.getLogger(this.getClass());
+//    private Logger logger = Logger.getLogger(this.getClass());
 
     private HashMap<Integer, String> dictionary = new HashMap<>();
 
@@ -646,7 +639,7 @@ public class OldReadingStrategy {
         setReadableMapping(readableMapping3);
         setReadableMappingSameN(readableMappingSameTwo);
         setDictionaryString(dictionaryString); //Bug 002: Committed as part of commitID to be added in the sample data
-        setDictionaryTime(dictionaryTime);
+//        setDictionaryTime(dictionaryTime);
         IsBugFixing();
         readableMappingFinal.putAll(readableMapping3);
         readableMappingN.putAll(readableMappingCheck4); //Added for parameters in excel
