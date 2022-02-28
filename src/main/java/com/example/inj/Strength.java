@@ -81,7 +81,7 @@ public class Strength {
 
 	private void runSystem() {
 		try {
-			ReadingStrategyFactory.create(ReadingStrategyEnumeration.DEFAULT).parseData();
+			ReadingStrategyFactory.create(ReadingStrategyEnumeration.PARALLEL_READER).parseData();
 			dataManipulate.dataToExcel();
 		} catch (ParseException pe) {
 			System.out.println("failure in ParseException " + pe.getMessage());

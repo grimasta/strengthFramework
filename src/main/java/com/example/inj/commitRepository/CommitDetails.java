@@ -1,5 +1,7 @@
 package com.example.inj.commitRepository;
 
+import com.example.inj.attributes.IncrementalField;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,7 +11,15 @@ import java.util.List;
 public class CommitDetails {
 
     private String commitID;
-    
+    private IncrementalField increF;
+
+    public IncrementalField getIncreF() {
+        return increF;
+    }
+
+    public void setIncreF(IncrementalField increF) {
+        this.increF = increF;
+    }
     private List<Integer> sortedListOfChanges = new ArrayList<Integer>(){
     	static final long serialVersionUID = 0;
         public boolean add(Integer mt) {
