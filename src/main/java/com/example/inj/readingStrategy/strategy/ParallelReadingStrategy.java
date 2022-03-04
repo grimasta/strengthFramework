@@ -2,6 +2,7 @@ package com.example.inj.readingStrategy.strategy;
 
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.IncrementalField;
+import com.example.inj.attributes.IncrementalType;
 import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
 import com.example.inj.commitBuilder.TryFileDetails;
@@ -100,10 +101,11 @@ public class ParallelReadingStrategy implements IReadingStrategy{
         parserSettings2.setRowProcessor(rowProcessor2);
 
         parserSettings.setHeaderExtractionEnabled(true);
-        parserSettings2.setMaxCharsPerColumn(32767);
+        parserSettings2.setHeaderExtractionEnabled(true);
+        parserSettings2.setMaxCharsPerColumn(32768);
 
         // setting the headers as additions and deletions are two same column name
-        parserSettings.setHeaders("id", "branch", "message", "parent_id", "author", "authored_at", "committer",
+        parserSettings.setHeaders("id", "branch", "parent_id", "author", "authored_at", "committer",
                 "committed_at", "commit_additions", "commit_deletions", "changed_files", "is_bug_linked",
                 "is_fix_related", "is_bug_fixing", "is_refactoring", "file_path", "previous_file_path",
                 "file_additions", "file_deletions", "file_id");
@@ -134,31 +136,39 @@ public class ParallelReadingStrategy implements IReadingStrategy{
             parser.parse(
                     new FileReader(new File("src\\main\\resources\\" + ProjectNameContainer.PROJECT_NAME + ".csv")));
             parser2.parse(
-                    new FileReader("Z:/thesis_proj_Ria/truncatedData/aggreg.csv"));
+                    new FileReader("src\\main\\resources\\" + ProjectNameContainer.INCREMENTAL_NAME + ".csv"));
 
 
         } catch (Exception e) {
             System.out.println("File Not Found" + e.getMessage());
         }
-
-        List<IncrementalField> beans2 = rowProcessor2.getBeans();
-        for (IncrementalField iField : beans2) {
-
-            iField.setField();
-            TryCommitDetails.getCommitDetailsPojo().get(iField.getCommit_id()).setIncreF(iField);
-        }
-
-
-
-
         List<AttributesField> beans = rowProcessor.getBeans();
+        List<IncrementalField> beans2 = rowProcessor2.getBeans();
+
+        //Iterating the beans to first create CommitDetails' Hashmap skeleton,
+        //so that the Incremental field associate with each commit can be added before the
+        //creation of TryFileDetails
+        /*for (AttributesField af : beans) {
+
+        }*/
+
+
+
+
+
+
+
+
+
         for (AttributesField af : beans) {
 //        	Create a CommitDetails object using the id_field from the current AttributesField - object
-            CommitDetails cm = new CommitDetails(af.getId());
+//          CommitDetails cm = new CommitDetails(af.getId());
 //        	add the newly created commitDetails object to the Map of Commit_ids to Commit Detail Objects
 //        	TODO (there is nothing created here this method MUST BE RENAMED)
+//
+//        	 cm.createCommitHashMap(af.getId());
+            CommitDetails cm = new CommitDetails(af.getId());
             cm.createCommitHashMap(af.getId());
-
 //          create a new TryCommitDetails object (the hell if I know what it's used for and how it's different from the CommitDetails Object...
 //          TODO investigate if it's possible to safely delete
 //			TryCommitDetails com =
@@ -170,14 +180,38 @@ public class ParallelReadingStrategy implements IReadingStrategy{
             tfdBuilder.setDeletion(af.getDeletions());
             tfdBuilder.setBugFixing(af.getIs_bug_fixing());
             tfdBuilder.setCommitDate(af.getCommitted_at());
+            //System.out.println("commit at: "+af.getCommitted_at());
             tfdBuilder.setCaddition(af.getCadditions());
             tfdBuilder.setCdeletion(af.getCdeletions());
 //			TryFileDetails tryFileDetails =
+             // TryCommitDetails.getCommitDetailsPojo().get(af.getId()).getIncreF();
+            /*IncrementalField temp =TryCommitDetails.getCommitDetailsPojo().get(af.getId()).getIncrementalField();
+
+            //TODO there got to be a better way to do this
+            for(IncrementalType it: temp.contains(af.getFile_id())){
+                if(it.equals(IncrementalType.access)){
+                    tfdBuilder.setAccess(temp.returnContained(af.getFile_id(),it));
+                }
+                if(it.equals(IncrementalType.call)){
+                    tfdBuilder.setCall(temp.returnContained(af.getFile_id(),it));
+                }
+                if(it.equals(IncrementalType.inclusion)){
+                    tfdBuilder.setInclusion(temp.returnContained(af.getFile_id(),it));
+                }
+                if(it.equals(IncrementalType.set)){
+                    tfdBuilder.setSet(temp.returnContained(af.getFile_id(),it));
+                }
+            }*/
             tfdBuilder.build();
 //			TODO this line should be possible to be safely deleted
 //            TryFileDetails tom = new TryFileDetails.TryFileDetailsBuilder(af.getFile_id(), af.getId()).setAddition(af.getAdditions()).setDeletion(af.getDeletions()).setBugFixing(af.getIs_bug_fixing()).setCommitDate(af.getCommitted_at()).setCaddition(af.getCadditions()).setCdeletion(af.getCdeletions()).build();
         }
 
+        for (IncrementalField iField : beans2) {
+            iField.setField();
+            TryCommitDetails.getCommitDetailsPojo().get(iField.getCommit_id()).setIncrementalField(iField);
+        }
+       // System.exit(12);
         System.out.println("Calling Table Mapping");
 
         createTableMapping(TryFileDetails.getCommitId2FileDetailsMap());
@@ -270,6 +304,18 @@ public class ParallelReadingStrategy implements IReadingStrategy{
                     fileToFileDataForAParticularCommitInListFormat.add(tf.isBugFixing());
                     // 16. CommitID
                     fileToFileDataForAParticularCommitInListFormat.add(commitDetails.getCommitID());
+
+                    //17. Incremental Data: access
+                    fileToFileDataForAParticularCommitInListFormat.add(tf.getAccess());
+
+                    //18. Incremental Data: call
+                    fileToFileDataForAParticularCommitInListFormat.add(tf.getCall());
+
+                    //19. Incremental Data: inclusion
+                    fileToFileDataForAParticularCommitInListFormat.add(tf.getInclusion());
+
+                    //20. Incremental Data: set
+                    fileToFileDataForAParticularCommitInListFormat.add(tf.getSet());
 
 //              it looks like this is a Map from CommitId to a kind of List<Object> where each one of the elements of the List is for luck of a better word.. random
                     commitId2CollectionOfData.put(tf.getCommitId(), fileToFileDataForAParticularCommitInListFormat);
@@ -373,9 +419,31 @@ public class ParallelReadingStrategy implements IReadingStrategy{
                             // 16. CommitID
                             buggyList.add(commitDetails.getCommitID());
 
+                            //TODO find a better way of adding 17
+                            //17. IncrementalField as whole
+                            /*IncrementalField temp= new IncrementalField();
                             String sourceFileId = tryFileDetailSource.getFileId();
                             String targetFileId = tryFileDetailTarget.getFileId();
+                            List<IncrementalType> list = commitDetails.getIncrementalField().contains(sourceFileId, targetFileId);
+                            for(IncrementalType it:list){
+                                if(it.equals(IncrementalType.access)){
+                                    temp.setAccess(temp.returnContained(sourceFileId, targetFileId,it));
+                                }
+                                if(it.equals(IncrementalType.call)){
+                                    temp.setCall(temp.returnContained(sourceFileId, targetFileId,it));
+                                }
+                                if(it.equals(IncrementalType.inclusion)){
+                                    temp.setInclusion(temp.returnContained(sourceFileId, targetFileId,it));
+                                }
+                                if(it.equals(IncrementalType.set)){
+                                    temp.setSet(temp.returnContained(sourceFileId, targetFileId,it));
+                                }
+                            }*/
+                            buggyList.add(commitDetails.getIncrementalField());
 
+
+                            String sourceFileId = tryFileDetailSource.getFileId();
+                            String targetFileId = tryFileDetailTarget.getFileId();
                             if (!sourceFileId.equals(targetFileId)) {
                                 if (!fileId2FileID2OccurencesNumber2ListOfChangesForAnyTwoFiles.contains(sourceFileId,
                                         targetFileId)) {

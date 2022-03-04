@@ -128,8 +128,11 @@ public class InsertExcel {
                         .collect(Collectors.toMap(Map.Entry::getKey,
                                 Map.Entry::getValue));
                 for (String dat : subStrength.keySet()) {
+
                     Float overallStrength = subStrength.get(dat);
                     String commitID = dateToCommit.get(dat);
+                    System.out.println("date: "+dat);
+                    System.out.println("Strength: "+overallStrength);
                     i = i + 1;
                     if (i > 1048575) { 
                     	sheetCount++;
@@ -138,6 +141,7 @@ public class InsertExcel {
                     }
                     Row row = sheet.createRow(i);
                     row.createCell(0).setCellValue(key); //File_ID
+
                     row.createCell(1).setCellValue(dat); //Date
                     row.createCell(2).setCellValue(commitID); //CommitID
                     row.createCell(3).setCellValue(overallStrength);//OverallStrength
@@ -148,7 +152,7 @@ public class InsertExcel {
             }
             try {
         		//	Strength writer
-                FileOutputStream fileOut = new FileOutputStream("results\\" + ProjectNameContainer.PROJECT_NAME+"_strengths.xlsx");
+                FileOutputStream fileOut = new FileOutputStream("C:\\Users\\Rongji He\\Desktop\\strengthFramework-masterB2\\strengthFramework\\results\\" + ProjectNameContainer.PROJECT_NAME+"_strengths.xlsx");
                 workbook.write(fileOut);
                 fileOut.close();
                 workbook.close();

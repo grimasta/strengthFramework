@@ -11,14 +11,14 @@ import java.util.List;
 public class CommitDetails {
 
     private String commitID;
-    private IncrementalField increF;
+    private IncrementalField incrementalField;
 
-    public IncrementalField getIncreF() {
-        return increF;
+    public IncrementalField getIncrementalField() {
+        return incrementalField;
     }
 
-    public void setIncreF(IncrementalField increF) {
-        this.increF = increF;
+    public void setIncrementalField(IncrementalField incrementalField) {
+        this.incrementalField = incrementalField;
     }
     private List<Integer> sortedListOfChanges = new ArrayList<Integer>(){
     	static final long serialVersionUID = 0;

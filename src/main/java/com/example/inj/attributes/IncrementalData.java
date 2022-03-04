@@ -12,7 +12,7 @@ public class IncrementalData {
     private int total;
     private int added;
     private int deleted;
-    private IncrementalType type;
+    //private IncrementalType type;
     public IncrementalData( int total, int added, int deleted) {
 
         this.total = total;
@@ -20,11 +20,7 @@ public class IncrementalData {
         this.deleted = deleted;
     }
 
-    public IncrementalType getType() {
-        return type;
-    }
+    //public IncrementalType getType() {return type;}
 
-    public void setType(IncrementalType type) {
-        this.type = type;
-    }
+    //public void setType(IncrementalType type) {this.type = type;}
 }

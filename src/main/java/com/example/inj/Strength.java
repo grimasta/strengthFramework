@@ -23,7 +23,7 @@ public class Strength {
 
 	public static void main(String[] args) throws ParseException, InvalidFormatException, IOException {
 
-		ProjectNameContainer.PROJECT_NAME = "kolourpaint";
+		ProjectNameContainer.PROJECT_NAME = "elisa";
 //		try {
 		
 //	            ConfigurableApplicationContext ack = SpringApplication.run(Strength.class, args);
@@ -75,7 +75,7 @@ public class Strength {
 
 //		Set Concrete pairStrength Calculation Strategy
 		dataManipulate.getPairStrength()
-				.setStrategy(PairStrengthStrategyFactory.createPairStrengthStrategy(PairStrengthStrategyEnum.DEFAULT));
+				.setStrategy(PairStrengthStrategyFactory.createPairStrengthStrategy(PairStrengthStrategyEnum.RONGJI));
 
 	}
 
@@ -84,11 +84,11 @@ public class Strength {
 			ReadingStrategyFactory.create(ReadingStrategyEnumeration.PARALLEL_READER).parseData();
 			dataManipulate.dataToExcel();
 		} catch (ParseException pe) {
-			System.out.println("failure in ParseException " + pe.getMessage());
+			System.out.println("failure in ParseException: " + pe.getMessage());
 		} catch (IOException ioe) {
-			System.out.println("failure in IOException " + ioe.getMessage());
+			System.out.println("failure in IOException: " + ioe.getMessage());
 		} catch (NullPointerException npe) {
-			System.out.println("failure in NullPointerException " + npe.getMessage());
+			System.out.println("failure in NullPointerException: " + npe.getMessage());
 		}
 	}
 

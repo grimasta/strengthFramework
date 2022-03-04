@@ -3,11 +3,14 @@ package com.example.inj.model.strength.pair.strategies;
 public class PairStrengthStrategyFactory {
 
 	public static IPairStrengthStrategy createPairStrengthStrategy(PairStrengthStrategyEnum type) {
-        switch(type) {
+		IPairStrengthStrategy pairStrengthStrategy;
+		switch(type) {
         case DEFAULT:
-        	IPairStrengthStrategy pairStrengthStrategy;
         	pairStrengthStrategy = new DefaultPairStrengthCalculatorStrategy();
         	return pairStrengthStrategy;
+		case RONGJI:
+			pairStrengthStrategy= new DummyPairStrengthStrategy();
+			return pairStrengthStrategy;
         default:
         	System.err.println("ERROR CREATING PAIRWISE STRENGTH CALCULATOR");
         	System.exit(1);

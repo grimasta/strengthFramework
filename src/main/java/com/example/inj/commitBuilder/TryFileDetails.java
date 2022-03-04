@@ -1,7 +1,10 @@
 package com.example.inj.commitBuilder;
 
 
+import com.example.inj.attributes.IncrementalData;
 import com.example.inj.commitRepository.CommitDetails;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +24,10 @@ public class TryFileDetails {
     private int Cdeletion;
     //End: Added new attribute
 
+    private Table<String, String, IncrementalData> access ;
+    private Table <String, String, IncrementalData> call ;
+    private Table <String, String, IncrementalData> inclusion ;
+    private Table <String, String, IncrementalData> set ;
     public String getDate() {
         return date;
     }
@@ -56,7 +63,10 @@ public class TryFileDetails {
         this.Caddition= builder.Cadditions;
         this.Cdeletion=builder.Cdeletion;
         //End: Added new attribute
-
+        this.access=builder.access;
+        this.inclusion= builder.inclusion;
+        this.call= builder.call;
+        this.set= builder.set;
     }
 
     public CommitDetails getCommit() {
@@ -127,6 +137,14 @@ public class TryFileDetails {
         this.Cdeletion = cdeletion;
     }
 
+    public Table<String, String, IncrementalData> getAccess() {return access;}
+
+    public Table<String, String, IncrementalData> getCall() {return call;}
+
+    public Table<String, String, IncrementalData> getInclusion() {return inclusion;}
+
+    public Table<String, String, IncrementalData> getSet() {return set;}
+
     @Override
     public String toString() {
         return "TryFileDetails{" +
@@ -160,6 +178,31 @@ public class TryFileDetails {
         //End: Added New Attribute
 
         //Start: Added New Attribute
+        private Table <String, String, IncrementalData> access;
+        private Table <String, String, IncrementalData> call ;
+        private Table <String, String, IncrementalData> inclusion ;
+        private Table <String, String, IncrementalData> set ;
+
+        public TryFileDetailsBuilder setAccess(Table<String, String, IncrementalData> access) {
+            this.access = access;
+            return this;
+        }
+
+        public TryFileDetailsBuilder setCall(Table<String, String, IncrementalData> call) {
+            this.call = call;
+            return this;
+        }
+
+        public TryFileDetailsBuilder setInclusion(Table<String, String, IncrementalData> inclusion) {
+            this.inclusion = inclusion;
+            return this;
+        }
+
+        public TryFileDetailsBuilder setSet(Table<String, String, IncrementalData> set) {
+            this.set = set;
+            return this;
+        }
+
         public TryFileDetailsBuilder setCaddition(int caddition) {
             this.Cadditions = caddition;
             return this;
