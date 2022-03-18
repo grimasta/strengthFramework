@@ -2116,7 +2116,7 @@ public class Chi2Automate {
 
 
         try {
-            FileOutputStream fileOut = new FileOutputStream(ProjectPathContainer.RESULT_PATH + "\\chiSquare\\"  + ProjectNameContainer.PROJECT_NAME + "Chi-Results.xlsx");
+            FileOutputStream fileOut = new FileOutputStream(ProjectPathContainer.RESULT_PATH + "chiSquare\\"  + ProjectNameContainer.PROJECT_NAME + "Chi-Results.xlsx");
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();

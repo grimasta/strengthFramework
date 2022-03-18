@@ -35,52 +35,26 @@ public class CommittedSoFar {
 		// Commit_ID,Date
 		System.out.println("Inside Committed So Far");
 		for (String source : readMap.keySet()) {
+//			Map maintaining the order of commitDates for the current source file
 			Map<String, Integer> subYearMap = new HashMap<>();
-
+//			list of commit dates for the current source file as seen in readMap
 			List<String> commitDates = new ArrayList<>();
-			@SuppressWarnings("unused")
-			List<String> commitKeys = new ArrayList<>();
-
 			for (String destination : readMap.get(source).keySet()) {
-				List<Integer> commitSequence = new ArrayList<>();
-
-				commitSequence.addAll(readMap.get(source).get(destination).keySet());
-
-				for (int sequence : commitSequence) {
-
-//                if(dictionary.containsKey(sequence) && dictionaryTime.containsKey(dictionary.get(sequence)))
-//                {
-//                    if(!commitDates.contains(dictionaryTime.get(dictionary.get(sequence)))) {
-					commitDates.add((String) readMap.get(source).get(destination).get(sequence).get(10));
-//                    }
-//                    if(!commitKeys.contains(dictionary.get(sequence)))
-//                    {
-//					commitKeys.add((String) readMap.get(source).get(destination).get(sequence).get(16));
-//                    }
-
-				}
-
-				// System.out.println("source_Key" + source + "----" + commitKeys.toString() + "
-				// size " + commitKeys.size());
-				Collections.sort(commitDates);
-				// System.out.println("source" + source + "---" + commitDates.toString() + "
-				// size " + commitDates.size());
-
-				for (String initialDate : commitDates) {
-					subYearMap.put(initialDate, commitDates.indexOf(initialDate) + 1);
+				for (int coCommitIndex : readMap.get(source).get(destination).keySet()) {
+					commitDates.add((String) readMap.get(source).get(destination).get(coCommitIndex).get(10));
 				}
 
 			}
+//			sort dates... (lol they are strings they are not dates) 
+//			TODO restructure to use actual date datatype 
+			Collections.sort(commitDates);
+			for (String initialDate : commitDates) {
+//		create a map between the dates and the ordering of them for a files commitsy?
+				subYearMap.put(initialDate, commitDates.indexOf(initialDate) + 1);
+			}
 			yearMap.put(source, subYearMap);
 		}
-//		YearMap contains a Map of 
 		dataRepository.setYearMap(yearMap);
-		/*
-		 * logger.info("Year Map Value fd57217c-1ed0-11eb-9afd-482ae32cf5b4");
-		 * logger.info(yearMap.get("fd57217c-1ed0-11eb-9afd-482ae32cf5b4").toString());
-		 * logger.info("Year Map Value fd572165-1ed0-11eb-b50b-482ae32cf5b4");
-		 * logger.info(yearMap.get("fd572165-1ed0-11eb-b50b-482ae32cf5b4").toString());
-		 */
 
 	}
 

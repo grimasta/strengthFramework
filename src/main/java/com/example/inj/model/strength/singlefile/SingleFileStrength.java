@@ -1,5 +1,6 @@
 package com.example.inj.model.strength.singlefile;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.inj.model.storage.DataRepository;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
 public class SingleFileStrength implements ISingleFileStrength {
@@ -41,7 +43,7 @@ public class SingleFileStrength implements ISingleFileStrength {
         Map<String, Float> finalStrVal;
         List<String> readMap = new LinkedList<>();
         List<String> finalStr = new LinkedList<>();
-        Map<String, List<String>> yearMapAloneSame = new LinkedHashMap<>();
+        Map<String, ArrayList<String>> yearMapAloneSame = new LinkedHashMap<>();
         Map<String, Float> finalSubStrengthSorted = new TreeMap<>();
         Map<String, Map<String, Float>> finalStrengthSorted = new TreeMap<>();
         if (!finalStrength.isEmpty()) {
@@ -83,7 +85,8 @@ public class SingleFileStrength implements ISingleFileStrength {
                     readMapItr = null; //Bug 003: Explicity using garbage Collector
 
                     finalStrength.putIfAbsent(rowStr, finalStrVal);
-                    yearMapAloneSame.put(rowStr, readMap);
+                    
+                    yearMapAloneSame.put(rowStr, Lists.newArrayList(readMap));
 
                 }
 

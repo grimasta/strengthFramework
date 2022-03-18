@@ -90,7 +90,7 @@ public class DataManipulateExcel {
 
 		// Todo: I am using the instance to get the values here, any better way of
 		// achieving this\
-		pairLevelDecay.globalDecay();
+		pairLevelDecay.pairDecay();
 		strengthAccumulator.calculateAccumulatedStrength(dataRepository);
 //        overallStrength is calculated and available through the dataRepository dataRepository.getAccumulatedStrength();
 
@@ -102,7 +102,7 @@ public class DataManipulateExcel {
 				dataRepository.getAccumulatedStrength());
 		singleFileStrength.finalStrengthSingleFile(); // Includes Pair as well Single file that are committed alone
 
-		insertExcel.insertOverallStrength();
+//		insertExcel.insertOverallStrength();
 //      TODO move to a setup method
 
 //        createWidth.setSingleFileStrength(singleFileStrength);

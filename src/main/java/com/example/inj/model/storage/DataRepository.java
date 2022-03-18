@@ -1,8 +1,11 @@
 package com.example.inj.model.storage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -29,17 +32,20 @@ public class DataRepository {
 	private Map<String, Map<String, Map<String, Float>>> coTimeDifference;
 	private Table<String, String, Map<Integer, Map<String, List<Float>>>> tableCommits;
 	private Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps;
+	private Map<String, ArrayList<String>> FileId2CommitDates;
 	private Map<String, Map<String, Map<Integer, Map<String, Integer>>>> timeDifference;
 	private Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> pairStrengthMap;
-    private Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
+	Map<String, Map<String, Map<String, Float>>> allPairStrengthsSimple;
+	
+//    private Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps;
     private Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesModifyA;
     private Map<String, Map<String, Map<Integer, Map<String, Float>>>> linesModifyB;
-    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
-    private Map<String, List<String>> yearMapPair;
+//    private Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap;
+    private Map<String, ArrayList<String>> yearMapPair;
     private Map<String, Map<String, Float>> accumulatedStrength;    
     private Map<String, Map<String, Float>> globalDecay;
     private Map<String, Map<String, Float>> accumulatedSt;
-    private Map<String, List<String>> yearMapAloneSame;
+    private Map<String, ArrayList<String>> yearMapAloneSame;
     private Map<String, Map<String, Float>> finalStrength;
     private Map<String, Integer> segmentWidth;
     private Map<String, Map<String, List<Object>>> vectorMapGlobal;
@@ -52,6 +58,7 @@ public class DataRepository {
 	private HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls;
 	private HashMap<String, HashMap<String, Integer>> maxCommitCalls;
 	private HashMap<String, Float> avgCommitCalls;
+	private Map<String, TreeMap<String, Map<String, Float>>> allPairStrengthsWithDecay;
 
 	// singleton DP
 	private static DataRepository instance = null;
@@ -244,13 +251,13 @@ public class DataRepository {
 		this.pairStrengthMap = pairStrengthMap;
 	}
 
-	public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMaps() {
-		return excelYearMaps;
-	}
-
-	public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps) {
-		this.excelYearMaps = excelYearMaps;
-	}
+//	public Map<String, Map<Integer, Map<String, Integer>>> getExcelYearMaps() {
+//		return excelYearMaps;
+//	}
+//
+//	public void setExcelYearMaps(Map<String, Map<Integer, Map<String, Integer>>> excelYearMaps) {
+//		this.excelYearMaps = excelYearMaps;
+//	}
 
 	public Map<String, Map<String, Map<Integer, Map<String, Float>>>> getLinesModifyA() {
 		return linesModifyA;
@@ -268,19 +275,19 @@ public class DataRepository {
 		this.linesModifyB = linesModifyB;
 	}
 
-	public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
-		return pairLevelDecayMap;
-	}
+//	public Map<String, Map<String, Map<String, Double>>> getPairLevelDecayMap() {
+//		return pairLevelDecayMap;
+//	}
+//
+//	public void setPairLevelDecayMap(Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap) {
+//		this.pairLevelDecayMap = pairLevelDecayMap;
+//	}
 
-	public void setPairLevelDecayMap(Map<String, Map<String, Map<String, Double>>> pairLevelDecayMap) {
-		this.pairLevelDecayMap = pairLevelDecayMap;
-	}
-
-	public Map<String, List<String>> getYearMapPair() {
+	public Map<String, ArrayList<String>> getYearMapPair() {
 		return yearMapPair;
 	}
 
-	public void setYearMapPair(Map<String, List<String>> yearMapPair) {
+	public void setYearMapPair(Map<String, ArrayList<String>> yearMapPair) {
 		this.yearMapPair = yearMapPair;
 	}
 
@@ -308,11 +315,11 @@ public class DataRepository {
 		this.accumulatedSt = accumulatedSt;
 	}
 
-	public Map<String, List<String>> getYearMapAloneSame() {
+	public Map<String, ArrayList<String>> getYearMapAloneSame() {
 		return yearMapAloneSame;
 	}
 
-	public void setYearMapAloneSame(Map<String, List<String>> yearMapAloneSame) {
+	public void setYearMapAloneSame(Map<String, ArrayList<String>> yearMapAloneSame) {
 		this.yearMapAloneSame = yearMapAloneSame;
 	}
 
@@ -362,6 +369,31 @@ public class DataRepository {
 
 	public void setCoCommittedFiles(Map<String, Map<String, Map<String, Integer>>> coCommittedFiles) {
 		this.coCommittedFiles = coCommittedFiles;
+	}
+
+	public Map<String, ArrayList<String>> getFileId2CommitDates() {
+		return FileId2CommitDates;
+	}
+
+	public void setFileId2CommitDates(Map<String, ArrayList<String>> fileId2CommitDates) {
+		FileId2CommitDates = fileId2CommitDates;
+	}
+
+	public Map<String, Map<String, Map<String, Float>>> getAllPairStrengthsSimple() {
+		return allPairStrengthsSimple;
+	}
+
+	public void setAllPairStrengthsSimple(Map<String, Map<String, Map<String, Float>>> allPairStrengthsSimple) {
+		this.allPairStrengthsSimple = allPairStrengthsSimple;
+	}
+
+	public void setAllPairStrengthsWithDecay(Map<String, TreeMap<String, Map<String, Float>>> allPairStrengthsWithDecay) {
+		 this.allPairStrengthsWithDecay = allPairStrengthsWithDecay;
+		
+	}
+
+	public Map<String, TreeMap<String, Map<String, Float>>> getAllPairStrengthsWithDecay() {
+		return allPairStrengthsWithDecay;
 	}
 
 }

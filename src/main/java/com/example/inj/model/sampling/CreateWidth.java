@@ -2,6 +2,7 @@ package com.example.inj.model.sampling;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -28,8 +29,8 @@ public class CreateWidth {
     Mean of (TD1, TD2, TD3) will be the segment width.
     */
     public void createSegmentWidth() throws ParseException {
-        Map<String, List<String>> yearMapPairSame = dataRepository.getYearMapPair();
-        Map<String, List<String>> yearMapAloneSame = dataRepository.getYearMapAloneSame();
+        Map<String, ArrayList<String>> yearMapPairSame = dataRepository.getYearMapPair();
+        Map<String, ArrayList<String>> yearMapAloneSame = dataRepository.getYearMapAloneSame();
         List<String> commitYear = new LinkedList<>();
         Map<String, List<String>> commitYearMap = new LinkedHashMap<>();
 

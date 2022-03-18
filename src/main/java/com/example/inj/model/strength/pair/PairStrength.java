@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,9 +223,10 @@ public class PairStrength implements IPairStrength{
 //		why the hell do we need this??? call (coCommitABCD)
 //        looks like we need the value of the pair later on in StrengthAccumulator
         coCommittedFiles.coCommitABCD();
-        Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = dataRepository.getPairMaps();
-        Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();
-        dataRepository.setExcelYearMaps(excelYearMap);
+//        Pair<Map<String, Map<String, Map<Integer, Map<String, Integer>>>>, Map<String, Map<Integer, Map<String, Integer>>>> pairMaps = dataRepository.getPairMaps();
+//        Map<String, TreeSet<String>> fileIds2CommitDates = dataRepository.getFileId2CommitDates();
+//        Map<String, Map<Integer, Map<String, Integer>>> excelYearMap = pairMaps.getValue();
+//        dataRepository.setExcelYearMaps(excelYearMap);
 //        setPairStrengthMap(localPairStrength);
         //logger.info("Pair Strength");
         //logger.info(localPairStrength.toString());

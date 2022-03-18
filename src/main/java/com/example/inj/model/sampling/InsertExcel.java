@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.*;
 
 import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.global.ProjectPathContainer;
@@ -40,7 +40,7 @@ public class InsertExcel {
 		int buggy = 0;
 		int i = 1;
 		Workbook workbook = null;
-		workbook = new XSSFWorkbook();
+		workbook = new SXSSFWorkbook();
 		Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME);
 		Row header = sheet.createRow(0);
 		header.createCell(0).setCellValue("Segment ID");
@@ -96,7 +96,7 @@ public class InsertExcel {
 		}
 		// Slope writer
 		FileOutputStream fileOut = new FileOutputStream(
-				ProjectPathContainer.RESULT_PATH + "\\slopes\\" + ProjectNameContainer.PROJECT_NAME + "_slope.xlsx");
+				ProjectPathContainer.RESULT_PATH + "slopes\\" + ProjectNameContainer.PROJECT_NAME + "_slope.xlsx");
 		workbook.write(fileOut);
 		fileOut.close();
 		workbook.close();
@@ -112,7 +112,7 @@ public class InsertExcel {
 		Map<String, String> dateToCommit = dataRepository.getDictionaryString();
 		int sheetCount = 1;
 		Workbook workbook = null;
-		workbook = new XSSFWorkbook();
+		workbook = new SXSSFWorkbook();
 		System.out.println("Inside");
 		Sheet sheet = workbook.createSheet(ProjectNameContainer.PROJECT_NAME + sheetCount);
 		Row header = sheet.createRow(0);
@@ -156,7 +156,7 @@ public class InsertExcel {
 		try {
 			// Strength writer
 			FileOutputStream fileOut = new FileOutputStream(
-					ProjectPathContainer.RESULT_PATH + "\\strengths\\" + ProjectNameContainer.PROJECT_NAME + "_strengths.xlsx");
+					ProjectPathContainer.RESULT_PATH + "strengths\\" + ProjectNameContainer.PROJECT_NAME + "_strengths.xlsx");
 			workbook.write(fileOut);
 			fileOut.close();
 			workbook.close();

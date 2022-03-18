@@ -61,44 +61,36 @@ public class CoCommittedPrime {
                 List<Integer> commitKeys= new ArrayList<>();
                 List<String> commitDates= new ArrayList<>();
                 commitKeys.addAll(readMap.get(source).get(destination).keySet());
-                for(int key: commitKeys)
+                for(int key: readMap.get(source).get(destination).keySet())
                 {
                         commitDates.add((String) readMap.get(source).get(destination).get(key).get(10));
                 }
+//              TODO commitDates as actual date datatype
                 Collections.sort(commitDates);
                 //Number of times the file A&B are co-committed*2
 
                 //logger.info("Inside co-committed Prime - STage 2");
                 for(String cDate: commitDates)
                 {
+//                	TODO revisit the strength description from the paper or thesis
+//                	that's the algorithm implemented here according to the thesis
+//                  The number of times files A and B have been co-committed divided by
+//                  the sum of the number of times File A and File B have been committed throughout
+//                  the history of the project
                     int countTogether=(commitDates.indexOf(cDate)+1)*2;
                     int countTogether2=(commitDates.indexOf(cDate)+1);
-                    if(yearMap.containsKey(source))
-                    {
-//                        TreeSet<String> sourceSet= new TreeSet<>();
-//                        sourceSet.addAll(yearMap.get(source).keySet());
-//                        String sourceDate=sourceSet.floor(cDate);
-//                        if(yearMap.get(source).containsKey(sourceDate)) {
-                        sourceFileCommitsSoFar = yearMap.get(source).get(cDate);
-//                        }
-                    }
-                    if(yearMap.containsKey(destination))
-                    {
-//                        TreeSet<String> destinationSet= new TreeSet<>();
-//                        destinationSet.addAll(yearMap.get(destination).keySet());
-//                        String destinationDate=destinationSet.floor(cDate);
-//                        if(yearMap.get(destination).containsKey(destinationDate)) {
-                            destinationFileCommitsSoFar = yearMap.get(destination).get(cDate);
-//                        }
-                    }
-
-                    //logger.info("Inside co-committed Prime - STage 3");
+//					get how many times the source file has committed so far to this data
+                    sourceFileCommitsSoFar = yearMap.get(source).get(cDate);
+//                  get how many times the destination file has committed so far to this data
+                    destinationFileCommitsSoFar = yearMap.get(destination).get(cDate);
+//					number of times those files have committed in total
                     int countIndividual= sourceFileCommitsSoFar + destinationFileCommitsSoFar;
 //                  number of times the two files have been committed together over the times the have been committed in total so far 
 //                  TimesCommitted(SourceFile With TargetFile) / (TimesCommitted(SourceFile) + TimesCommitted(TargetFile))
-                    float overall=(float)countTogether/(float)countIndividual;
+                    float overall=(float)countTogether2/(float)countIndividual;
 //                  2 * TimesCommitted(SourceFile With TargetFile) / TimesCommitted(SourceFile)
                     float overall2=(float)countTogether2/(float)sourceFileCommitsSoFar;
+                    
                     coCommitOverSumOfCommitsRatio.put(cDate,overall);
                     coCommitOverSourceFileCommitRatio.put(cDate,overall2);
                 }

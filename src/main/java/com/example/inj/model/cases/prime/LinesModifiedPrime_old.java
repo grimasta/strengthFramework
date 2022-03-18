@@ -9,15 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.example.inj.model.storage.DataRepository;
 
-
-//Fourth And Fifth Case
-     /*Case-4 Start- Number of Lines of A is modified to the number of lines are modified in The COMMIT excluding A&B
-     OR Number of lines of A is modified/ Total number of lines are modified in the commit excluding A&B
-     And,
-     Case-5 Number of lines of B is modified/ Total number of lines are modified in the commit excluding A&B
-     */
-public class LinesModifiedPrime {
-	
+public class LinesModifiedPrime_old {
 
 	private DataRepository dataRepository;
 	
@@ -26,7 +18,7 @@ public class LinesModifiedPrime {
     private Map<String, Map<String, Map<String, Float>>> linesModifiedSource= new HashMap<>();
     private Map<String, Map<String, Map<String, Float>>> linesModifiedDestination= new HashMap<>();
 
-    public LinesModifiedPrime() {
+    public LinesModifiedPrime_old() {
     	dataRepository = DataRepository.getInstance();
     }
     
@@ -53,34 +45,44 @@ public class LinesModifiedPrime {
                     List<Object> listObj = readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber);
                     float modifiedSource = (int) listObj.get(2); //Source
                     float modifiedDestination = (int) listObj.get(3); //Destination
-                    float commit = (int)listObj.get(13) + (int)listObj.get(14);//Number of Lines added in the commit + Number of lines Deleted in the commit
-                    float denominator = (float)( commit-modifiedSource-modifiedDestination);
-                    float valueOfA = 0.0f;
-                    float valueOfB = 0.0f;
+                    float commit =  (int)listObj.get(13) + (int)listObj.get(14);//Number of Lines added in the commit + Number of lines Deleted in the commit
+                    float denominator=(float)( commit-modifiedSource-modifiedDestination);
                     if(denominator!=0) {
-                    	valueOfA = (float) modifiedSource / denominator;
-                    	valueOfB = (float) modifiedDestination / denominator;
-//                        TODO remove those ifs they don't make any sense
+                        float valueOfA = (float) modifiedSource / (float) (commit - modifiedSource - modifiedDestination);
+                        float valueOfB = (float) modifiedDestination / (float) (commit - modifiedSource - modifiedDestination);
                         if (valueOfA < 0.0f) {
                             //logger.info("Inside valueOfA");
                             valueOfA = 0.0f;
                         }
                         if (valueOfB < 0.0f) {
+
                             //logger.info("Inside valueOfB");
                             valueOfB = 0.0f;
                         }
+
+//                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
+                            String dateAndTime = (String) readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber).get(10);
+                            linesModifiedMapSource.put(dateAndTime, valueOfA);
+                            linesModifiedMapDestination.put(dateAndTime, valueOfB);
+//                        }
                     }
-                    String dateAndTime = (String) readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber).get(10);
-                    linesModifiedMapSource.put(dateAndTime, valueOfA);
-                    linesModifiedMapDestination.put(dateAndTime, valueOfB);
+                    else
+                    {
+//                        if (dictMap.containsKey(key) && dictDate.containsKey(dictMap.get(key))) {
+                            String dateAndTime = (String) readMap.get(sourceFileId).get(targetFileId).get(coCommitOccasionNumber).get(10);
+                            linesModifiedMapSource.put(dateAndTime, 0.0f);
+                            linesModifiedMapDestination.put(dateAndTime, 0.0f);
+//                        }
+                    }
+
                 }
 
                 destinationModifiedLines.put(targetFileId, linesModifiedMapDestination);
                 sourceModifiedLines.put(targetFileId, linesModifiedMapSource);
             }
 
-            linesModifiedSource.put(sourceFileId, sourceModifiedLines);
-            linesModifiedDestination.put(sourceFileId, destinationModifiedLines);
+            linesModifiedSource.put(sourceFileId,destinationModifiedLines );
+            linesModifiedDestination.put(sourceFileId, sourceModifiedLines);
         }
         
         dataRepository.setLinesModifiedDestination(linesModifiedDestination);
@@ -105,5 +107,5 @@ public class LinesModifiedPrime {
 	public void setLinesModifiedDestination(Map<String, Map<String, Map<String, Float>>> linesModifiedDestination) {
 		this.linesModifiedDestination = linesModifiedDestination;
 	}
-
+	
 }

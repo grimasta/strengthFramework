@@ -32,7 +32,10 @@ public class Strength {
 			
 		}
 		else {
-			ProjectNameContainer.PROJECT_NAME = "kmymoney";
+//			ProjectNameContainer.PROJECT_NAME = "eclipse.jdt.core3_years";
+//			ProjectNameContainer.PROJECT_NAME = "node3_years";
+//			ProjectNameContainer.SOURCE_PATH = "data_and_results/csv_data_for_repo/";
+//			ProjectNameContainer.RESULT_PATH = 
 		}
 		System.out.println(ProjectNameContainer.PROJECT_NAME);
 		long heapMaxSize = Runtime.getRuntime().maxMemory();
