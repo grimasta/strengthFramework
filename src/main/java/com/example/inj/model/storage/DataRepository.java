@@ -8,7 +8,13 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import javafx.util.Pair;
+import lombok.Getter;
+import lombok.Setter;
 // TODO future refactoring make it an abstract class subclassed to specific subtypes (ADataRepository
+
+
+@Getter
+@Setter
 public class DataRepository {
 	// variables
 	private Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy = HashBasedTable
@@ -53,6 +59,9 @@ public class DataRepository {
 	private HashMap<String, HashMap<String, Integer>> maxCommitCalls;
 	private HashMap<String, Float> avgCommitCalls;
 
+	private tech.tablesaw.api.Table tableSortedByFileId;
+	private tech.tablesaw.api.Table tableSortedByCommitTime;
+	private int[][] vector;
 	// singleton DP
 	private static DataRepository instance = null;
 
@@ -155,6 +164,7 @@ public class DataRepository {
 		this.yearMap = yearMap;
 	}
 
+	//Todo Warning: "Non-ASCII characters in an identifier Symbols from different languages found: [LATIN, GREEK]"
 	public Map<String, Map<String, Map<String, Float>>> getΜapOfCoCommitOverSumOfCommitsRatioForAllFileCombinations() {
 		return mapOfCoCommitOverTotalCommitRatiosForAllFileCombinations;
 	}
@@ -168,6 +178,8 @@ public class DataRepository {
 	}
 
 	public void setΜapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations(Map<String, Map<String, Map<String, Float>>> mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations) {
+		//setMapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
+		//
 		this.mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations = mapOfCoCommitOverSourceFileCommitRatioForAllFileCombinations;
 	}
 
