@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.pair.PairStrength;
+import com.example.inj.model.strength.PairStrength;
 
 @Component
 public class PairLevelDecay {

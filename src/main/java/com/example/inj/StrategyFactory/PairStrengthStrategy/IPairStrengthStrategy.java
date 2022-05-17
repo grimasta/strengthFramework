@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.pair.strategies;
+package com.example.inj.StrategyFactory.PairStrengthStrategy;
 
 import java.util.List;
 import java.util.Map;

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.StrategyFactory.ReadingStrategy.IReadingStrategy;
 
 public class CommittedSoFar {
 

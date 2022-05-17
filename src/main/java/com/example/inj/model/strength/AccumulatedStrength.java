@@ -1,12 +1,13 @@
-package com.example.inj.model.strength.accumulators;
+package com.example.inj.model.strength;
 
 import java.util.Map;
 
+import com.example.inj.StrategyFactory.StrengthAccumulator.IStrengthAccumulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.accumulators.strategies.IStrengthAccumulatorStrategy;
+import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.IStrengthAccumulatorStrategy;
 
 public class AccumulatedStrength implements IStrengthAccumulator {
 

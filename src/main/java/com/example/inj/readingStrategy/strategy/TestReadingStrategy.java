@@ -8,6 +8,7 @@ import tech.tablesaw.columns.Column;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -28,11 +29,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
     //final private int pastCommitSize= 5;
     final private int colNum= 6;
     private int[][] vector;
-
-    //categorization matrix
-
-    //final private int a =2;
-    final private int categorizationLevel = 5;
+    //private Map<String, Integer>segmentMap;
     //private List<String> watchList ;
     /*    //Map<FileId, PerCommitDetail>
     private Map<String, List<Object>> fileDetails;
@@ -198,9 +195,14 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         //for(Row row: tableSortedByCommitTime){}
     }*/
 
+    void segmentation(){
+        
+    }
+
+
     public static void main(String[] args) {
 
-        TestReadingStrategy ts = new TestReadingStrategy();
+        /*TestReadingStrategy ts = new TestReadingStrategy();
         try {
             System.out.println(ts.getTableSortedByFileId().structure());
             ts.parseData();
@@ -208,10 +210,25 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         } catch (Exception e) {
             System.out.println("asdasd");
             e.printStackTrace();
-        }
+        }*/
         //System.out.println();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d1 = null;
+        Date d2 = null;
+        try {
+            d1 = sdf.parse("2015-12-10 21:45:21");
+            d2 = sdf.parse("2015-12-14 21:37:30");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
 
+        long difference_In_Time = d1.getTime() - d2.getTime();
+        long difference_In_Hours = (difference_In_Time
+                / (1000 * 60 * 60))
+                % 24;
+
+        System.out.println(difference_In_Hours);
         /*Comparator<Row> tempComparator = new Comparator<Row>() {
             @Override
             public int compare(Row o1, Row o2) {

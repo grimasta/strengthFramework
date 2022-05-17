@@ -1,5 +1,6 @@
-package com.example.inj.model.strength.pair.strategies;
+package com.example.inj.model.strength;
 
+import com.example.inj.StrategyFactory.PairStrengthStrategy.IPairStrengthStrategy;
 import com.example.inj.attributes.IncrementalData;
 import com.example.inj.attributes.IncrementalField;
 import com.example.inj.model.storage.DataRepository;
@@ -7,7 +8,7 @@ import com.google.common.collect.Table;
 
 import java.util.*;
 
-public class DummyPairStrengthStrategy implements IPairStrengthStrategy{
+public class DummyPairStrengthStrategy implements IPairStrengthStrategy {
     @Override
     public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> calculate(DataRepository dataRepository){
         Map<String, Map<String, Map<Integer, List<Object>>>> readMap = dataRepository.getReadableMappingFinal().rowMap();

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.readingStrategy.strategy.IReadingStrategy;
+import com.example.inj.StrategyFactory.ReadingStrategy.IReadingStrategy;
 
 //Case 1'' Number of times the file A&B are co-committed * 2/  Number of times A has been committed so far + Number of times B has been committed so far
 public class CoCommittedPrime {

@@ -1,4 +1,4 @@
-package com.example.inj.readingStrategy.strategy;
+package com.example.inj.StrategyFactory.ReadingStrategy;
 
 public enum ReadingStrategyEnumeration {
 	DEFAULT,

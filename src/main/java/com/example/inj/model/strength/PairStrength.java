@@ -1,10 +1,11 @@
-package com.example.inj.model.strength.pair;
+package com.example.inj.model.strength;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.example.inj.StrategyFactory.PairStrength.IPairStrength;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,13 +19,13 @@ import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
-import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
+import com.example.inj.StrategyFactory.StrengthAccumulator.IStrengthAccumulator;
+import com.example.inj.StrategyFactory.PairStrengthStrategy.IPairStrengthStrategy;
 import com.google.common.collect.Table;
 
 import javafx.util.Pair;
 
-public class PairStrength implements IPairStrength{
+public class PairStrength implements IPairStrength {
 
 	private LinesModifiedPrime linesModifiedPrime;
     private CommittedSoFar committedSoFar;

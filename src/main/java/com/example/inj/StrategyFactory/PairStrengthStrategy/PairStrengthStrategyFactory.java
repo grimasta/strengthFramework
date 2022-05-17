@@ -1,4 +1,7 @@
-package com.example.inj.model.strength.pair.strategies;
+package com.example.inj.StrategyFactory.PairStrengthStrategy;
+
+import com.example.inj.model.strength.DefaultPairStrengthStrategy;
+import com.example.inj.model.strength.DummyPairStrengthStrategy;
 
 public class PairStrengthStrategyFactory {
 
@@ -6,7 +9,7 @@ public class PairStrengthStrategyFactory {
 		IPairStrengthStrategy pairStrengthStrategy;
 		switch(type) {
         case DEFAULT:
-        	pairStrengthStrategy = new DefaultPairStrengthCalculatorStrategy();
+        	pairStrengthStrategy = new DefaultPairStrengthStrategy();
         	return pairStrengthStrategy;
 		case RONGJI:
 			pairStrengthStrategy= new DummyPairStrengthStrategy();

@@ -6,16 +6,16 @@ import java.text.ParseException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import com.example.inj.global.ProjectNameContainer;
-import com.example.inj.model.strength.accumulators.StrengthAccumulatorFactory;
-import com.example.inj.model.strength.accumulators.StrengthAccumulators;
-import com.example.inj.model.strength.accumulators.strategies.StrengthAccumulatorStrategiesEnum;
-import com.example.inj.model.strength.accumulators.strategies.StrengthAccumulatorStrategiesFactory;
-import com.example.inj.model.strength.pair.PairCalculatorEnum;
-import com.example.inj.model.strength.pair.PairFactory;
-import com.example.inj.model.strength.pair.strategies.PairStrengthStrategyEnum;
-import com.example.inj.model.strength.pair.strategies.PairStrengthStrategyFactory;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyEnumeration;
-import com.example.inj.readingStrategy.strategy.ReadingStrategyFactory;
+import com.example.inj.StrategyFactory.StrengthAccumulator.StrengthAccumulatorFactory;
+import com.example.inj.StrategyFactory.StrengthAccumulator.StrengthAccumulatorsEnumeration;
+import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.StrengthAccumulatorStrategiesEnum;
+import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.StrengthAccumulatorStrategiesFactory;
+import com.example.inj.StrategyFactory.PairStrength.PairCalculatorEnum;
+import com.example.inj.StrategyFactory.PairStrength.PairFactory;
+import com.example.inj.StrategyFactory.PairStrengthStrategy.PairStrengthStrategyEnum;
+import com.example.inj.StrategyFactory.PairStrengthStrategy.PairStrengthStrategyFactory;
+import com.example.inj.StrategyFactory.ReadingStrategy.ReadingStrategyEnumeration;
+import com.example.inj.StrategyFactory.ReadingStrategy.ReadingStrategyFactory;
 
 public class Strength {
 
@@ -56,7 +56,7 @@ public class Strength {
 												// strength calculation Strategy
 				StrengthAccumulatorFactory.create( // Look into the com.example.inj.model.strength.accumulators
 													// package
-						StrengthAccumulators.DEFAULT // For more details on how to implement your own version and
+						StrengthAccumulatorsEnumeration.DEFAULT // For more details on how to implement your own version and
 														// how to add it
 				) // to the StrengthAccumulator types enumerations and the factory
 		); //

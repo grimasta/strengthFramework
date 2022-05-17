@@ -1,4 +1,6 @@
-package com.example.inj.model.strength.accumulators.strategies;
+package com.example.inj.StrategyFactory.StrengthAccumulatorStrategy;
+
+import com.example.inj.model.strength.DefaultStrengthAccumulatorStrategy;
 
 public class StrengthAccumulatorStrategiesFactory {
 	

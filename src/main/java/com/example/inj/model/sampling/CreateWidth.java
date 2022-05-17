@@ -18,15 +18,13 @@ public class CreateWidth {
     public CreateWidth() {
     	dataRepository = DataRepository.getInstance();
     }
-    
-    /*CreateSegmentWidth() function is created to estimate the width of segment based on the mean of
-    file is committed between the intervals, like t1, t4, t8, t12. Whereas, global clock tick from t1,
-    t2, t3, t4, t5, t6, t7... t12.
-    TD1: t4-t1
-    TD2: t8-t4
-    TD3: t12-t8
-    Mean of (TD1, TD2, TD3) will be the segment width.
-    */
+
+    // Let's say file A participates in commits: C1, C4, C9, C10(file A may not appear in every commit).
+    // The time(in terms of hours) elapsed between every two commits is denoted as: t1, t2, t3(t1 for time elapsed between
+    // C1 and C4, similarly for t2 and t3).
+    // t1, t2, and t3 are normalized by taking the reminder after divided by 24(# of hour in a day).
+    // then the mean of (t1, t2, t3) will be the segment width.
+
     public void createSegmentWidth() throws ParseException {
         Map<String, List<String>> yearMapPairSame = dataRepository.getYearMapPair();
         Map<String, List<String>> yearMapAloneSame = dataRepository.getYearMapAloneSame();

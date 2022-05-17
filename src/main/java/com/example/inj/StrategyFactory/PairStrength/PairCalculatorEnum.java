@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.pair;
+package com.example.inj.StrategyFactory.PairStrength;
 //Access by PairFactory Enum
 public enum PairCalculatorEnum {
     RIA_S_PAIRWISE_CALCULATOR,

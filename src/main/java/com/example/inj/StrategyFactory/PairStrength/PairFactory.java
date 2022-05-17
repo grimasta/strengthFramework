@@ -1,5 +1,6 @@
-package com.example.inj.model.strength.pair;
+package com.example.inj.StrategyFactory.PairStrength;
 
+import com.example.inj.model.strength.PairStrength;
 import org.springframework.stereotype.Component;
 
 @Component

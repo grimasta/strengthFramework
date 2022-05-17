@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.accumulators.strategies;
+package com.example.inj.model.strength;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.IStrengthAccumulatorStrategy;
 import com.example.inj.model.storage.DataRepository;
 
 public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorStrategy {

@@ -1,4 +1,4 @@
-package com.example.inj.readingStrategy.strategy;
+package com.example.inj.StrategyFactory.ReadingStrategy;
 
 
 import com.example.inj.attributes.AttributesField;

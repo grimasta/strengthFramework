@@ -1,4 +1,7 @@
-package com.example.inj.readingStrategy.strategy;
+package com.example.inj.StrategyFactory.ReadingStrategy;
+
+import com.example.inj.readingStrategy.strategy.DefaultReadingStrategy;
+import com.example.inj.readingStrategy.strategy.ParallelReadingStrategy;
 
 public class ReadingStrategyFactory {
 	

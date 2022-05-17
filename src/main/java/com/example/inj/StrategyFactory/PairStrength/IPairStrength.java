@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.pair;
+package com.example.inj.StrategyFactory.PairStrength;
 
 import java.util.List;
 import java.util.Map;
@@ -12,8 +12,8 @@ import com.example.inj.model.cases.prime.CoCommittedPrime;
 import com.example.inj.model.cases.prime.CommittedSoFar;
 import com.example.inj.model.cases.prime.LinesModifiedPrime;
 import com.example.inj.model.cases.prime.WithoutCommitPrime;
-import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
-import com.example.inj.model.strength.pair.strategies.IPairStrengthStrategy;
+import com.example.inj.StrategyFactory.StrengthAccumulator.IStrengthAccumulator;
+import com.example.inj.StrategyFactory.PairStrengthStrategy.IPairStrengthStrategy;
 
 public interface IPairStrength {
 

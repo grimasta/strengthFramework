@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.example.inj.StrategyFactory.ReadingStrategy.IReadingStrategy;
 import org.apache.log4j.Logger;
 
 import com.example.inj.attributes.AttributesField;

@@ -1,8 +1,8 @@
 package com.example.inj.readingStrategy.strategy;
 
+import com.example.inj.StrategyFactory.ReadingStrategy.IReadingStrategy;
 import com.example.inj.attributes.AttributesField;
 import com.example.inj.attributes.IncrementalField;
-import com.example.inj.attributes.IncrementalType;
 import com.example.inj.attributes.SelectAttributes;
 import com.example.inj.commitBuilder.TryCommitDetails;
 import com.example.inj.commitBuilder.TryFileDetails;
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
-public class ParallelReadingStrategy implements IReadingStrategy{
+public class ParallelReadingStrategy implements IReadingStrategy {
     Logger logger = Logger.getLogger(this.getClass());
     private HashMap<Integer, String> dictionary = new HashMap<>();
     private Table<String, String, Map<String, List<Object>>> fileId2FileID2OccurencesNumber2ListOfChangesCheck4Copy = HashBasedTable

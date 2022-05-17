@@ -1,8 +1,11 @@
-package com.example.inj.model.strength.accumulators;
+package com.example.inj.StrategyFactory.StrengthAccumulator;
+
+import com.example.inj.model.strength.AccumulatedStrength;
+import com.example.inj.model.strength.singlefile.NewStrengthAccumulator;
 
 public class StrengthAccumulatorFactory {
 
-	public static IStrengthAccumulator create(StrengthAccumulators type) {
+	public static IStrengthAccumulator create(StrengthAccumulatorsEnumeration type) {
 		switch(type) {
 		case DEFAULT:
 			return new AccumulatedStrength();

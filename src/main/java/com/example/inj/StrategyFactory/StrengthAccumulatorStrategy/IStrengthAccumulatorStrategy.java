@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.accumulators.strategies;
+package com.example.inj.StrategyFactory.StrengthAccumulatorStrategy;
 
 import java.util.Map;
 

@@ -1,7 +1,7 @@
-package com.example.inj.model.strength.accumulators;
+package com.example.inj.StrategyFactory.StrengthAccumulator;
 
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.accumulators.strategies.IStrengthAccumulatorStrategy;
+import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.IStrengthAccumulatorStrategy;
 
 public interface IStrengthAccumulator {
 

@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.pair.strategies;
+package com.example.inj.model.strength;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.example.inj.StrategyFactory.PairStrengthStrategy.IPairStrengthStrategy;
 import com.example.inj.model.storage.DataRepository;
 
-public class DefaultPairStrengthCalculatorStrategy implements IPairStrengthStrategy {
+public class DefaultPairStrengthStrategy implements IPairStrengthStrategy {
 
 	@Override
 	public Map<String, Map<String, List<Map<Integer, Map<String, Float>>>>> calculate(DataRepository dataRepository){

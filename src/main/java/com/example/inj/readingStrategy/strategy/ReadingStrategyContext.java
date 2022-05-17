@@ -1,5 +1,7 @@
 package com.example.inj.readingStrategy.strategy;
 
+import com.example.inj.StrategyFactory.ReadingStrategy.IReadingStrategy;
+
 import java.io.IOException;
 import java.text.ParseException;
 

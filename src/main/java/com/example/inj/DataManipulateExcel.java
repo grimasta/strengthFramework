@@ -21,8 +21,8 @@ import com.example.inj.model.sampling.CreateVector;
 import com.example.inj.model.sampling.CreateWidth;
 import com.example.inj.model.sampling.InsertExcel;
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.accumulators.IStrengthAccumulator;
-import com.example.inj.model.strength.pair.IPairStrength;
+import com.example.inj.StrategyFactory.StrengthAccumulator.IStrengthAccumulator;
+import com.example.inj.StrategyFactory.PairStrength.IPairStrength;
 import com.example.inj.model.strength.singlefile.ISingleFileStrength;
 import com.example.inj.model.strength.singlefile.SingleFileStrength;
 
