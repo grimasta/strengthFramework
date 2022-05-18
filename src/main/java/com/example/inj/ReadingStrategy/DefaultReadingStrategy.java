@@ -1,4 +1,4 @@
-package com.example.inj.readingStrategy.strategy;
+package com.example.inj.ReadingStrategy;
 
 import java.io.File;
 import java.io.FileReader;

@@ -1,4 +1,4 @@
-package com.example.inj.model.strength.singlefile;
+package com.example.inj.model.strength;
 
 import com.example.inj.StrategyFactory.StrengthAccumulator.IStrengthAccumulator;
 import com.example.inj.model.storage.DataRepository;

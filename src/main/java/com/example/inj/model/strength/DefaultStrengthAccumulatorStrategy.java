@@ -30,6 +30,7 @@ public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorS
 		Map<String, Integer> targetFileIdStrengthContributionCountMap;
 		Map<String, Integer> targetFileIdCountExistenceMap;
 		List<String> sortedListOfCommitDatesForFile;
+/*
 //		Map<String, Map<String, Float>> perFileTotalStrength = new HashMap<String, Map<String, Float>>();
 //		List<String> listOfDatesRenamed = new ArrayList<>();
 //		 figure out a way of maintaining the last valid value for a source - target fileId Pair to be contributed to the globalStrength for each date.
@@ -81,6 +82,7 @@ public class DefaultStrengthAccumulatorStrategy implements IStrengthAccumulatorS
 //		System.out.println("Before Rias Strength Accumulation Code");
 //		for each sourceFileId look into the list of pairwise strengths and find all dates for which there are calculated pairwise strengths 
 //		for each of the dates add all the pairwise strenghts calculated for each date plus all pairwise strengths from previous pairwise calculations (appropriately decayed)
+*/
 
 		
 		for (String sourceFileId : sourceFileId2SomeNumber2Date2CommitsOnDate.keySet()) {

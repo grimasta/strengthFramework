@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.example.inj.StrategyFactory.SegmentationStrategy.ISegmentationStrategy;
 import com.example.inj.automate.Chi2Automate;
 import com.example.inj.model.cases.TimeDifference;
 import com.example.inj.model.cases.prime.CoCommittedPrime;
@@ -45,6 +46,7 @@ public class DataManipulateExcel {
 	private Chi2Automate chi2Automate;
 	private IPairStrength pairStrength;
 	private DataRepository dataRepository;
+	private ISegmentationStrategy segmentation;
 
 	public DataManipulateExcel() {
 		dataRepository = DataRepository.getInstance();

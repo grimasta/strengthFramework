@@ -1,7 +1,7 @@
 package com.example.inj.StrategyFactory.StrengthAccumulator;
 
 import com.example.inj.model.strength.AccumulatedStrength;
-import com.example.inj.model.strength.singlefile.NewStrengthAccumulator;
+import com.example.inj.model.strength.NewStrengthAccumulator;
 
 public class StrengthAccumulatorFactory {
 

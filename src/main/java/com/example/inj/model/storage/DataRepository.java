@@ -62,6 +62,7 @@ public class DataRepository {
 	private tech.tablesaw.api.Table tableSortedByFileId;
 	private tech.tablesaw.api.Table tableSortedByCommitTime;
 	private int[][] vector;
+	private Map<String, List<Integer>>segment;
 	// singleton DP
 	private static DataRepository instance = null;
 

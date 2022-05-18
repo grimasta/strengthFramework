@@ -10,8 +10,8 @@ import com.example.inj.StrategyFactory.StrengthAccumulator.StrengthAccumulatorFa
 import com.example.inj.StrategyFactory.StrengthAccumulator.StrengthAccumulatorsEnumeration;
 import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.StrengthAccumulatorStrategiesEnum;
 import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.StrengthAccumulatorStrategiesFactory;
-import com.example.inj.StrategyFactory.PairStrength.PairCalculatorEnum;
-import com.example.inj.StrategyFactory.PairStrength.PairFactory;
+import com.example.inj.StrategyFactory.PairStrength.PairStrengthEnum;
+import com.example.inj.StrategyFactory.PairStrength.PairStrengthFactory;
 import com.example.inj.StrategyFactory.PairStrengthStrategy.PairStrengthStrategyEnum;
 import com.example.inj.StrategyFactory.PairStrengthStrategy.PairStrengthStrategyFactory;
 import com.example.inj.StrategyFactory.ReadingStrategy.ReadingStrategyEnumeration;
@@ -66,9 +66,9 @@ public class Strength {
 
 		dataManipulate.setPairStrength( // This is where you can set the Pairwise
 										// Strength Calculator
-				PairFactory.getPairStrengthType( // Look into the com.example.inj.model.strength.pair
+				PairStrengthFactory.getPairStrengthType( // Look into the com.example.inj.model.strength.pair
 													// package
-						PairCalculatorEnum.RIA_S_PAIRWISE_CALCULATOR // for more details on how to implement your
+						PairStrengthEnum.RIA_S_PAIRWISE_CALCULATOR // for more details on how to implement your
 				// own version and how to add it
 				) // to the PairFactory types enumerations
 		); // and the corresponding factory

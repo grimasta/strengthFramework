@@ -4,7 +4,7 @@ import com.example.inj.model.strength.PairStrength;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PairFactory {
+public class PairStrengthFactory {
 
     
 //
@@ -14,7 +14,7 @@ public class PairFactory {
 //        this.pairStrength = pairStrength;
 //    }
 
-    public static IPairStrength getPairStrengthType(PairCalculatorEnum type) {
+    public static IPairStrength getPairStrengthType(PairStrengthEnum type) {
         IPairStrength pairStrength;
         switch(type) {
             case RIA_S_PAIRWISE_CALCULATOR:

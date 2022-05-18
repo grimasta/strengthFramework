@@ -3,7 +3,7 @@ package com.example.inj.model.storage;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.example.inj.readingStrategy.strategy.ReadingStrategyContext;
+import com.example.inj.ReadingStrategy.ReadingStrategyContext;
 
 public class CreateTableMapping extends ReadingStrategyContext implements ApplicationListener<ContextRefreshedEvent> {
 

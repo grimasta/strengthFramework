@@ -1,16 +1,13 @@
-package com.example.inj.readingStrategy.strategy;
+package com.example.inj.ReadingStrategy;
 
 //import com.google.common.collect.Table;
 import com.example.inj.model.storage.DataRepository;
 import lombok.*;
 import tech.tablesaw.api.*;
-import tech.tablesaw.columns.Column;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 @Getter
 @Setter
@@ -49,11 +46,19 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         }
         int rowNum = tableSortedByFileId.column(0).size();
         vector = new int[rowNum][colNum];
+
+        tableSortedByCommitTime = tableSortedByFileId.sortOn("committed_at");
+
+        tableSortedByFileId.addColumns(IntColumn.indexColumn("Index", tableSortedByFileId.rowCount(), 0));
+        tableSortedByCommitTime.addColumns(IntColumn.indexColumn("Index", tableSortedByCommitTime.rowCount(), 0));
+
+        dataRepository.setTableSortedByFileId(tableSortedByFileId);
+        dataRepository.setTableSortedByCommitTime(tableSortedByCommitTime);
     }
 
     @Override
     public void parseData() throws IOException, ParseException {
-        tableSortedByCommitTime = tableSortedByFileId.sortOn("committed_at");
+
         //watchList = new LinkedList<>();
         /*
         fileDetails= new LinkedHashMap<>();
