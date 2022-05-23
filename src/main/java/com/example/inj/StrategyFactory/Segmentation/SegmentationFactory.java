@@ -1,7 +1,6 @@
 package com.example.inj.StrategyFactory.Segmentation;
 
-import com.example.inj.StrategyFactory.SegmentationStrategy.ISegmentationStrategy;
-import com.example.inj.model.Analysis.Segmentation;
+import com.example.inj.Analysis.Segmentation;
 
 public class SegmentationFactory {
     public static ISegmentation creat(SegmentationEnum type){

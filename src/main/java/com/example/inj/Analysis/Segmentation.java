@@ -1,10 +1,8 @@
-package com.example.inj.model.Analysis;
+package com.example.inj.Analysis;
 
 import com.example.inj.StrategyFactory.Segmentation.ISegmentation;
 import com.example.inj.StrategyFactory.SegmentationStrategy.ISegmentationStrategy;
-import com.example.inj.StrategyFactory.StrengthAccumulatorStrategy.IStrengthAccumulatorStrategy;
 import com.example.inj.model.storage.DataRepository;
-import com.example.inj.model.strength.AccumulatedStrength;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

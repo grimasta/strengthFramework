@@ -1,7 +1,7 @@
 package com.example.inj.StrategyFactory.SegmentationStrategy;
 
-import com.example.inj.model.Analysis.SegmentationStrategyFixedNumber;
-import com.example.inj.model.Analysis.SegmentationStrategyPercentage;
+import com.example.inj.Analysis.SegmentationStrategyFixedNumber;
+import com.example.inj.Analysis.SegmentationStrategyPercentage;
 
 public class SegmentationStrengthFactory {
 

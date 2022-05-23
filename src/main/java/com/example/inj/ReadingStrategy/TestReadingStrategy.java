@@ -24,9 +24,10 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     //dimensions of the vector
     //final private int pastCommitSize= 5;
-    final private int colNum= 6;
+    final private int colSize = 6;              //FIXME: set desire metric size
     private int[][] vector;
-    //private Map<String, Integer>segmentMap;
+    private double[] quantile = {0.15, 0.85, 1.00};   //FIXME: set desire quantile(ascending)
+    //private Map<String, Integer>segmentMap;          //FIXME: always put 1 at the end
     //private List<String> watchList ;
     /*    //Map<FileId, PerCommitDetail>
     private Map<String, List<Object>> fileDetails;
@@ -39,14 +40,19 @@ public class TestReadingStrategy implements TestIReadingStrategy{
     public TestReadingStrategy() {
         this.dataRepository = DataRepository.getInstance();
 
+
+    }
+
+    @Override
+    public void parseData() throws IOException, ParseException {
         try {
             tableSortedByFileId = Table.read().csv("C:\\Users\\Rongji He\\Desktop\\data\\elisaFinalVersion.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        int rowNum = tableSortedByFileId.column(0).size();
-        vector = new int[rowNum][colNum];
-
+        int rowSize = tableSortedByFileId.column(0).size();
+        vector = new int[rowSize][colSize];
+        dataRepository.setFusedVector(new int[rowSize]);
         tableSortedByCommitTime = tableSortedByFileId.sortOn("committed_at");
 
         tableSortedByFileId.addColumns(IntColumn.indexColumn("Index", tableSortedByFileId.rowCount(), 0));
@@ -54,11 +60,6 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
         dataRepository.setTableSortedByFileId(tableSortedByFileId);
         dataRepository.setTableSortedByCommitTime(tableSortedByCommitTime);
-    }
-
-    @Override
-    public void parseData() throws IOException, ParseException {
-
         //watchList = new LinkedList<>();
         /*
         fileDetails= new LinkedHashMap<>();
@@ -117,13 +118,15 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         DoubleColumn file_proj_LOC_ratio = tableSortedByFileId.doubleColumn("file_proj_LOC_ratio");
         DoubleColumn file_proj_LOC_change_ratio = tableSortedByFileId.doubleColumn("file_proj_LOC_change_ratio");
 
+        //the same order as in the vector
         DoubleColumn[] columnArray = {
-                project_LOC_change_ROC,             //the same order as in the vector
-                project_LOC_change_percentage,
-                file_LOC_change_ROC,
-                file_LOC_change_percentage,
-                file_proj_LOC_ratio,
-                file_proj_LOC_change_ratio
+                project_LOC_change_ROC,         //0
+                project_LOC_change_percentage,  //1
+                file_LOC_change_ROC,            //2
+                file_LOC_change_percentage,     //3
+                file_proj_LOC_ratio,            //4
+                file_proj_LOC_change_ratio      //5
+
         };
         Double[][] quantileArray = quantileCalculation(columnArray);
 
@@ -140,17 +143,14 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         for(int i=0; i< columnArray.length; i++){
             for(int j=0; j< columnArray[i].size(); j++){
                 Double metric = columnArray[i].get(j);
-                if(metric < quantileArray[0][i]){
-                    vector[j][i]= 0;
-                }else if(metric < quantileArray[1][i]){
-                    vector[j][i]= 1;
-                }else if(metric < quantileArray[2][i]){
-                    vector[j][i]= 2;
-                }else{
-                    vector[j][i]= 3;
+                for(int k=0; k< quantileArray.length; k++){
+                    if(metric <= quantileArray[0][i]){
+                        vector[j][i]= k;
+                        break;
+                    }
                 }
-            }
 
+            }
 
         }
 
@@ -162,13 +162,19 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
 
     public Double[][] quantileCalculation (DoubleColumn... metrics){
-        Double[][] result = new Double[3][metrics.length];
+
+        int quantileSize= quantile.length;
+        Double[][] result = new Double[quantileSize][metrics.length];   //each row is the quantile
         for(int i=0; i<metrics.length; i++){
             DoubleColumn temp = metrics[i];
             temp.sortAscending();
-            result[0][i]= temp.get((int)(temp.size()*0.25+1));
+
+            for(int j=0; j< quantileSize; j++){
+                result[j][i]= temp.get((int)(temp.size() * quantile[j]));
+            }
+            /*result[0][i]= temp.get((int)(temp.size()*0.25+1));
             result[1][i]= temp.get((int)(temp.size()*0.5+1));
-            result[2][i]= temp.get((int)(temp.size()*0.75+1));
+            result[2][i]= temp.get((int)(temp.size()*0.75+1));*/
         }
         return result;
     }
