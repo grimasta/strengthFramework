@@ -44,8 +44,7 @@ jointId = [ x for x in uniqueId1
 
 #dfList= [df1, df2, df3, df4]
 
-print(len(jointId)/len(uniqueId))
-exit()
+
 path_id_dict={}
 
 for tempDf in list([df1,df2,df3,df4]):

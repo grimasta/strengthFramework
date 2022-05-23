@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-import warnings
+
 p="C:\\Users\\Rongji He\\Desktop\\data\\elisa.csv"
 p2="C:\\Users\\Rongji He\\Desktop\\data\\elisa2.csv"
 
