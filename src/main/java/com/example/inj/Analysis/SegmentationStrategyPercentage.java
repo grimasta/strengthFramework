@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class SegmentationStrategyPercentage implements ISegmentationStrategy {
     @Override
-    public Map<String, List<Integer>> calculateSegment(DataRepository dataRepository) {
+    public Map<String, Integer> calculateSegment(DataRepository dataRepository) {
         //String here is the file-id and
         // List<Integer> is a list holds the index number(segment boundary) in the table
         Map<String, List<Integer>> segmentMap= new HashMap<>();
@@ -58,7 +58,7 @@ public class SegmentationStrategyPercentage implements ISegmentationStrategy {
             segmentMap.put(file_id, segmentList);
         }
 
-        return segmentMap;
+        return null;
 
     }
 }

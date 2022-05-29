@@ -16,10 +16,10 @@ import java.util.Map;
 public class SegmentationStrategyFixedNumber implements ISegmentationStrategy {
 
     @Override
-    public Map<String, List<Integer>> calculateSegment(DataRepository dataRepository) {
+    public Map<String, Integer> calculateSegment(DataRepository dataRepository) {
         //String here is the file-id and
         // List<Integer> is a list holds the index number(segment boundary) in the table
-        Map<String, List<Integer>> segmentMap= new HashMap<>();
+        Map<String, Integer> segmentMap= new HashMap<>();
 
         //how many commits should each segment contain?
         int fixedNumber = 10;       //FIXME: set desire segment width
@@ -46,7 +46,7 @@ public class SegmentationStrategyFixedNumber implements ISegmentationStrategy {
                 //segmentList.add(ic.get(i-1));
                 segmentList.add(ic.get(i));
             }
-            segmentMap.put(file_id, segmentList);
+            //segmentMap.put(file_id, segmentList);
         }
 
         return segmentMap;

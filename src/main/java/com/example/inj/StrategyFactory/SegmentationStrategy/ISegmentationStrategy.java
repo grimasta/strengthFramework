@@ -9,5 +9,5 @@ import java.util.Map;
 
 public interface ISegmentationStrategy {
 
-    Map<String, List<Integer>> calculateSegment(DataRepository dataRepository);
+    Map<String, Integer> calculateSegment(DataRepository dataRepository);
 }

@@ -9,7 +9,7 @@ path2="Z:/thesis_proj_Ria/truncatedData/akregator1.csv"
 
 df= pd.read_csv(p,encoding="ISO-8859-1")
 df= df.drop(['branch','message','parent_ids', 'committer', 'author'], axis=1)
-df['project_LOC']=0
+df['project_LOC']=0.0
 df['project_LOC_change']=0
 #df['project_LOC_change_percentage']=0.0
 

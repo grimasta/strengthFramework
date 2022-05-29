@@ -24,7 +24,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     //dimensions of the vector
     //final private int pastCommitSize= 5;
-    final private int colSize = 6;              //FIXME: set desire metric size
+    final private int colSize = 30;              //FIXME: set desire metric size
     private int[][] vector;
     private double[] quantile = {0.15, 0.85, 1.00};   //FIXME: set desire quantile(ascending)
     //private Map<String, Integer>segmentMap;          //FIXME: always put 1 at the end
@@ -108,26 +108,80 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         }
  */
         //monitoringCommit();
-        vectorization();
+        //vectorization();
     }
     public void vectorization(){
-        DoubleColumn project_LOC_change_ROC = tableSortedByFileId.doubleColumn("project_LOC_change_ROC");
-        DoubleColumn project_LOC_change_percentage = tableSortedByFileId.doubleColumn("project_LOC_change_percentage");
-        DoubleColumn file_LOC_change_ROC = tableSortedByFileId.doubleColumn("file_LOC_change_ROC");
-        DoubleColumn file_LOC_change_percentage = tableSortedByFileId.doubleColumn("file_LOC_change_percentage");
-        DoubleColumn file_proj_LOC_ratio = tableSortedByFileId.doubleColumn("file_proj_LOC_ratio");
-        DoubleColumn file_proj_LOC_change_ratio = tableSortedByFileId.doubleColumn("file_proj_LOC_change_ratio");
 
+        DoubleColumn commit_additions               = tableSortedByFileId.doubleColumn("commit_additions");
+        DoubleColumn commit_deletions               = tableSortedByFileId.doubleColumn("commit_deletions");
+        DoubleColumn changed_files                  = tableSortedByFileId.doubleColumn("changed_files");
+        DoubleColumn file_additions                 = tableSortedByFileId.doubleColumn("file_additions");
+        DoubleColumn file_deletions                 = tableSortedByFileId.doubleColumn("file_deletions");
+        DoubleColumn fractal_value                  = tableSortedByFileId.doubleColumn("fractal_value");
+        DoubleColumn fractal_value_over_lines       = tableSortedByFileId.doubleColumn("fractal_value_over_lines");
+        DoubleColumn distinct_authors_to_now        = tableSortedByFileId.doubleColumn("distinct_authors_to_now");
+        DoubleColumn project_LOC                    = tableSortedByFileId.intColumn("project_LOC").divide(1);
+        DoubleColumn project_LOC_change             = tableSortedByFileId.doubleColumn("project_LOC_change");
+        DoubleColumn file_LOC                       = tableSortedByFileId.doubleColumn("file_LOC");
+        DoubleColumn file_LOC_change                = tableSortedByFileId.doubleColumn("file_LOC_change");
+        DoubleColumn project_LOC_change_ROC         = tableSortedByFileId.doubleColumn("project_LOC_change_ROC");
+        DoubleColumn project_LOC_change_percentage  = tableSortedByFileId.doubleColumn("project_LOC_change_percentage");
+        DoubleColumn file_LOC_change_ROC            = tableSortedByFileId.doubleColumn("file_LOC_change_ROC");
+        DoubleColumn file_LOC_change_percentage     = tableSortedByFileId.doubleColumn("file_LOC_change_percentage");
+        DoubleColumn file_proj_LOC_ratio            = tableSortedByFileId.doubleColumn("file_proj_LOC_ratio");
+        DoubleColumn file_proj_LOC_change_ratio     = tableSortedByFileId.doubleColumn("file_proj_LOC_change_ratio");
+        DoubleColumn Total_Accesses                 = tableSortedByFileId.doubleColumn("Total_Accesses");
+        DoubleColumn Added_Accesses                 = tableSortedByFileId.doubleColumn("Added_Accesses");
+        DoubleColumn Deleted_Accesses               = tableSortedByFileId.doubleColumn("Deleted_Accesses");
+        DoubleColumn Total_Calls                    = tableSortedByFileId.doubleColumn("Total_Calls");
+        DoubleColumn Added_Calls                    = tableSortedByFileId.doubleColumn("Added_Calls");
+        DoubleColumn Deleted_Calls                  = tableSortedByFileId.doubleColumn("Deleted_Calls");
+        DoubleColumn Current_Status                 = tableSortedByFileId.doubleColumn("Current_Status");
+        DoubleColumn Change_Added                   = tableSortedByFileId.doubleColumn("Change_Added");
+        DoubleColumn Change_Deleted                 = tableSortedByFileId.doubleColumn("Change_Deleted");
+        DoubleColumn Total_Sets                     = tableSortedByFileId.doubleColumn("Total_Sets");
+        DoubleColumn Added_Sets                     = tableSortedByFileId.doubleColumn("Added_Sets");
+        DoubleColumn Deleted_Sets                   = tableSortedByFileId.doubleColumn("Deleted_Sets");
+
+        //file_proj_LOC_change_ratio.setMissing(0);
         //the same order as in the vector
+        //DoubleColumn project_LOC = project_LOC_int.
+        //project_LOC_int
         DoubleColumn[] columnArray = {
-                project_LOC_change_ROC,         //0
-                project_LOC_change_percentage,  //1
-                file_LOC_change_ROC,            //2
-                file_LOC_change_percentage,     //3
-                file_proj_LOC_ratio,            //4
-                file_proj_LOC_change_ratio      //5
+                commit_additions,
+                commit_deletions,
+                changed_files,
+                file_additions,
+                file_deletions,
+                fractal_value,
+                fractal_value_over_lines,
+                distinct_authors_to_now,
+                project_LOC,
+                project_LOC_change,
+                file_LOC,
+                file_LOC_change,
+                project_LOC_change_ROC,
+                project_LOC_change_percentage,
+                file_LOC_change_ROC,
+                file_LOC_change_percentage,
+                file_proj_LOC_ratio,
+                file_proj_LOC_change_ratio,
+                Total_Accesses,
+                Added_Accesses,
+                Deleted_Accesses,
+                Total_Calls,
+                Added_Calls,
+                Deleted_Calls,
+                Current_Status,
+                Change_Added,
+                Change_Deleted,
+                Total_Sets,
+                Added_Sets,
+                Deleted_Sets,};
 
-        };
+        for(int i= 0; i< columnArray.length; i++){
+            columnArray[i].setMissingTo(0.0);
+        }
         Double[][] quantileArray = quantileCalculation(columnArray);
 
         //print the quantile
@@ -140,11 +194,15 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         }*/
         //int j=0;
         //int quantileIndex=0;
+        /*int[] arr = {2,3,4,};
+        System.out.println(columnArray.length);
+        System.exit(1);*/
         for(int i=0; i< columnArray.length; i++){
             for(int j=0; j< columnArray[i].size(); j++){
                 Double metric = columnArray[i].get(j);
                 for(int k=0; k< quantileArray.length; k++){
-                    if(metric <= quantileArray[0][i]){
+
+                    if(metric <= quantileArray[k][i]){
                         vector[j][i]= k;
                         break;
                     }
@@ -161,21 +219,27 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
 
 
-    public Double[][] quantileCalculation (DoubleColumn... metrics){
-
+    public Double[][] quantileCalculation (DoubleColumn[] metrics){
+        DoubleColumn[] local = new DoubleColumn[metrics.length]; //= Arrays.copyOf(metrics, metrics.length);
+        for(int i=0; i<metrics.length;i++ ){
+            local[i]=  metrics[i].copy();
+        }
         int quantileSize= quantile.length;
-        Double[][] result = new Double[quantileSize][metrics.length];   //each row is the quantile
-        for(int i=0; i<metrics.length; i++){
-            DoubleColumn temp = metrics[i];
+        Double[][] result = new Double[quantileSize][local.length];   //each row is the quantile
+        for(int i=0; i<local.length; i++){
+            DoubleColumn temp = local[i];
             temp.sortAscending();
-
+            //System.out.print("index "+i+": ");
             for(int j=0; j< quantileSize; j++){
-                result[j][i]= temp.get((int)(temp.size() * quantile[j]));
+                result[j][i]= temp.get((int)((temp.size()-1) * quantile[j]));
+                //System.out.print(result[j][i]+ ", ");
             }
             /*result[0][i]= temp.get((int)(temp.size()*0.25+1));
             result[1][i]= temp.get((int)(temp.size()*0.5+1));
             result[2][i]= temp.get((int)(temp.size()*0.75+1));*/
+            //System.out.println();
         }
+
         return result;
     }
     /*public void monitoringCommit(){
@@ -213,33 +277,38 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     public static void main(String[] args) {
 
-        /*TestReadingStrategy ts = new TestReadingStrategy();
+        TestReadingStrategy ts = new TestReadingStrategy();
         try {
-            System.out.println(ts.getTableSortedByFileId().structure());
+
             ts.parseData();
-            ;
+
         } catch (Exception e) {
-            System.out.println("asdasd");
-            e.printStackTrace();
-        }*/
-        //System.out.println();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date d1 = null;
-        Date d2 = null;
-        try {
-            d1 = sdf.parse("2015-12-10 21:45:21");
-            d2 = sdf.parse("2015-12-14 21:37:30");
-        } catch (ParseException e) {
+            System.out.println("error!");
             e.printStackTrace();
         }
+        //System.out.println(ts.getTableSortedByFileId().structure());
+        ts.vectorization();
+        int[][] vec = DataRepository.getInstance().getVector();
+        StringColumn fileId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("file_id");
+        BooleanColumn isBugFixing= DataRepository.getInstance().getTableSortedByFileId().booleanColumn("is_bug_fixing");
+        StringColumn commitId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("id");
+
+        buggyVectorSumUp( DataRepository.getInstance());
+        //System.out.println(vec.length);
+        /*for(int i =0; i<vec.length; i++){
+            System.out.print(commitId.get(i)+", \t");
+            System.out.print(fileId.get(i)+ ": ");
+            System.out.print(isBugFixing.get(i)+", \t");
+            for(int j=0 ; j< vec[i].length; j++){
+                System.out.print(vec[i][j]);
+                System.out.print(" ");
+            }
+            System.out.println();
+        }*/
 
 
-        long difference_In_Time = d1.getTime() - d2.getTime();
-        long difference_In_Hours = (difference_In_Time
-                / (1000 * 60 * 60))
-                % 24;
 
-        System.out.println(difference_In_Hours);
+        //System.out.println(vec.length);
         /*Comparator<Row> tempComparator = new Comparator<Row>() {
             @Override
             public int compare(Row o1, Row o2) {
@@ -254,5 +323,51 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             }
         };*/
 
+    }
+
+    static void buggyVectorSumUp(DataRepository dataRepository){
+        int[][] vec = DataRepository.getInstance().getVector();
+        //Table table= dataRepository.getTableSortedByFileId();
+        //StringColumn uniqueId= table.stringColumn("file_id").unique();
+        StringColumn fileId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("file_id");
+        BooleanColumn isBugFixing= DataRepository.getInstance().getTableSortedByFileId().booleanColumn("is_bug_fixing");
+        StringColumn commitId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("id");
+
+        //for(String fileId: uniqueId ){}
+
+
+
+
+        int count=0;
+        for(int i =3; i<isBugFixing.size(); i++){
+            if(isBugFixing.get(i)
+                    &&fileId.get(i).equals(fileId.get(i - 1))
+                    &&fileId.get(i).equals(fileId.get(i - 2))
+                    &&fileId.get(i).equals(fileId.get(i - 3))
+                    /*&&isBugFixing.get(i)==isBugFixing.get(i-1)
+                    &&isBugFixing.get(i)==isBugFixing.get(i-2)
+                    &&isBugFixing.get(i)==isBugFixing.get(i-3)*/
+            ){
+                count++;
+                System.out.print("Sum-up 3: \t\t");
+                for(int j= 0; j< vec[j].length; j++){
+
+                    System.out.print(vec[i][j] +vec[i-1][j]+vec[i-2][j]);
+                    System.out.print(" ");
+                }
+                System.out.println();
+                System.out.print("Buggy vector: \t");
+                for(int j=0; j<vec[i].length; j++){
+
+                    System.out.print(vec[i][j]);
+                    System.out.print(" ");
+                }
+                System.out.println();
+            }
+
+
+        }
+
+        System.out.println("Total Buggy vector: "+ count);
     }
 }

@@ -7,10 +7,14 @@ p2="C:\\Users\\Rongji He\\Desktop\\data\\elisaFinalVersion.csv"
 
 df= pd.read_csv(p1,encoding="ISO-8859-1")
 #df.drop_duplicates(['id'],inplace=True)
-df.drop(df.columns.difference(['id','committed_at','is_bug_fixing',
+"""df.drop(df.columns.difference(['id','committed_at','is_bug_fixing',
         'file_id','project_LOC', 
         'project_LOC_change','file_LOC',
-        'file_LOC_change']), 1, inplace=True)
+        'file_LOC_change']), 1, inplace=True)"""
+
+df.drop(['authored_at','is_bug_linked','is_fix_related',
+        'is_merge_commit', 'is_refactoring',
+        'file_path', 'previous_file_path'], 1, inplace=True)        
 df['project_LOC_change_ROC'] =0.0
 """df['project_LOC_change'] = pd.to_numeric(df['project_LOC_change'])
 df['project_LOC_change_ROC'] = df['project_LOC_change'].pct_change()
@@ -25,7 +29,8 @@ id= df.iloc[0]['id']
 average_project_LOC = df['project_LOC'].sum()/df['id'].size
 significantCommit=1
 for i in range(1, len(df['id'])):
-       
+
+        
         if df.iloc[i]['id'] !=id:
                 if df.iloc[i]['project_LOC'] >= average_project_LOC:
                         significantCommit = significantCommit+1
