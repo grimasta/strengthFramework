@@ -40,7 +40,7 @@ for folder in commonProject:
         df.rename(columns={" Source_file":"Source_file",
                             " Destination_File":"Destination_File"},inplace=True)  #really??!
         if "commit_id" in df.columns:
-            df.rename(columns={"commit_id":"Commit_id"},inplace=True)   #consistentcy of naming columns is at risk!
+            df.rename(columns={"commit_id":"Commit_id"},inplace=True)   #naming consistentcy is at risk!
         if " file_name" in df.columns:
             df.rename(columns={" file_name":"Source_file", " included_file_name":"Destination_File"},inplace=True)
 

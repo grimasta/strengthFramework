@@ -105,7 +105,7 @@ for i in range(df['id'].size):
 #df['project_LOC']            =df['project_LOC'].astype(float)
 df.sort_values(by=['file_id','committed_at'],inplace=True)
 df.reset_index(drop=True,inplace=True)
-df.fillna(0)
+df.fillna(0.0)
 df.to_csv(p1,index=False,encoding="ISO-8859-1")
 
 

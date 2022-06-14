@@ -4,8 +4,6 @@ import pandas as pd
 p="C:\\Users\\Rongji He\\Desktop\\data\\elisa.csv"
 p2="C:\\Users\\Rongji He\\Desktop\\data\\elisa2.csv"
 
-path="Z:/thesis_proj_Ria/truncatedData/elisa.csv"
-path2="Z:/thesis_proj_Ria/truncatedData/akregator1.csv"
 
 df= pd.read_csv(p,encoding="ISO-8859-1")
 df= df.drop(['branch','message','parent_ids', 'committer', 'author'], axis=1)
@@ -39,7 +37,6 @@ for i in range(len(df['id'])):
     if df.iloc[i]['id'] != currentId:
         
         currentId= df.iloc[i]['id']
-
         previous_project_LOC= current_project_LOC
         current_project_LOC= current_project_LOC + df.iloc[i]['commit_additions'] - df.iloc[i]['commit_deletions']
         project_LOC_change=df.iloc[i]['commit_additions'] + df.iloc[i]['commit_deletions']
