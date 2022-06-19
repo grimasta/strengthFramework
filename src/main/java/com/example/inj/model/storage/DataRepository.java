@@ -63,10 +63,12 @@ public class DataRepository {
 
 	private tech.tablesaw.api.Table tableSortedByFileId;
 	private tech.tablesaw.api.Table tableSortedByCommitTime;
-	private int[][] vector;
+	private int[][] vectorFileView;
+	private int[][] vectorCommitView;
 	private Map<String, Integer>segment;
 	private int[] fusedVector;
-	private DoubleColumn[] metricColumnArray;
+	private DoubleColumn[] metricColumnArrayFileView;
+	private DoubleColumn[] metricColumnArrayCommitView;
 	final private int metricSize = MetricEnum.values().length;
 	private double[] quantile = {0.25, 0.50, 0.75, 1.00};   //FIXME: set desire quantile(ascending)
 															//FIXME: always put 1 at the end

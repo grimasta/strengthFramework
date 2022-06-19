@@ -6,7 +6,7 @@ import com.example.inj.model.storage.DataRepository;
 public class VectoryFusionCategorical implements IVectorFusionStrategy {
     private DataRepository dataRepository;
     private int majority =
-            (int)(dataRepository.getVector()[0].length *0.5) +1 ;
+            (int)(dataRepository.getVectorFileView()[0].length *0.5) +1 ;
 
     public VectoryFusionCategorical(DataRepository dataRepository) {
         this.dataRepository = DataRepository.getInstance();
@@ -14,7 +14,7 @@ public class VectoryFusionCategorical implements IVectorFusionStrategy {
 
     @Override
     public void fuseVector() {
-        int[][] vector=dataRepository.getVector();
+        int[][] vector=dataRepository.getVectorFileView();
         int[] fusedVector= dataRepository.getFusedVector();
         int rowSize= vector.length;
         int colSize= vector[0].length;
