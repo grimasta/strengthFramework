@@ -45,11 +45,12 @@ public class CommitsLeadToBFC {
         commitsLeadToBFCe3 = new LinkedHashMap<>();
         commitsLeadToBFCe4 = new LinkedHashMap<>();
         identifyBFCFiles();
-
-        //past_N_commits();
-        //each_BFC_File_showed_up();
-        //all_BFC_File_showed_up();
         //identifyBFCP();
+        //all_past_commits();
+        past_N_commits();
+        each_BFC_File_showed_up();
+        all_BFC_File_showed_up();
+
     }
 
     //BFC: Bug-Fixing-Commit
@@ -68,9 +69,9 @@ public class CommitsLeadToBFC {
             }
         }
 
-        for (var entry : BFCFileMap.entrySet()) {
+        /*for (var entry : BFCFileMap.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }
+        }*/
     }
 
     //BFCP: Bug-Fixing-Commit-Period
@@ -114,7 +115,17 @@ public class CommitsLeadToBFC {
     //experiment 1: all commits prior BFC
 
     private void all_past_commits(){
-
+        for (var entry : BFCFileMap.entrySet()) {
+            String buggyCommitId= entry.getKey();
+            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
+            //List<String> buggyFileList = entry.getValue();
+            List<String> commitsPriorBuggyCommit= new ArrayList<>();
+            for(int i=buggyCommitIdIndex-1; i>=0; i--){
+                String currentCommitId= uniqueCommitId.get(i);
+                commitsPriorBuggyCommit.add(currentCommitId);
+            }
+            commitsLeadToBFCe2.put(buggyCommitId, commitsPriorBuggyCommit);
+        }
     }
 
 
@@ -137,9 +148,9 @@ public class CommitsLeadToBFC {
             commitsLeadToBFCe2.put(buggyCommitId, commitsPriorBuggyCommit);
         }
 
-        for (var entry : commitsLeadToBFCe2.entrySet()) {
+        /*for (var entry : commitsLeadToBFCe2.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }
+        }*/
     }
 
 
@@ -175,8 +186,8 @@ public class CommitsLeadToBFC {
 
         /*for (var entry : commitsLeadToBFCe3.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }*/
-
+        }
+        System.exit(123);*/
     }
 
 
