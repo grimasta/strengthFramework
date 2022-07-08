@@ -19,10 +19,10 @@ public class CommitsLeadToBFC {
     private StringColumn uniqueCommitId;
     private Map<String, List<String>> BFCFileMap;   //BFC: Bug-Fixing-Commit
     private List<List<String>> BFCP;                //BFCP: Bug-Fixing-Commit-Period
-    private Map<String, List<String>> commitsLeadToBFCe1;   //for experiment1
-    private Map<String, List<String>> commitsLeadToBFCe2;   //for experiment2
-    private Map<String, List<String>> commitsLeadToBFCe3;   //for experiment3
-    private Map<String, List<String>> commitsLeadToBFCe4;   //for experiment4
+    private Map<String, List<String>> commitsLeadToBFCs1;   //strategy1
+    private Map<String, List<String>> commitsLeadToBFCs2;   //strategy2
+    private Map<String, List<String>> commitsLeadToBFCs3;   //strategy3
+    private Map<String, List<String>> commitsLeadToBFCs4;   //strategy4
 
 
     private final Table tableSortedByCommitTime;
@@ -40,13 +40,15 @@ public class CommitsLeadToBFC {
         }
         BFCFileMap = new LinkedHashMap<>();
 
-        commitsLeadToBFCe1 = new LinkedHashMap<>();
-        commitsLeadToBFCe2 = new LinkedHashMap<>();
-        commitsLeadToBFCe3 = new LinkedHashMap<>();
-        commitsLeadToBFCe4 = new LinkedHashMap<>();
+        commitsLeadToBFCs1 = new LinkedHashMap<>();
+        commitsLeadToBFCs2 = new LinkedHashMap<>();
+        commitsLeadToBFCs3 = new LinkedHashMap<>();
+        commitsLeadToBFCs4 = new LinkedHashMap<>();
         identifyBFCFiles();
         //identifyBFCP();
-        //all_past_commits();
+        all_past_commits();
+
+
         past_N_commits();
         each_BFC_File_showed_up();
         all_BFC_File_showed_up();
@@ -71,7 +73,8 @@ public class CommitsLeadToBFC {
 
         /*for (var entry : BFCFileMap.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }*/
+        }
+        System.exit(123);*/
     }
 
     //BFCP: Bug-Fixing-Commit-Period
@@ -112,8 +115,8 @@ public class CommitsLeadToBFC {
     //experiment 4: past 5 commits in which all BFC files showed up
 
 
-    //experiment 1: all commits prior BFC
 
+    //strategy 1: all commits prior BFC
     private void all_past_commits(){
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
@@ -124,12 +127,16 @@ public class CommitsLeadToBFC {
                 String currentCommitId= uniqueCommitId.get(i);
                 commitsPriorBuggyCommit.add(currentCommitId);
             }
-            commitsLeadToBFCe2.put(buggyCommitId, commitsPriorBuggyCommit);
+            commitsLeadToBFCs1.put(buggyCommitId, commitsPriorBuggyCommit);
         }
+        /*for (var entry : commitsLeadToBFCe1.entrySet()) {
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        System.exit(123);*/
     }
 
 
-    //experiment 2: past 5(or 10) commits prior BFC
+    //strategy 2: past 5(or 10) commits prior BFC
     private void past_N_commits(){
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
@@ -145,16 +152,17 @@ public class CommitsLeadToBFC {
                     break;
                 }
             }
-            commitsLeadToBFCe2.put(buggyCommitId, commitsPriorBuggyCommit);
+            commitsLeadToBFCs2.put(buggyCommitId, commitsPriorBuggyCommit);
         }
 
         /*for (var entry : commitsLeadToBFCe2.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }*/
+        }
+        System.exit(123);*/
     }
 
 
-    //experiment 3: past 5 commits that each BFC files showed up
+    //strategy 3: past 5 commits that each BFC files showed up
     private void each_BFC_File_showed_up(){
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
@@ -181,7 +189,7 @@ public class CommitsLeadToBFC {
                 }
             }
 
-            commitsLeadToBFCe3.put(buggyCommitId, commitsPriorBuggyCommit);
+            commitsLeadToBFCs3.put(buggyCommitId, commitsPriorBuggyCommit);
         }
 
         /*for (var entry : commitsLeadToBFCe3.entrySet()) {
@@ -192,7 +200,7 @@ public class CommitsLeadToBFC {
 
 
 
-    //experiment 4: past 5 commits in which all BFC files showed up together
+    //strategy 4: past 5 commits in which all BFC files showed up together
     private void all_BFC_File_showed_up(){
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
@@ -224,14 +232,15 @@ public class CommitsLeadToBFC {
                 }
             }
 
-            commitsLeadToBFCe4.put(buggyCommitId, commitsPriorBuggyCommit);
+            commitsLeadToBFCs4.put(buggyCommitId, commitsPriorBuggyCommit);
             //System.out.println(entry.getKey() + " " + entry.getValue());
         }
 
 
         /*for (var entry : commitsLeadToBFCe4.entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }*/
+        }
+        System.exit(123);*/
     }
 
     public static void main(String[] args) {

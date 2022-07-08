@@ -44,6 +44,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         }
 
 
+
         for(int i=0; i<tableSortedByFileId.structure().rowCount(); i++){
             if(tableSortedByFileId.structure().stringColumn("Column Type").get(i).equals("INTEGER")){
 
@@ -63,8 +64,21 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         tableSortedByCommitTime = tableSortedByFileId.copy().sortOn("committed_at");
 
 
+        StringColumn uniqueId= tableSortedByCommitTime.stringColumn("id");
+        int BFCCount=0;
+        for(String id: uniqueId){
+            BooleanColumn is_bug_fixing = tableSortedByCommitTime.where(
+                    tableSortedByCommitTime.stringColumn("id").isEqualTo(id))
+                    .booleanColumn("is_bug_fixing");
+
+            if(is_bug_fixing.contains(true))
+                BFCCount++;
+        }
+
+        dataRepository.setBFCRatio(BFCCount/1.0/uniqueId.size());
+
         /*System.out.println(tableSortedByCommitTime.structure());
-        System.exit(123);*/
+        */
         tableSortedByFileId.addColumns(IntColumn.indexColumn("Index", tableSortedByFileId.rowCount(), 0));
         tableSortedByCommitTime.addColumns(IntColumn.indexColumn("Index", tableSortedByCommitTime.rowCount(), 0));
 
