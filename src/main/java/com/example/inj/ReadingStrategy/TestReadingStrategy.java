@@ -63,8 +63,14 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         dataRepository.setFusedVector(new int[rowSize]);
         tableSortedByCommitTime = tableSortedByFileId.copy().sortOn("committed_at");
 
-
-        StringColumn uniqueId= tableSortedByCommitTime.stringColumn("id");
+        StringColumn uniqueId = StringColumn.create("uniqueId");
+        StringColumn commitId= tableSortedByCommitTime.stringColumn("id");
+        for(String id: commitId ){
+            if(!uniqueId.contains(id)){
+                uniqueId.append(id);
+            }
+        }
+        dataRepository.setUniqueCommitId(uniqueId);
         int BFCCount=0;
         for(String id: uniqueId){
             BooleanColumn is_bug_fixing = tableSortedByCommitTime.where(

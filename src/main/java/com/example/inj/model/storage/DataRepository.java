@@ -12,6 +12,7 @@ import javafx.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.api.StringColumn;
 // TODO future refactoring make it an abstract class subclassed to specific subtypes (ADataRepository
 
 
@@ -71,6 +72,7 @@ public class DataRepository {
 	private DoubleColumn[] metricColumnArrayCommitView;
 	final private int metricSize = MetricEnum.values().length;
 	private double BFCRatio;
+	StringColumn uniqueCommitId = StringColumn.create("uci");
 	private double[] quantile = {0.25, 0.50, 0.75, 1.00};   //FIXME: set desire quantile(ascending)
 															//FIXME: always put 1 at the end
 
