@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
@@ -23,6 +24,8 @@ public class VectorConcurrentlyUp {
     //private Map<String, Map<Integer, Set<Integer>>> vectorConcurrentlyHigh;
     //private Map<String, Map<Integer, Set<Integer>>> vectorConcurrentlyLow;
     private Map<String, Map<Integer, Set<Integer>>> vectorConcurrently;
+    private Map<Integer, Set<Integer>> extremeValueMetric;
+    private final int [][] vector;
     private Table combinationTable;
     private Map<String,Integer> mostConcurrentlyHigh;
     private Map<String,Integer> mostConcurrentlyLow;
@@ -31,18 +34,22 @@ public class VectorConcurrentlyUp {
     private DataRepository dataRepository;
     private ArrayList<Integer> metricToBeRemoved;
     private CommitsLeadToBFC cltBFC;
+    private final Table tableSortedByCommitTime;
     private int size;
+    double majorityThreshold = 0.4;
 
-    VectorConcurrentlyUp(CommitsLeadToBFC cltBFC){
+    public VectorConcurrentlyUp(CommitsLeadToBFC cltBFC){
         //Set<Integer> intersectionSet = Sets.intersection(vectorUp[1], vectorUp[2]);
         this.cltBFC = cltBFC;
         dataRepository = DataRepository.getInstance();;
+        tableSortedByCommitTime = dataRepository.getTableSortedByCommitTime();
         metricToBeRemoved= new ArrayList<>();
         vectorIndex = new HashSet<>();
-        size = dataRepository.getMetricSize()-12; //TODO
+        size = dataRepository.getMetricSize(); //TODO
         mostConcurrentlyHigh = new HashMap<>();
         mostConcurrentlyLow = new HashMap<>();
         combinationTable = Table.create();
+        vector = dataRepository.getVectorCommitView();
         //vectorSize = new HashMap<>();
         for(int i = 0; i< size; i++){    //remove metrics that have high correlation with others
             for(int j = i+1; j< size; j++){
@@ -62,18 +69,40 @@ public class VectorConcurrentlyUp {
             vectorIndex.add(i+1);
             vectorIndex.add(-(i+1));
         }
-
+        populatedExtremeValueMetricMap();
     }
 
+
+    public void populatedExtremeValueMetricMap(){
+        extremeValueMetric = new LinkedHashMap<>();
+        int[][] vector = dataRepository.getVectorCommitView();
+        for(Integer i:vectorIndex){
+            Set<Integer> rowIndex = new LinkedHashSet<>();
+            extremeValueMetric.put(i,rowIndex);
+        }
+
+        for(int i = 0; i<vector.length; i++ ){
+            for(int j = 0; j<vector[i].length; j++){
+                if(metricToBeRemoved.contains(j)){
+                    continue;
+                }
+                if(vector[i][j] == 0){
+                    extremeValueMetric.get(-(j+1)).add(i);
+                }else if(vector[i][j] == 3){
+                    extremeValueMetric.get(j+1).add(i);
+                }
+            }
+        }
+    }
+
+
     public void populated(Map<String, List<String>> commitsLeadToBFC){
-        //vectorConcurrentlyHigh= new LinkedHashMap<>();
-        //vectorConcurrentlyLow= new LinkedHashMap<>();
+
         vectorConcurrently= new LinkedHashMap<>();
-        int [][] vector = dataRepository.getVectorCommitView();
+
+        int[][] vector = dataRepository.getVectorCommitView();
         for (var entry : commitsLeadToBFC.entrySet()) {
             String buggyCommitId= entry.getKey();
-            //Map<Integer, Set<Integer>> highVectorsPerPreBuggyCommit = new LinkedHashMap<>();
-            //Map<Integer, Set<Integer>> lowVectorsPerPreBuggyCommit = new LinkedHashMap<>();
             Map<Integer, Set<Integer>> vectorsPerPreBuggyCommit = new LinkedHashMap<>();
             for(int i=0; i<size; i++){
                 if(metricToBeRemoved.contains(i)){
@@ -84,8 +113,6 @@ public class VectorConcurrentlyUp {
                 vectorsPerPreBuggyCommit.put(i+1, new LinkedHashSet<>());
                 vectorsPerPreBuggyCommit.put(-(i+1), new LinkedHashSet<>());
             }
-            //for (String commitsId: commitsLeadToBFC.get(buggyCommitId) ){
-
             int mostHigh= 0;
             int mostLow= 0;
             int rowSize=0;
@@ -98,16 +125,14 @@ public class VectorConcurrentlyUp {
                     int rowIndex = row.getInt("Index");
                     int highCount=0;
                     int lowCount=0;
-                    for(int j=0; j<vector[rowIndex].length-12; j++){ //TODO
+                    for(int j=0; j<vector[rowIndex].length; j++){ //TODO
                         if(metricToBeRemoved.contains(j)){
                             continue;
                         }
                         if(vector[rowIndex][j] == 3){
-                            //highVectorsPerPreBuggyCommit.get(j).add(rowIndex);
                             vectorsPerPreBuggyCommit.get(j+1).add(rowIndex);
                             highCount++;
                         }else if(vector[rowIndex][j] == 0){
-                            //lowVectorsPerPreBuggyCommit.get(j).add(rowIndex);
                             vectorsPerPreBuggyCommit.get(-(j+1)).add(rowIndex);
                             lowCount++;
                         }
@@ -130,7 +155,6 @@ public class VectorConcurrentlyUp {
             //vectorConcurrentlyLow.put(buggyCommitId,lowVectorsPerPreBuggyCommit);
             vectorConcurrently.put(buggyCommitId,vectorsPerPreBuggyCommit);
 
-            String a =null;
 
         }
     }
@@ -229,7 +253,7 @@ public class VectorConcurrentlyUp {
     }
 
 
-    private void vectorCombinationsToExcel(Map<Integer, Set<Integer>> perBuggyCommitVector,int size) throws IOException {
+    private void probabilityTransition( Map<Integer, Set<Integer>> perBuggyCommitVector, int size) throws IOException {
         Workbook workbook = new SXSSFWorkbook(1000);;
         Sheet sheet = workbook.createSheet("Elisa");
         int rowIndex = 1;
@@ -335,99 +359,6 @@ public class VectorConcurrentlyUp {
         }
     }*/
 
-
-    // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
-    private double conditionalProbabilityBFC( Integer... vectorIndexes){
-
-        int vectorLength = vectorIndexes.length;
-        int[] quantile = new int[vectorLength];
-        int[] realVectorIndexes = new int[vectorLength];
-        for(int i = 0; i<vectorLength; i++){
-            quantile[i] = (vectorIndexes[i] > 0) ? 3: 0;
-            realVectorIndexes[i] = (vectorIndexes[i] > 0) ? vectorIndexes[i]-1 : -vectorIndexes[i]-1;
-        }
-
-        int overallBFCCounter = 0;
-        int BFCSize = cltBFC.getCommitsLeadToBFCs3().size();
-        //int commitSize = cltBFC.getCommitsLeadToCommitS3().size();
-        int [][] vector = dataRepository.getVectorCommitView();
-        double majorityThreshold = 0.4;
-        for(var entry: cltBFC.getCommitsLeadToBFCs3().entrySet()){
-            int pBFCSize = entry.getValue().size();
-            //int[] BFCCounter = new int[vectorLength];
-            int BFCCounter= 0;
-
-            for(String pBFC: entry.getValue()){
-                Selection matchCommitId = dataRepository.getTableSortedByCommitTime().stringColumn("id").isEqualTo(pBFC);
-                Table pBFCTable= dataRepository.getTableSortedByCommitTime().where(matchCommitId);
-                //int rowCounter=0;
-                int rowSize=pBFCTable.rowCount();
-
-                int[] rowCounter = new int[vectorLength];
-
-                for(Row row: pBFCTable){
-
-                    int rowIndex = row.getInt("Index");
-                    for(int i=0 ; i<vectorLength; i++){
-                        if(vector[rowIndex][realVectorIndexes[i]] == quantile[i]){
-                            rowCounter[i]++;
-                        }
-                    }
-
-                }
-//                if(rowCounter[0]+ oppositeRowCounter[0]+ otherRowCounter[0] +nonRowCounter[0]!= rowSize){
-//                    System.out.println("BFC:                " + entry.getKey());
-//                    System.out.println("pBFC      :         " + pBFC);
-//                    System.out.println("rowCounter:         " + rowCounter[0]);
-//                    System.out.println("nonIndexRowCounter: " + otherRowCounter[0]);
-//                    System.out.println("oppositeRowCounter: " + oppositeRowCounter[0]);
-//                    System.out.println("rowSize:            " + rowSize);
-//                    System.out.println("____________________");
-//                    System.exit(1234556);
-//                }
-                boolean all = true;
-                for(int i=0 ; i<vectorLength; i++){
-                    if(rowCounter[i]/1.0/rowSize < majorityThreshold){
-                        all = false;
-                        break;
-
-                    }
-                }
-
-                if(all){
-                    BFCCounter++;
-                }
-            }
-//            if(BFCCounter + otherBFCCounter + oppositeBFCCounter + nonBFCCounter!= pBFCSize){
-//                System.out.println("BFCCounter:         " + BFCCounter);
-//                System.out.println("nonIndexBFCCounter: " + otherBFCCounter);
-//                System.out.println("oppositeBFCCounter: " + oppositeBFCCounter);
-//                System.out.println("nonBFCCounter     : " + nonBFCCounter);
-//                System.out.println("pBFCSize:           " + pBFCSize);
-//                System.exit(1234556);
-//            }
-            if(BFCCounter/1.0/pBFCSize >= majorityThreshold){
-                overallBFCCounter++;
-            }
-
-        }
-
-        //print
-        if(overallBFCCounter>0){
-            System.out.print("P( ");
-            for(int i=0 ; i<vectorLength; i++){
-                System.out.print(vectorIndexes[i]);
-                if(i!= vectorLength-1)
-                    System.out.print(", ");
-            }
-            System.out.print(" | BFC ) = ");
-            System.out.print(overallBFCCounter + " / " + BFCSize + " = " + overallBFCCounter/1.0/BFCSize);
-            System.out.println();
-
-        }
-
-        return 1;
-    }
 
     private void sanityCheck( Integer... vectorIndexes){
 
@@ -599,7 +530,8 @@ public class VectorConcurrentlyUp {
 
     }
 
-    private double conditionalProbability( Integer... vectorIndexes){
+    // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
+    private int[] conditionalProbabilityBFC2( Integer... vectorIndexes){
 
         int vectorLength = vectorIndexes.length;
         int[] quantile = new int[vectorLength];
@@ -609,32 +541,34 @@ public class VectorConcurrentlyUp {
             realVectorIndexes[i] = (vectorIndexes[i] > 0) ? vectorIndexes[i]-1 : -vectorIndexes[i]-1;
         }
 
-        int overallCommitCounter = 0;
-        int overallBFCCounter=0;
-        int commitSize = cltBFC.getCommitsLeadToCommitS3().size();
-        int [][] vector = dataRepository.getVectorCommitView();
+        int overallBFCCounter = 0;
+        int BFCSize = cltBFC.getCommitsLeadToBFCs3().size();
+        //int commitSize = cltBFC.getCommitsLeadToCommitS3().size()
         double majorityThreshold = 0.4;
+        for(var entry: cltBFC.getCommitsLeadToBFCs3().entrySet()){
+            int pBFCSize = entry.getValue().size();
+            //int[] BFCCounter = new int[vectorLength];
+            int BFCCounter= 0;
 
-        for(var entry: cltBFC.getCommitsLeadToCommitS3().entrySet()){
-            int pCommitSize = entry.getValue().size();
-            int commitCounter= 0;
-            for(String pCommit: entry.getValue()){
-                Selection matchCommitId = dataRepository.getTableSortedByCommitTime().stringColumn("id").isEqualTo(pCommit);
-                Table pCommitTable= dataRepository.getTableSortedByCommitTime().where(matchCommitId);
+            for(String pBFC: entry.getValue()){
+                Selection matchCommitId = dataRepository.getTableSortedByCommitTime().stringColumn("id").isEqualTo(pBFC);
+                Table pBFCTable= dataRepository.getTableSortedByCommitTime().where(matchCommitId);
+                //int rowCounter=0;
+                int rowSize=pBFCTable.rowCount();
+
                 int[] rowCounter = new int[vectorLength];
-                int rowSize=pCommitTable.rowCount();
-                for(Row row: pCommitTable){
+
+                for(Row row: pBFCTable){
 
                     int rowIndex = row.getInt("Index");
-
                     for(int i=0 ; i<vectorLength; i++){
                         if(vector[rowIndex][realVectorIndexes[i]] == quantile[i]){
                             rowCounter[i]++;
                         }
                     }
 
-
                 }
+
                 boolean all = true;
                 for(int i=0 ; i<vectorLength; i++){
                     if(rowCounter[i]/1.0/rowSize < majorityThreshold){
@@ -644,51 +578,256 @@ public class VectorConcurrentlyUp {
                     }
                 }
 
-                if(all ){
-                    commitCounter++;
+                if(all){
+                    BFCCounter++;
                 }
+            }
+//            if(BFCCounter + otherBFCCounter + oppositeBFCCounter + nonBFCCounter!= pBFCSize){
+//                System.out.println("BFCCounter:         " + BFCCounter);
+//                System.out.println("nonIndexBFCCounter: " + otherBFCCounter);
+//                System.out.println("oppositeBFCCounter: " + oppositeBFCCounter);
+//                System.out.println("nonBFCCounter     : " + nonBFCCounter);
+//                System.out.println("pBFCSize:           " + pBFCSize);
+//                System.exit(1234556);
+//            }
+            if(BFCCounter/1.0/pBFCSize >= majorityThreshold){
+                overallBFCCounter++;
             }
 
-            if(commitCounter/1.0/pCommitSize >= majorityThreshold){
-                if(cltBFC.getBFCFileMap().containsKey(entry.getKey())){
-                    overallBFCCounter++;
-                }
-                overallCommitCounter++;
-            }
         }
 
-        if(overallCommitCounter>0){
-            System.out.print("P( BFC | ");
+        //print
+        /*if(overallBFCCounter>0) {
+            System.out.print("P( ");
             for(int i=0 ; i<vectorLength; i++){
                 System.out.print(vectorIndexes[i]);
                 if(i!= vectorLength-1)
                     System.out.print(", ");
             }
-            System.out.print(" ) = ");
-            System.out.print( overallBFCCounter+ " / " + overallCommitCounter + " = " + overallBFCCounter/1.0/overallCommitCounter);
+            System.out.print(" | BFC ) = ");
+            System.out.print(overallBFCCounter + " / " + BFCSize + " = " + overallBFCCounter/1.0/BFCSize);
             System.out.println();
-        }
 
-        return 1;
+        }*/
+
+        return new int[]{overallBFCCounter, BFCSize};
     }
 
-    private void vectorCombinations(ProbabilityStrategyEnum ps, int size){
+    // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
+    private int[] given_BFC_Found_Pattern(ProbabilityStrategyEnum ps, Integer... vectorIndexes){
+
+        int combinationSize = vectorIndexes.length;
+        int[] quantile = new int[combinationSize];
+        int[] realVectorIndexes = new int[combinationSize];
+        for(int i = 0; i<combinationSize; i++){
+            quantile[i] = (vectorIndexes[i] > 0) ? 3: 0;
+            realVectorIndexes[i] = (vectorIndexes[i] > 0) ? vectorIndexes[i]-1 : -vectorIndexes[i]-1;
+        }
+
+        int extremeOccurrenceCount = 0;
+        int BFCSize = cltBFC.getCommitsPriorBFCs3().size();
+
+
+        for(var entry: cltBFC.getCommitsPriorBFCs3().entrySet()){
+            int pBFCSize = entry.getValue().size();
+            int[] rowCounter = new int[combinationSize];
+            for(Integer integer: entry.getValue()){
+                for(int i=0 ; i<combinationSize; i++){
+                    if(vector[integer][realVectorIndexes[i]] == quantile[i]){
+                        rowCounter[i]++;
+                    }
+                }
+
+            }
+            boolean all = true;
+            for(int i=0 ; i<combinationSize; i++){
+                if(rowCounter[i]/1.0/pBFCSize < majorityThreshold){
+                    all = false;
+                    break;
+
+                }
+            }
+            if(all){
+                extremeOccurrenceCount++;
+            }
+        }
+        return new int[]{extremeOccurrenceCount, BFCSize};
+
+    }
+
+    private int[] given_pattern_found_BFC(ProbabilityStrategyEnum ps, Integer... vectorIndexes){
+
+        int combinationSize = vectorIndexes.length;
+        int[] quantile = new int[combinationSize];
+        int[] realVectorIndexes = new int[combinationSize];
+        for(int i = 0; i<combinationSize; i++){
+            quantile[i] = (vectorIndexes[i] > 0) ? 3: 0;
+            realVectorIndexes[i] = (vectorIndexes[i] > 0) ? vectorIndexes[i]-1 : -vectorIndexes[i]-1;
+        }
+
+        int extremeOccurrenceCount = 0;
+        int extremeOccurrenceAndBFCCount=0;
+
+        for(var entry: cltBFC.getCommitsPriorCommitS3().entrySet()){
+            int pCommitSize = entry.getValue().size();
+            int[] rowCounter = new int[combinationSize];
+
+            for(Integer integer: entry.getValue()){
+                for(int i=0 ; i<combinationSize; i++){
+                    if(vector[integer][realVectorIndexes[i]] == quantile[i]){
+                        rowCounter[i]++;
+                    }
+                }
+            }
+            boolean all = true;
+            for(int i=0 ; i<combinationSize; i++){
+                if(rowCounter[i]/1.0/pCommitSize < majorityThreshold){
+                    all = false;
+                    break;
+
+                }
+            }
+            if(all){
+
+                if(cltBFC.getBFCFileMap().containsKey(entry.getKey())){
+                    extremeOccurrenceAndBFCCount++;
+                }
+                extremeOccurrenceCount++;
+            }
+
+        }
+
+        return new int[]{extremeOccurrenceAndBFCCount, extremeOccurrenceCount};
+    }
+
+    public void vectorCombinations(ProbabilityStrategyEnum ps, int size, String fileName){
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("Sheet 1");
+        org.apache.poi.ss.usermodel.Row row;
+        org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
+        int rowID = 1;
+
+        //Map<String, Set<Integer>>
+        switch (ps){
+            case BFC:
+                for(int i=0; i< size; i++){
+                    int n = i+1;
+                    header.createCell(i).setCellValue("Position "+ n);
+                }
+                header.createCell(size).setCellValue("Pattern_Occurrence");
+                header.createCell(size+1).setCellValue("BFC_Occurrence");
+                header.createCell(size+2).setCellValue("Probability");
+                break;
+            case ALL:
+                for(int i=0; i< size; i++){
+                    int n = i+1;
+                    header.createCell(i).setCellValue("Position_"+ n);
+                }
+                header.createCell(size).setCellValue("BFC_when_Pattern_Occurred");
+                header.createCell(size+1).setCellValue("Pattern_Occurrence");
+                header.createCell(size+2).setCellValue("Probability");
+                break;
+            case transition_ALL:
+            case transition_BFC:
+            case transition:
+                for(int i= 0; i<size*4; i=i+4 ){
+                    header.createCell(i).setCellValue("Position_"+ i/4);
+                    header.createCell(i+1).setCellValue("Occurrence_"+ i/4);
+                    header.createCell(i+2).setCellValue("Probability_"+ i/4);
+                    header.createCell(i+3).setCellValue("Probability_Product"+ i/4);
+                }
+                break;
+            default:
+                break;
+        }
 
         for(Set<Integer> set: Sets.combinations(vectorIndex, size)){
 
+            int cellID=0;
+            int[] result;
             switch (ps){
                 case sanityCheck:
                     sanityCheck(set.toArray(new Integer[0]));
                     break;
                 case BFC:
-                    conditionalProbabilityBFC(set.toArray(new Integer[0]));
+                    result= given_BFC_Found_Pattern(ps,set.toArray(new Integer[0]));
+                    if(result[0] == 0)
+                        continue;
+
+                    row = sheet.createRow(rowID++);
+                    for(Integer i: set){
+                        row.createCell(cellID++).setCellValue(i);
+                    }
+                    row.createCell(cellID++).setCellValue(result[0]);
+                    row.createCell(cellID++).setCellValue(result[1]);
+                    row.createCell(cellID).setCellValue(result[0]/1.0/result[1]);
                     break;
                 case ALL:
-                    conditionalProbability(set.toArray(new Integer[0]));
+                    result= given_pattern_found_BFC(ps,set.toArray(new Integer[0]));
+                    if(result[0] == 0)
+                        continue;
+                    row = sheet.createRow(rowID++);
+                    for(Integer i: set){
+                        row.createCell(cellID++).setCellValue(i);
+                    }
+                    row.createCell(cellID++).setCellValue(result[0]);
+                    row.createCell(cellID++).setCellValue(result[1]);
+                    row.createCell(cellID).setCellValue(result[0]/1.0/result[1]);
+                    break;
+                case transition:
+                    Integer[] indexes = new Integer[set.size()];
+                    set.toArray(indexes);
+                    Set<Integer> current = extremeValueMetric.get(indexes[0]);
+
+                    row = sheet.createRow(rowID);
+
+
+                    double currentSize = current.size()/1.0;
+                    double overallProbability = currentSize/tableSortedByCommitTime.rowCount();
+                    row.createCell(cellID++).setCellValue(indexes[0]);
+                    row.createCell(cellID++).setCellValue(current.size());
+                    row.createCell(cellID++).setCellValue(overallProbability);
+                    row.createCell(cellID++).setCellValue(overallProbability);
+
+
+                    for(int i=1; i< indexes.length; i++){
+                        Sets.SetView<Integer> temp= Sets.intersection(current , extremeValueMetric.get(indexes[i]));
+                        if(temp.size() == 0){
+                            break;
+                        }
+                        current= new HashSet<>();
+                        temp.copyInto(current);
+
+                        overallProbability = overallProbability * current.size()/currentSize;
+
+                        row.createCell(cellID++).setCellValue(indexes[i]);
+                        row.createCell(cellID++).setCellValue(current.size());
+                        row.createCell(cellID++).setCellValue(current.size()/currentSize);
+                        row.createCell(cellID++).setCellValue(overallProbability);
+
+                        currentSize= current.size();
+
+                    }
+
+                    if(row.getPhysicalNumberOfCells()/4 == size){
+                        rowID++;
+                    }
                     break;
                 default:
                     break;
             }
+
+        }
+
+        FileOutputStream fileOut = null;
+        try {
+            fileOut= new FileOutputStream("results\\"+fileName+"_"+ps+".xlsx" );
+            wb.write(fileOut);
+            fileOut.close();
+            wb.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
     private void vectorCombinationsSanityCheck(int size){
@@ -719,7 +858,7 @@ public class VectorConcurrentlyUp {
         TestReadingStrategy ts =new TestReadingStrategy();
         try {
 
-            ts.parseData();
+            //ts.parseData();
 
         } catch (Exception e) {
             System.out.println("error!");
@@ -738,6 +877,6 @@ public class VectorConcurrentlyUp {
         System.out.println("********************BFC  Done************************");*/
 
         System.out.println("********************All Commits  Begin************************");
-        vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3);
+        //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3);
     }
 }

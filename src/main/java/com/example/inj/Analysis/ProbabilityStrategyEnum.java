@@ -4,5 +4,8 @@ public enum ProbabilityStrategyEnum {
 
     sanityCheck,
     BFC,
-    ALL
+    ALL,
+    transition_BFC,
+    transition_ALL,
+    transition,
 }

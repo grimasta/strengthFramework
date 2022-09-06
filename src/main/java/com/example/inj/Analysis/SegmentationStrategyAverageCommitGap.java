@@ -92,7 +92,7 @@ public class SegmentationStrategyAverageCommitGap implements ISegmentationStrate
         TestIReadingStrategy trs = new TestReadingStrategy();
         SegmentationStrategyAverageCommitGap ss = new SegmentationStrategyAverageCommitGap();
         try {
-            trs.parseData();
+            //trs.parseData();
         } catch (Exception e) {
             e.printStackTrace();
         }

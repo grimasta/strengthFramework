@@ -19,7 +19,7 @@ public enum MetricEnum {                //FIXME: Append new metric to the end
     file_LOC_change_percentage,         //15
     file_proj_LOC_ratio,                //16
     file_proj_LOC_change_ratio,         //17
-    Total_Accesses,                     //18
+    /*Total_Accesses,                     //18
     Added_Accesses,                     //19
     Deleted_Accesses,                   //20
     Total_Calls,                        //21
@@ -30,5 +30,5 @@ public enum MetricEnum {                //FIXME: Append new metric to the end
     Change_Deleted,                     //26
     Total_Sets,                         //27
     Added_Sets,                         //28
-    Deleted_Sets,                       //29
+    Deleted_Sets,                       //29*/
     }
