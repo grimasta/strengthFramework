@@ -19,6 +19,9 @@ public class CommitsLeadToBFC {
     private StringColumn uniqueCommitId;
     private Map<String, List<String>> BFCFileMap;   //BFC: Bug-Fixing-Commit
     private Map<String, List<String>> commitFileMap;
+//    private Map<String, List<Integer>> BFCFileMapRowIndex;   //BFC: Bug-Fixing-Commit
+//    private Map<String, List<Integer>> commitFileMapRowIndex;
+
     private List<List<String>> BFCP;                //BFCP: Bug-Fixing-Commit-Period
 
 
@@ -39,6 +42,8 @@ public class CommitsLeadToBFC {
     private Map<String, Set<Integer>> commitsPriorCommitS3;   //strategy3
     private Map<String, Set<Integer>> commitsPriorCommitS4;   //strategy4
 
+    private List<Integer> commitsLeadToBFC;
+    private List<Integer> commitsLeadToCommit;
     private final Table tableSortedByCommitTime;
     private BooleanColumn isBFC;
     public CommitsLeadToBFC() {
@@ -55,6 +60,7 @@ public class CommitsLeadToBFC {
         }*/
         BFCFileMap = new LinkedHashMap<>();
         commitFileMap =new LinkedHashMap<>();
+
         commitsLeadToBFCs1 = new LinkedHashMap<>();
         commitsLeadToBFCs2 = new LinkedHashMap<>();
         commitsLeadToBFCs3 = new LinkedHashMap<>();
@@ -71,6 +77,7 @@ public class CommitsLeadToBFC {
         commitsPriorCommitS2= new LinkedHashMap<>();
         commitsPriorCommitS3= new LinkedHashMap<>();
         commitsPriorCommitS4= new LinkedHashMap<>();
+
 
 
         identifyBFCFiles();
@@ -208,14 +215,7 @@ public class CommitsLeadToBFC {
 
     //strategy 2: past 5(or 10) commits prior BFC
     /*private void past_N_commits(){
-        for (var entry : BFCFileMap.entrySet()) {
-            String buggyCommitId= entry.getKey();
-            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
-            //List<String> buggyFileList = entry.getValue();
-            List<String> commitsPriorBuggyCommit= new ArrayList<>();
-            int counter = 0;
-            for(int i=buggyCommitIdIndex-1; i>=0; i--){
-                String currentCommitId= uniqueCommitId.get(i);
+        for (var entry : BFCFiString currentCommitId= uniqueCommitId.get(i);
                 commitsPriorBuggyCommit.add(currentCommitId);
                 counter++;
                 if(counter == lookUpCommitSize){
@@ -227,7 +227,14 @@ public class CommitsLeadToBFC {
 
 
         for (var entry : commitFileMap.entrySet()) {
-            String commitId= entry.getKey();
+            String commitId= entry.getKey();leMap.entrySet()) {
+            String buggyCommitId= entry.getKey();
+            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
+            //List<String> buggyFileList = entry.getValue();
+            List<String> commitsPriorBuggyCommit= new ArrayList<>();
+            int counter = 0;
+            for(int i=buggyCommitIdIndex-1; i>=0; i--){
+
             int commitIdIndex = uniqueCommitId.indexOf(commitId);
             //List<String> buggyFileList = entry.getValue();
             List<String> commitsPriorCommit= new ArrayList<>();
@@ -252,7 +259,8 @@ public class CommitsLeadToBFC {
 
 
     //strategy 2: past 5(or 10) commits prior BFC
-    private void past_N_commits(){
+    /*private void past_N_commits(){
+
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
             int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
@@ -295,22 +303,68 @@ public class CommitsLeadToBFC {
             commitsPriorCommitS2.put(commitId,commitsDataPriorCommit);
         }
 
+    }*/
 
-        /*for (var entry : commitsLeadToBFCe2.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
+    //strategy 2: past 5(or 10) commits prior BFC/commit
+    private void past_N_commits(){
+        commitsLeadToBFC = new ArrayList<>(500);
+        commitsLeadToCommit = new ArrayList<>(1000);
+
+        for (var entry : BFCFileMap.entrySet()) {
+            String buggyCommitId= entry.getKey();
+            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
+            int counter = 0;
+            Set<Integer> commitsDataPriorBuggyCommit= new LinkedHashSet<>();
+            for(int i=buggyCommitIdIndex-1; i>=0; i--){
+                String currentCommitId= uniqueCommitId.get(i);
+                Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                Table commitTable= tableSortedByCommitTime.where(matchCommitId);
+                for(Row row: commitTable){
+                    commitsLeadToBFC.add(row.getInt("Index"));
+                    commitsDataPriorBuggyCommit.add(row.getInt("Index"));
+                }
+                counter++;
+                if(counter == lookUpCommitSize){
+                    break;
+                }
+            }
+            commitsPriorCommitS2.put(buggyCommitId,commitsDataPriorBuggyCommit);
+            commitsDataPriorBuggyCommit= null;
         }
-        System.exit(123);*/
+
+        for (var entry : commitFileMap.entrySet()) {
+            String commitId= entry.getKey();
+            int commitIdIndex = uniqueCommitId.indexOf(commitId);
+            int counter = 0;
+            Set<Integer> commitsDataPriorCommit= new LinkedHashSet<>();
+            for(int i=commitIdIndex-1; i>=0; i--){
+                String currentCommitId= uniqueCommitId.get(i);
+                Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                Table commitTable= tableSortedByCommitTime.where(matchCommitId);
+                for(Row row: commitTable){
+                    commitsLeadToCommit.add(row.getInt("Index"));
+                    commitsDataPriorCommit.add(row.getInt("Index"));
+                }
+                counter++;
+                if(counter == lookUpCommitSize){
+                    break;
+                }
+            }
+            commitsPriorCommitS2.put(commitId,commitsDataPriorCommit);
+            commitsDataPriorCommit = null;
+        }
+
     }
 
 
     //strategy 3: past 5 commits that each BFC files showed up
-    private void each_BFC_File_showed_up(){
+    /*private void each_BFC_File_showed_up(){
+
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
             int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
-            List<String> buggyFileList = entry.getValue();
             Set<Integer> commitsDataPriorBuggyCommit= new LinkedHashSet<>();
-            for(String buggyFile: buggyFileList){
+            for(String buggyFile: entry.getValue()){
                 int counter =0;
                 for(int i=buggyCommitIdIndex-1; i>=0; i--){
                     String currentCommitId= uniqueCommitId.get(i);
@@ -320,9 +374,7 @@ public class CommitsLeadToBFC {
 
                     if(fileIdColumn.contains(buggyFile)){
                         for(Row row: commitTable){
-                            if(!commitsDataPriorBuggyCommit.contains(row.getInt("Index"))){
-                                commitsDataPriorBuggyCommit.add(row.getInt("Index"));
-                            }
+                            commitsDataPriorBuggyCommit.add(row.getInt("Index"));
                         }
 
                         counter++;
@@ -340,16 +392,15 @@ public class CommitsLeadToBFC {
         for (var entry : commitFileMap.entrySet()) {
             String commitId= entry.getKey();
             int commitIdIndex = uniqueCommitId.indexOf(commitId);
-            List<String> fileList = entry.getValue();
-            //List<String> commitsPriorCommit= new ArrayList<>();
             Set<Integer> commitsDataPriorCommit= new LinkedHashSet<>();
-            for(String fileId: fileList){
+            for(String fileId: entry.getValue()){
                 int counter =0;
                 for(int i=commitIdIndex-1; i>=0; i--){
                     String currentCommitId= uniqueCommitId.get(i);
                     Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
                     Table commitTable = tableSortedByCommitTime.where(matchCommitId);
                     StringColumn fileIdColumn = commitTable.stringColumn("file_id");
+
                     if(fileIdColumn.contains(fileId)){
                         for(Row row: commitTable){
                             commitsDataPriorCommit.add(row.getInt("Index"));
@@ -366,17 +417,76 @@ public class CommitsLeadToBFC {
             commitsPriorCommitS3.put(commitId,commitsDataPriorCommit);
         }
 
+    }*/
 
-        /*for (var entry : commitsLeadToCommitS3.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
+    //strategy 3: past 5 commits that each BFC/commit files showed up
+    private void each_BFC_File_showed_up(){
+        commitsLeadToBFC = new ArrayList<>(500);
+        commitsLeadToCommit = new ArrayList<>(1000);
+        for (var entry : BFCFileMap.entrySet()) {
+            String buggyCommitId= entry.getKey();
+            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
+            Set<Integer> commitsDataPriorBuggyCommit= new LinkedHashSet<>();
+            for(String buggyFile: entry.getValue()){
+                int counter =0;
+                for(int i=buggyCommitIdIndex-1; i>=0; i--){
+                    String currentCommitId= uniqueCommitId.get(i);
+                    Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                    Table commitTable = tableSortedByCommitTime.where(matchCommitId);
+                    StringColumn fileIdColumn = commitTable.stringColumn("file_id");
+
+                    if(fileIdColumn.contains(buggyFile)){
+                        for(Row row: commitTable){
+                            commitsLeadToBFC.add(row.getInt("Index"));
+                            commitsDataPriorBuggyCommit.add(row.getInt("Index"));
+                        }
+                        counter++;
+                        if(counter == lookUpCommitSize){
+                            break;
+                        }
+                    }
+
+                }
+            }
+            commitsPriorBFCs3.put(buggyCommitId,commitsDataPriorBuggyCommit);
         }
-        System.exit(123);*/
+
+        for (var entry : commitFileMap.entrySet()) {
+            String commitId= entry.getKey();
+            int commitIdIndex = uniqueCommitId.indexOf(commitId);
+            Set<Integer> commitsDataPriorCommit= new LinkedHashSet<>();
+            for(String fileId: entry.getValue()){
+                int counter =0;
+                for(int i=commitIdIndex-1; i>=0; i--){
+                    String currentCommitId= uniqueCommitId.get(i);
+                    Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                    Table commitTable = tableSortedByCommitTime.where(matchCommitId);
+                    StringColumn fileIdColumn = commitTable.stringColumn("file_id");
+
+                    if(fileIdColumn.contains(fileId)){
+                        for(Row row: commitTable){
+                            commitsLeadToCommit.add(row.getInt("Index"));
+                            commitsDataPriorCommit.add(row.getInt("Index"));
+                        }
+                        counter++;
+                        if(counter == lookUpCommitSize){
+                            break;
+                        }
+                    }
+
+                }
+            }
+            commitsPriorCommitS3.put(commitId,commitsDataPriorCommit);
+        }
+
     }
 
 
 
     //strategy 4: past 5 commits in which all BFC files showed up together
-    private void all_BFC_File_showed_up(){
+    /*private void all_BFC_File_showed_up(){
+        commitsLeadToBFC = new ArrayList<>(500);
+        commitsLeadToCommit = new ArrayList<>(1000);
         for (var entry : BFCFileMap.entrySet()) {
             String buggyCommitId= entry.getKey();
             int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
@@ -398,18 +508,18 @@ public class CommitsLeadToBFC {
                     }
                 }
 
-                /*boolean containAll = true;
-                for(String buggyFile: buggyFileList){
-                    if(!fileIdColumn.contains(buggyFile)){
-                        containAll=false;
-                        break;
-                    }
-                }
-
-                if(containAll){
-                    commitsPriorBuggyCommit.add(currentCommitId);
-                    counter++;
-                }*/
+//                boolean containAll = true;
+//                for(String buggyFile: buggyFileList){
+//                    if(!fileIdColumn.contains(buggyFile)){
+//                        containAll=false;
+//                        break;
+//                    }
+//                }
+//
+//                if(containAll){
+//                    commitsPriorBuggyCommit.add(currentCommitId);
+//                    counter++;
+//                }
                 if(counter == lookUpCommitSize){
                     break;
                 }
@@ -431,9 +541,7 @@ public class CommitsLeadToBFC {
                 Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
                 Table commitTable = tableSortedByCommitTime.where(matchCommitId);
                 StringColumn fileIdColumn = commitTable.stringColumn("file_id");
-                if(fileIdColumn.size()<fileList.size()){
-                    continue;
-                }
+
                 if(fileIdColumn.asList().containsAll(fileList)){
                     for(Row row: commitTable){
                         commitsDataPriorCommit.add(row.getInt("Index"));
@@ -450,10 +558,70 @@ public class CommitsLeadToBFC {
             //System.out.println(entry.getKey() + " " + entry.getValue());
         }
 
-        /*for (var entry : commitsLeadToBFCe4.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
+    }*/
+
+    //strategy 4: past 5 commits in which all BFC/commit files showed up together
+    private void all_BFC_File_showed_up(){
+        commitsLeadToBFC = new ArrayList<>(500);
+        commitsLeadToCommit = new ArrayList<>(1000);
+        for (var entry : BFCFileMap.entrySet()) {
+            String buggyCommitId= entry.getKey();
+            int buggyCommitIdIndex = uniqueCommitId.indexOf(buggyCommitId);
+            List<String> buggyFileList = entry.getValue();
+            Set<Integer> commitsDataPriorBuggyCommit= new LinkedHashSet<>();
+            int counter =0;
+            for(int i=buggyCommitIdIndex-1; i>=0; i--){
+                String currentCommitId= uniqueCommitId.get(i);
+                Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                Table commitTable = tableSortedByCommitTime.where(matchCommitId);
+                StringColumn fileIdColumn = commitTable.stringColumn("file_id");
+                if(fileIdColumn.size()<buggyFileList.size()){
+                    continue;
+                }
+                if(fileIdColumn.asList().containsAll(buggyFileList)) {
+                    counter++;
+                    for(Row row: commitTable){
+                        commitsDataPriorBuggyCommit.add(row.getInt("Index"));
+                        commitsLeadToBFC.add(row.getInt("Index"));
+                    }
+                }
+
+                if(counter == lookUpCommitSize){
+                    break;
+                }
+            }
+
+            commitsPriorBFCs4.put(buggyCommitId, commitsDataPriorBuggyCommit);
+            //System.out.println(entry.getKey() + " " + entry.getValue());
         }
-        System.exit(123);*/
+
+
+        for (var entry : commitFileMap.entrySet()) {
+            String commitId= entry.getKey();
+            int commitIdIndex = uniqueCommitId.indexOf(commitId);
+            List<String> fileList = entry.getValue();
+            Set<Integer> commitsDataPriorCommit= new LinkedHashSet<>();
+            int counter =0;
+            for(int i=commitIdIndex-1; i>=0; i--){
+                String currentCommitId= uniqueCommitId.get(i);
+                Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
+                Table commitTable = tableSortedByCommitTime.where(matchCommitId);
+                StringColumn fileIdColumn = commitTable.stringColumn("file_id");
+
+                if(fileIdColumn.asList().containsAll(fileList)){
+                    for(Row row: commitTable){
+                        commitsLeadToCommit.add(row.getInt("Index"));
+                    }
+                    counter++;
+                }
+                if(counter == lookUpCommitSize){
+                    break;
+                }
+
+            }
+            commitsPriorCommitS4.put(commitId, commitsDataPriorCommit);
+        }
+
     }
 
     public static void main(String[] args) {

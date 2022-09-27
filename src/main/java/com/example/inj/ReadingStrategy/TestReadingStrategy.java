@@ -294,9 +294,9 @@ public class TestReadingStrategy implements TestIReadingStrategy{
                 trs.parseData(file);
                 CommitsLeadToBFC cltBFC =new CommitsLeadToBFC();
                 VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
-                vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
-                vcp.vectorCombinations(ProbabilityStrategyEnum.transition,3,FileNameEnum.values()[i].name());
-                vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
+                //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
+                vcp.vectorCombinations(ProbabilityStrategyEnum.transition_BFC,3,FileNameEnum.values()[i].name());
+
             }
 
 

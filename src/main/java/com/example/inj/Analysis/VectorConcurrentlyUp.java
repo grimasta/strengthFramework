@@ -25,6 +25,8 @@ public class VectorConcurrentlyUp {
     //private Map<String, Map<Integer, Set<Integer>>> vectorConcurrentlyLow;
     private Map<String, Map<Integer, Set<Integer>>> vectorConcurrently;
     private Map<Integer, Set<Integer>> extremeValueMetric;
+    private Map<Integer, Set<Integer>> extremeValueMetricBFC;
+
     private final int [][] vector;
     private Table combinationTable;
     private Map<String,Integer> mostConcurrentlyHigh;
@@ -69,16 +71,19 @@ public class VectorConcurrentlyUp {
             vectorIndex.add(i+1);
             vectorIndex.add(-(i+1));
         }
-        populatedExtremeValueMetricMap();
+
     }
 
 
     public void populatedExtremeValueMetricMap(){
         extremeValueMetric = new LinkedHashMap<>();
+        extremeValueMetricBFC = new LinkedHashMap<>();
         int[][] vector = dataRepository.getVectorCommitView();
         for(Integer i:vectorIndex){
             Set<Integer> rowIndex = new LinkedHashSet<>();
             extremeValueMetric.put(i,rowIndex);
+            rowIndex = new LinkedHashSet<>();
+            extremeValueMetricBFC.put(i,rowIndex);
         }
 
         for(int i = 0; i<vector.length; i++ ){
@@ -86,14 +91,25 @@ public class VectorConcurrentlyUp {
                 if(metricToBeRemoved.contains(j)){
                     continue;
                 }
+                boolean bfc = cltBFC.getCommitsLeadToBFC().contains(i);
+
                 if(vector[i][j] == 0){
                     extremeValueMetric.get(-(j+1)).add(i);
+                    if(bfc){
+                        extremeValueMetricBFC.get(-(j+1)).add(i);
+                    }
                 }else if(vector[i][j] == 3){
                     extremeValueMetric.get(j+1).add(i);
+                    if(bfc){
+                        extremeValueMetricBFC.get(-(j+1)).add(i);
+                    }
                 }
             }
         }
+
+
     }
+
 
 
     public void populated(Map<String, List<String>> commitsLeadToBFC){
@@ -361,7 +377,7 @@ public class VectorConcurrentlyUp {
 
 
     private void sanityCheck( Integer... vectorIndexes){
-
+        int voidnon = 7;
         int vectorLength = vectorIndexes.length;
         int[] quantile = new int[vectorLength];
         int[] realVectorIndexes = new int[vectorLength];
@@ -710,6 +726,7 @@ public class VectorConcurrentlyUp {
         //Map<String, Set<Integer>>
         switch (ps){
             case BFC:
+
                 for(int i=0; i< size; i++){
                     int n = i+1;
                     header.createCell(i).setCellValue("Position "+ n);
@@ -727,16 +744,30 @@ public class VectorConcurrentlyUp {
                 header.createCell(size+1).setCellValue("Pattern_Occurrence");
                 header.createCell(size+2).setCellValue("Probability");
                 break;
-            case transition_ALL:
-            case transition_BFC:
+
+
             case transition:
+            case transition_ALL:
+                populatedExtremeValueMetricMap();
                 for(int i= 0; i<size*4; i=i+4 ){
-                    header.createCell(i).setCellValue("Position_"+ i/4);
-                    header.createCell(i+1).setCellValue("Occurrence_"+ i/4);
-                    header.createCell(i+2).setCellValue("Probability_"+ i/4);
-                    header.createCell(i+3).setCellValue("Probability_Product"+ i/4);
+                    header.createCell(i).setCellValue("Position_"+ (i/4+1));
+                    header.createCell(i+1).setCellValue("Occurrence_"+ (i/4+1));
+                    header.createCell(i+2).setCellValue("Probability_"+ (i/4+1));
+                    header.createCell(i+3).setCellValue("Probability_Product"+ (i/4+1));
                 }
+                header.createCell(header.getLastCellNum()).setCellValue("Occurrence_in_PBFC");
+                header.createCell(header.getLastCellNum()).setCellValue("BFC_Probability");
                 break;
+            case transition_BFC:
+                populatedExtremeValueMetricMap();
+                for(int i= 0; i<size*4; i=i+4 ){
+                    header.createCell(i).setCellValue("Position_"+ (i/4+1));
+                    header.createCell(i+1).setCellValue("Occurrence_"+ (i/4+1));
+                    header.createCell(i+2).setCellValue("Probability_"+ (i/4+1));
+                    header.createCell(i+3).setCellValue("Probability_Product"+ (i/4+1));
+                }
+                header.createCell(header.getLastCellNum()).setCellValue("Pattern_Occurrence_in_PBFC");
+                header.createCell(header.getLastCellNum()).setCellValue("PBFC_Occurrence_Probability");
             default:
                 break;
         }
@@ -774,7 +805,7 @@ public class VectorConcurrentlyUp {
                     row.createCell(cellID++).setCellValue(result[1]);
                     row.createCell(cellID).setCellValue(result[0]/1.0/result[1]);
                     break;
-                case transition:
+                case transition_ALL:
                     Integer[] indexes = new Integer[set.size()];
                     set.toArray(indexes);
                     Set<Integer> current = extremeValueMetric.get(indexes[0]);
@@ -789,14 +820,14 @@ public class VectorConcurrentlyUp {
                     row.createCell(cellID++).setCellValue(overallProbability);
                     row.createCell(cellID++).setCellValue(overallProbability);
 
-
+                    Sets.SetView<Integer> intersection = null;
                     for(int i=1; i< indexes.length; i++){
-                        Sets.SetView<Integer> temp= Sets.intersection(current , extremeValueMetric.get(indexes[i]));
-                        if(temp.size() == 0){
+                        intersection= Sets.intersection(current , extremeValueMetric.get(indexes[i]));
+                        if(intersection.size() == 0){
                             break;
                         }
                         current= new HashSet<>();
-                        temp.copyInto(current);
+                        intersection.copyInto(current);
 
                         overallProbability = overallProbability * current.size()/currentSize;
 
@@ -811,6 +842,58 @@ public class VectorConcurrentlyUp {
 
                     if(row.getPhysicalNumberOfCells()/4 == size){
                         rowID++;
+                        int count = 0;
+                        for(Integer i : current){
+                            if(cltBFC.getCommitsLeadToBFC().contains(i)){
+                                count++;
+                            }
+                            //count += Collections.frequency(cltBFC.getCommitsLeadToBFC(), i);
+                        }
+                        row.createCell(cellID++).setCellValue(count);
+                        row.createCell(cellID).setCellValue(count/1.0/currentSize);
+                    }
+
+                    break;
+                case transition_BFC:
+                    indexes = new Integer[set.size()];
+                    set.toArray(indexes);
+                    current = extremeValueMetricBFC.get(indexes[0]);
+
+                    row = sheet.createRow(rowID);
+
+
+                    currentSize = current.size()/1.0;
+                    overallProbability = currentSize/tableSortedByCommitTime.rowCount();
+                    row.createCell(cellID++).setCellValue(indexes[0]);
+                    row.createCell(cellID++).setCellValue(current.size());
+                    row.createCell(cellID++).setCellValue(overallProbability);
+                    row.createCell(cellID++).setCellValue(overallProbability);
+
+                    intersection = null;
+                    for(int i=1; i< indexes.length; i++){
+                        intersection= Sets.intersection(current , extremeValueMetricBFC.get(indexes[i]));
+                        if(intersection.size() == 0){
+                            break;
+                        }
+                        current= new HashSet<>();
+                        intersection.copyInto(current);
+
+                        overallProbability = overallProbability * current.size()/currentSize;
+
+                        row.createCell(cellID++).setCellValue(indexes[i]);
+                        row.createCell(cellID++).setCellValue(current.size());
+                        row.createCell(cellID++).setCellValue(current.size()/currentSize);
+                        row.createCell(cellID++).setCellValue(overallProbability);
+
+                        currentSize= current.size();
+
+                    }
+
+                    if(row.getPhysicalNumberOfCells()/4 == size){
+                        rowID++;
+
+                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFCs3().size());
+                        row.createCell(cellID).setCellValue(currentSize/1.0/cltBFC.getCommitsPriorBFCs3().size());
                     }
                     break;
                 default:
@@ -820,6 +903,7 @@ public class VectorConcurrentlyUp {
         }
 
         FileOutputStream fileOut = null;
+
         try {
             fileOut= new FileOutputStream("results\\"+fileName+"_"+ps+".xlsx" );
             wb.write(fileOut);
