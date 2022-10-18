@@ -56,7 +56,7 @@ public class DataRepository {
     private Map<String, List<List<Object>>> vectorsForExcel;
     private Map<String, Map<String, Map<String, Integer>>>  coCommittedFiles;
 
-//	SourceCodeMetrics
+//	Metrics
 
 	private HashMap<String, HashMap<String, HashMap<String, Float>>> finalCallsValue;
 	private HashMap<String, HashMap<String, HashMap<String, Integer>>> mapCalls;

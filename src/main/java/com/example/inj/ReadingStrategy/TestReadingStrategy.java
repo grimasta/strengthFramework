@@ -13,7 +13,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tech.tablesaw.api.*;
+import tech.tablesaw.selection.Selection;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,8 +59,6 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             e.printStackTrace();
         }
 
-
-
         for(int i=0; i<tableSortedByFileId.structure().rowCount(); i++){
             String columnName = tableSortedByFileId.structure().stringColumn("Column Name").get(i);
             String columnType = tableSortedByFileId.structure().stringColumn("Column Type").get(i);
@@ -94,9 +94,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
                 DoubleColumn column =  DoubleColumn.create(columnName, values );
                 tableSortedByFileId.replaceColumn(columnName,column);
 
-            }
-
-            if(columnType.equals("INTEGER")){
+            }else if(columnType.equals("INTEGER")){
 
                 DoubleColumn column = tableSortedByFileId.intColumn(i).divide(1.0);
                 //String name = tableSortedByFileId.structure().getString(i, "Column Name");
@@ -105,6 +103,13 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             }
         }
 
+        StringColumn uniqueId = StringColumn.create("uniqueId");
+        StringColumn commitId= tableSortedByFileId.stringColumn("id");
+        for(String id: commitId ){
+            if(!uniqueId.contains(id)){
+                uniqueId.append(id);
+            }
+        }
         /*System.out.println(tableSortedByFileId.structure());
         System.exit(123);*/
         //System.out.println(tableSortedByFileId.columnNames());
@@ -112,15 +117,18 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         rowSize = tableSortedByFileId.column(0).size();
         vector = new int[rowSize][metricSize];
         dataRepository.setFusedVector(new int[rowSize]);
-        tableSortedByCommitTime = tableSortedByFileId.copy().sortOn("committed_at");
+        tableSortedByFileId.addColumns(IntColumn.indexColumn("Index", tableSortedByFileId.rowCount(), 0));
 
-        StringColumn uniqueId = StringColumn.create("uniqueId");
-        StringColumn commitId= tableSortedByCommitTime.stringColumn("id");
-        for(String id: commitId ){
-            if(!uniqueId.contains(id)){
-                uniqueId.append(id);
-            }
-        }
+        fileMetricCategorization();
+        tableSortedByCommitTime = tableSortedByFileId.copy().sortOn("committed_at");
+        tableSortedByCommitTime.removeColumns("Index");
+        tableSortedByCommitTime.addColumns(IntColumn.indexColumn("Index", tableSortedByCommitTime.rowCount(), 0));
+        commitMetricCategorization();
+        tableSortedByFileId = null;
+        tableSortedByFileId = tableSortedByCommitTime.copy().sortOn("file_id");
+
+
+
 
         dataRepository.setUniqueCommitId(uniqueId);
         int BFCCount=0;
@@ -137,8 +145,6 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
         /*System.out.println(tableSortedByCommitTime.structure());
         */
-        tableSortedByFileId.addColumns(IntColumn.indexColumn("Index", tableSortedByFileId.rowCount(), 0));
-        tableSortedByCommitTime.addColumns(IntColumn.indexColumn("Index", tableSortedByCommitTime.rowCount(), 0));
 
         dataRepository.setTableSortedByFileId(tableSortedByFileId);
         dataRepository.setTableSortedByCommitTime(tableSortedByCommitTime);
@@ -161,8 +167,61 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         dataRepository.setMetricColumnArrayFileView(metricColumnArrayFileView);
         dataRepository.setMetricColumnArrayCommitView(metricColumnArrayCommitView);
 
-        vectorization();
+        //vectorization();
+
     }
+    private void commitMetricCategorization(){
+        for(MetricEnum colName: MetricEnum.values()){
+            if(EnumUtils.isValidEnum(FileNameEnum.class, colName.name())){
+                continue;
+            }
+            DoubleColumn dc = tableSortedByCommitTime.doubleColumn(colName.name());
+            dc.setMissingTo(0.0);
+            Double[] quantileArray = quantileCalculation(dc);
+            for(int i=0; i<dc.size();i++){
+                for(int j=0; j<quantileArray.length; j++){
+                    if(dc.get(i) <= quantileArray[j]){
+                        dc.set(i, j);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    private void fileMetricCategorization(){
+
+        for(String id: dataRepository.getUniqueCommitId()){
+            Selection matchCommitId = tableSortedByFileId.stringColumn("id").isEqualTo(id);
+            Table commitTable = tableSortedByFileId.where(matchCommitId);
+
+            for(FileNameEnum colName: FileNameEnum.values() ) {
+                //commitTable.sortOn(colName.name());
+                int rowCount= commitTable.rowCount();
+                if(rowCount<4) {
+                    for(int i=0; i<commitTable.rowCount();i++){
+                        tableSortedByFileId.doubleColumn(colName.name()).set(
+                                commitTable.row(0).getInt("Index"),3.0);
+                    }
+                    continue;
+                }
+                DoubleColumn dc = commitTable.doubleColumn(colName.name()).copy();
+                Double[] quantileArray = quantileCalculation(dc);
+                for(int i=0; i<commitTable.rowCount();i++){
+                    for(int j=0; j<quantileArray.length; j++){
+                        int index = commitTable.row(i).getInt("Index");
+                        if(commitTable.doubleColumn(colName.name()).get(i) <= quantileArray[j]){
+                            tableSortedByFileId.doubleColumn(colName.name()).set(index,j);
+                            break;
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+    }
+
     private void vectorization(){
 
         //print correlation to a file
@@ -255,7 +314,19 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     }
 
+    public Double[] quantileCalculation (DoubleColumn metrics){
 
+        DoubleColumn temp = metrics.copy();
+        temp.sortAscending();
+        int quantileSize= quantile.length;
+        Double[] result = new Double[quantileSize];
+        //System.out.print("index "+i+": ");
+        for(int i=0; i< quantileSize; i++){
+            result[i]= temp.get((int)((temp.size()-1) * quantile[i]));
+            //System.out.print(result[j][i]+ ", ");
+        }
+        return result;
+    }
 
     public Double[][] quantileCalculation (DoubleColumn[] metrics){
         /*DoubleColumn[] local = new DoubleColumn[metrics.length]; //= Arrays.copyOf(metrics, metrics.length);
@@ -294,8 +365,9 @@ public class TestReadingStrategy implements TestIReadingStrategy{
                 trs.parseData(file);
                 CommitsLeadToBFC cltBFC =new CommitsLeadToBFC();
                 VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
-                //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
-                vcp.vectorCombinations(ProbabilityStrategyEnum.transition_BFC,3,FileNameEnum.values()[i].name());
+                vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
+                vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
+                vcp.vectorCombinations(ProbabilityStrategyEnum.transition_ALL,3,FileNameEnum.values()[i].name());
 
             }
 

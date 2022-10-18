@@ -641,33 +641,44 @@ public class VectorConcurrentlyUp {
         }
 
         int extremeOccurrenceCount = 0;
+        int notExtremeOccurrenceCount = 0;
         int BFCSize = cltBFC.getCommitsPriorBFCs3().size();
 
 
         for(var entry: cltBFC.getCommitsPriorBFCs3().entrySet()){
             int pBFCSize = entry.getValue().size();
             int[] rowCounter = new int[combinationSize];
+            int[] rowOppositeCounter = new int[combinationSize];
             for(Integer integer: entry.getValue()){
                 for(int i=0 ; i<combinationSize; i++){
                     if(vector[integer][realVectorIndexes[i]] == quantile[i]){
                         rowCounter[i]++;
+                    }else{
+                        rowOppositeCounter[i]++;
                     }
                 }
 
             }
             boolean all = true;
+            boolean oppositeAll = true;
             for(int i=0 ; i<combinationSize; i++){
                 if(rowCounter[i]/1.0/pBFCSize < majorityThreshold){
                     all = false;
-                    break;
-
+                }
+                if(rowOppositeCounter[i]/1.0/pBFCSize< majorityThreshold){
+                    oppositeAll= false;
                 }
             }
             if(all){
                 extremeOccurrenceCount++;
             }
+            if(oppositeAll){
+                notExtremeOccurrenceCount++;
+            }
+
+
         }
-        return new int[]{extremeOccurrenceCount, BFCSize};
+        return new int[]{extremeOccurrenceCount, notExtremeOccurrenceCount, BFCSize};
 
     }
 
@@ -683,7 +694,7 @@ public class VectorConcurrentlyUp {
 
         int extremeOccurrenceCount = 0;
         int extremeOccurrenceAndBFCCount=0;
-
+        int extremeOccurrenceAndNotBFCCount=0;
         for(var entry: cltBFC.getCommitsPriorCommitS3().entrySet()){
             int pCommitSize = entry.getValue().size();
             int[] rowCounter = new int[combinationSize];
@@ -707,13 +718,15 @@ public class VectorConcurrentlyUp {
 
                 if(cltBFC.getBFCFileMap().containsKey(entry.getKey())){
                     extremeOccurrenceAndBFCCount++;
+                }else{
+                    extremeOccurrenceAndNotBFCCount++;
                 }
                 extremeOccurrenceCount++;
             }
 
         }
 
-        return new int[]{extremeOccurrenceAndBFCCount, extremeOccurrenceCount};
+        return new int[]{extremeOccurrenceAndBFCCount,extremeOccurrenceAndNotBFCCount, extremeOccurrenceCount};
     }
 
     public void vectorCombinations(ProbabilityStrategyEnum ps, int size, String fileName){
@@ -731,18 +744,20 @@ public class VectorConcurrentlyUp {
                     int n = i+1;
                     header.createCell(i).setCellValue("Position "+ n);
                 }
-                header.createCell(size).setCellValue("Pattern_Occurrence");
-                header.createCell(size+1).setCellValue("BFC_Occurrence");
-                header.createCell(size+2).setCellValue("Probability");
+                header.createCell(header.getLastCellNum()).setCellValue("Pattern_Occurrence_Given_BFC");
+                header.createCell(header.getLastCellNum()).setCellValue("not_Pattern_Occurrence_Given_BFC");
+                header.createCell(header.getLastCellNum()).setCellValue("BFC_Occurrence");
+                header.createCell(header.getLastCellNum()).setCellValue("Probability_Pattern_Occurrence_Given_BFC");
                 break;
             case ALL:
                 for(int i=0; i< size; i++){
                     int n = i+1;
                     header.createCell(i).setCellValue("Position_"+ n);
                 }
-                header.createCell(size).setCellValue("BFC_when_Pattern_Occurred");
-                header.createCell(size+1).setCellValue("Pattern_Occurrence");
-                header.createCell(size+2).setCellValue("Probability");
+                header.createCell(header.getLastCellNum()).setCellValue("BFC_Given_Pattern_Occurred");
+                header.createCell(header.getLastCellNum()).setCellValue("not_BFC_Given_Pattern_Occurred");
+                header.createCell(header.getLastCellNum()).setCellValue("Total_Pattern_Occurrence");
+                header.createCell(header.getLastCellNum()).setCellValue("Probability_BFC_Given_Pattern_Occurred");
                 break;
 
 
@@ -755,8 +770,9 @@ public class VectorConcurrentlyUp {
                     header.createCell(i+2).setCellValue("Probability_"+ (i/4+1));
                     header.createCell(i+3).setCellValue("Probability_Product"+ (i/4+1));
                 }
-                header.createCell(header.getLastCellNum()).setCellValue("Occurrence_in_PBFC");
-                header.createCell(header.getLastCellNum()).setCellValue("BFC_Probability");
+                header.createCell(header.getLastCellNum()).setCellValue("BFC_Given_Pattern_Occurred");
+                header.createCell(header.getLastCellNum()).setCellValue("not_BFC_Given_Pattern_Occurred");
+                header.createCell(header.getLastCellNum()).setCellValue("Probability_BFC_Given_Pattern_Occurred");
                 break;
             case transition_BFC:
                 populatedExtremeValueMetricMap();
@@ -766,8 +782,9 @@ public class VectorConcurrentlyUp {
                     header.createCell(i+2).setCellValue("Probability_"+ (i/4+1));
                     header.createCell(i+3).setCellValue("Probability_Product"+ (i/4+1));
                 }
-                header.createCell(header.getLastCellNum()).setCellValue("Pattern_Occurrence_in_PBFC");
-                header.createCell(header.getLastCellNum()).setCellValue("PBFC_Occurrence_Probability");
+                header.createCell(header.getLastCellNum()).setCellValue("Pattern_Occurrence_Given_BFC");
+                header.createCell(header.getLastCellNum()).setCellValue("not_Pattern_Occurrence_Given_BFC");
+                header.createCell(header.getLastCellNum()).setCellValue("Probability_Pattern_Occurrence_Given_BFC");
             default:
                 break;
         }
@@ -791,7 +808,8 @@ public class VectorConcurrentlyUp {
                     }
                     row.createCell(cellID++).setCellValue(result[0]);
                     row.createCell(cellID++).setCellValue(result[1]);
-                    row.createCell(cellID).setCellValue(result[0]/1.0/result[1]);
+                    row.createCell(cellID++).setCellValue(result[2]);
+                    row.createCell(cellID).setCellValue(result[0]/1.0/result[2]);
                     break;
                 case ALL:
                     result= given_pattern_found_BFC(ps,set.toArray(new Integer[0]));
@@ -803,7 +821,8 @@ public class VectorConcurrentlyUp {
                     }
                     row.createCell(cellID++).setCellValue(result[0]);
                     row.createCell(cellID++).setCellValue(result[1]);
-                    row.createCell(cellID).setCellValue(result[0]/1.0/result[1]);
+                    row.createCell(cellID++).setCellValue(result[2]);
+                    row.createCell(cellID).setCellValue(result[0]/1.0/result[2]);
                     break;
                 case transition_ALL:
                     Integer[] indexes = new Integer[set.size()];
@@ -850,6 +869,7 @@ public class VectorConcurrentlyUp {
                             //count += Collections.frequency(cltBFC.getCommitsLeadToBFC(), i);
                         }
                         row.createCell(cellID++).setCellValue(count);
+                        row.createCell(cellID++).setCellValue(currentSize-count);
                         row.createCell(cellID).setCellValue(count/1.0/currentSize);
                     }
 
@@ -892,6 +912,7 @@ public class VectorConcurrentlyUp {
                     if(row.getPhysicalNumberOfCells()/4 == size){
                         rowID++;
 
+                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFCs3().size());
                         row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFCs3().size());
                         row.createCell(cellID).setCellValue(currentSize/1.0/cltBFC.getCommitsPriorBFCs3().size());
                     }
