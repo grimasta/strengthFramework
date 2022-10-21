@@ -1,6 +1,5 @@
 package com.example.inj.Analysis;
 
-import com.example.inj.ReadingStrategy.TestReadingStrategy;
 import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.model.storage.DataRepository;
 
@@ -91,7 +90,7 @@ public class VectorConcurrentlyUp {
                 if(metricToBeRemoved.contains(j)){
                     continue;
                 }
-                boolean bfc = cltBFC.getCommitsLeadToBFC().contains(i);
+                boolean bfc = cltBFC.getCommitsLeadToBFC_indexRepresentation().contains(i);
 
                 if(vector[i][j] == 0){
                     extremeValueMetric.get(-(j+1)).add(i);
@@ -109,8 +108,6 @@ public class VectorConcurrentlyUp {
 
 
     }
-
-
 
     public void populated(Map<String, List<String>> commitsLeadToBFC){
 
@@ -175,40 +172,6 @@ public class VectorConcurrentlyUp {
         }
     }
 
-    public void vectorSimultaneously() throws IOException {
-        /*System.out.println(vectorIndex.size());
-        System.exit(123);*/
-        for(var entry: vectorConcurrently.entrySet()){
-            /*if(counter < 20){
-                counter++;
-                continue;
-            }*/
-
-            vectorCombinations(entry.getValue(), 4);
-            //mostConcurrentlyHigh.get(entry.getKey())
-            System.out.println("Buggy Commit Id: "+ entry.getKey());
-            System.out.println("Maximum combination size(high): " + 4);
-            //mostConcurrentlyLow.get(entry.getKey())
-            break;
-        }
-
-
-        double firstIndex = -2.0;
-        double secondIndex = 3.0;
-        double thirdIndex=0;
-        double fourthIndex =0;
-        Selection firstMatchMetric = combinationTable.doubleColumn("Metric_0").isEqualTo(firstIndex) ;
-        Selection secondMatchMetric = combinationTable.doubleColumn("Metric_1").isEqualTo(secondIndex);
-        Selection thirdMatchMetric = combinationTable.doubleColumn("Metric_2").isEqualTo(thirdIndex);
-        Selection fourthMatchMetric = combinationTable.doubleColumn("Metric_3").isEqualTo(fourthIndex);
-
-        Table result = combinationTable.where(firstMatchMetric.
-                        and(secondMatchMetric)
-                 );
-
-        System.out.println(result);
-    }
-
     private void vectorCombinations(Map<Integer, Set<Integer>> perBuggyCommitVector,int size) throws IOException {
 
         for(int i= 0; i<size*4; i=i+4 ){
@@ -267,7 +230,6 @@ public class VectorConcurrentlyUp {
         //System.out.println(resultTable.first(4));
         //System.out.println(resultTable.structure());
     }
-
 
     private void probabilityTransition( Map<Integer, Set<Integer>> perBuggyCommitVector, int size) throws IOException {
         Workbook workbook = new SXSSFWorkbook(1000);;
@@ -389,11 +351,11 @@ public class VectorConcurrentlyUp {
 
         int overallBFCCounter = 0;
         int nonOverallBFCCounter = 0;
-        int BFCSize = cltBFC.getCommitsLeadToBFCs3().size();
+        int BFCSize = cltBFC.getCommitsPriorBFC().size();
         int [][] vector = dataRepository.getVectorCommitView();
         double majorityThreshold = 0.5;
 
-        for(var entry: cltBFC.getCommitsLeadToBFCs3().entrySet()){
+        for(var entry: cltBFC.getCommitFileMap().entrySet()){
             int pBFCSize = entry.getValue().size();
             int BFCCounter= 0;
             int nonBFCCounter = 0;
@@ -558,10 +520,10 @@ public class VectorConcurrentlyUp {
         }
 
         int overallBFCCounter = 0;
-        int BFCSize = cltBFC.getCommitsLeadToBFCs3().size();
+        int BFCSize = cltBFC.getCommitsPriorBFC().size();
         //int commitSize = cltBFC.getCommitsLeadToCommitS3().size()
         double majorityThreshold = 0.4;
-        for(var entry: cltBFC.getCommitsLeadToBFCs3().entrySet()){
+        for(var entry: cltBFC.getBFCFileMap().entrySet()){
             int pBFCSize = entry.getValue().size();
             //int[] BFCCounter = new int[vectorLength];
             int BFCCounter= 0;
@@ -642,10 +604,11 @@ public class VectorConcurrentlyUp {
 
         int extremeOccurrenceCount = 0;
         int notExtremeOccurrenceCount = 0;
-        int BFCSize = cltBFC.getCommitsPriorBFCs3().size();
+        int BFCSize = cltBFC.getCommitsPriorBFC().size();
 
 
-        for(var entry: cltBFC.getCommitsPriorBFCs3().entrySet()){
+        for(var entry: cltBFC.getCommitsPriorBFC().entrySet()){
+
             int pBFCSize = entry.getValue().size();
             int[] rowCounter = new int[combinationSize];
             int[] rowOppositeCounter = new int[combinationSize];
@@ -695,7 +658,7 @@ public class VectorConcurrentlyUp {
         int extremeOccurrenceCount = 0;
         int extremeOccurrenceAndBFCCount=0;
         int extremeOccurrenceAndNotBFCCount=0;
-        for(var entry: cltBFC.getCommitsPriorCommitS3().entrySet()){
+        for(var entry: cltBFC.getCommitsPriorCommit().entrySet()){
             int pCommitSize = entry.getValue().size();
             int[] rowCounter = new int[combinationSize];
 
@@ -863,7 +826,7 @@ public class VectorConcurrentlyUp {
                         rowID++;
                         int count = 0;
                         for(Integer i : current){
-                            if(cltBFC.getCommitsLeadToBFC().contains(i)){
+                            if(cltBFC.getCommitsLeadToBFC_indexRepresentation().contains(i)){
                                 count++;
                             }
                             //count += Collections.frequency(cltBFC.getCommitsLeadToBFC(), i);
@@ -912,9 +875,9 @@ public class VectorConcurrentlyUp {
                     if(row.getPhysicalNumberOfCells()/4 == size){
                         rowID++;
 
-                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFCs3().size());
-                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFCs3().size());
-                        row.createCell(cellID).setCellValue(currentSize/1.0/cltBFC.getCommitsPriorBFCs3().size());
+                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFC().size());
+                        row.createCell(cellID++).setCellValue(cltBFC.getCommitsPriorBFC().size());
+                        row.createCell(cellID).setCellValue(currentSize/1.0/cltBFC.getCommitsPriorBFC().size());
                     }
                     break;
                 default:
@@ -958,30 +921,8 @@ public class VectorConcurrentlyUp {
 
         }
     }
+
     public static void main(String[] args) {
 
-        TestReadingStrategy ts =new TestReadingStrategy();
-        try {
-
-            //ts.parseData();
-
-        } catch (Exception e) {
-            System.out.println("error!");
-            e.printStackTrace();
-        }
-
-        CommitsLeadToBFC cltBFC =new CommitsLeadToBFC();
-        VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
-
-/*        System.out.println("********************Sanity Check Begin************************");
-        vcp.vectorCombinations(ProbabilityStrategyEnum.sanityCheck ,1);
-        System.out.println("********************Sanity Check Done************************");
-
-        System.out.println("********************BFC  Begin************************");
-        vcp.vectorCombinations(ProbabilityStrategyEnum.BFC ,1);
-        System.out.println("********************BFC  Done************************");*/
-
-        System.out.println("********************All Commits  Begin************************");
-        //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3);
     }
 }

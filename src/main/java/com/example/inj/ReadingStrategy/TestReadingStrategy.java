@@ -2,26 +2,14 @@ package com.example.inj.ReadingStrategy;
 
 //import com.google.common.collect.Table;
 import com.example.inj.Analysis.*;
-import com.example.inj.global.ProjectNameContainer;
 import com.example.inj.model.storage.DataRepository;
 import lombok.*;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tech.tablesaw.api.*;
 import tech.tablesaw.selection.Selection;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
 
 @Getter
 @Setter
@@ -128,8 +116,6 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         tableSortedByFileId = tableSortedByCommitTime.copy().sortOn("file_id");
 
 
-
-
         dataRepository.setUniqueCommitId(uniqueId);
         int BFCCount=0;
         for(String id: uniqueId){
@@ -157,13 +143,15 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             metricColumnArrayCommitView[i] = tableSortedByCommitTime.doubleColumn(metricName[i].name()).copy();
         }
 
-        for (DoubleColumn dc : metricColumnArrayFileView) {
-            dc.setMissingTo(0.0);
+        for(int i=0; i<MetricEnum.values().length; i++){
+            DoubleColumn dc = tableSortedByCommitTime.doubleColumn(MetricEnum.values()[i].name());
+            for(int j=0; j <rowSize; j++){
+                vector[j][i] = dc.get(j).intValue();
+            }
         }
 
-        for (DoubleColumn dc : metricColumnArrayCommitView) {
-            dc.setMissingTo(0.0);
-        }
+        dataRepository.setVectorCommitView(vector);
+
         dataRepository.setMetricColumnArrayFileView(metricColumnArrayFileView);
         dataRepository.setMetricColumnArrayCommitView(metricColumnArrayCommitView);
 
@@ -205,6 +193,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
                     continue;
                 }
                 DoubleColumn dc = commitTable.doubleColumn(colName.name()).copy();
+                dc.setMissingTo(0.0);
                 Double[] quantileArray = quantileCalculation(dc);
                 for(int i=0; i<commitTable.rowCount();i++){
                     for(int j=0; j<quantileArray.length; j++){
@@ -222,7 +211,8 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     }
 
-    private void vectorization(){
+
+    private void vectorization(int one){
 
         //print correlation to a file
         /*Workbook wb = new XSSFWorkbook();
@@ -268,7 +258,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             e.printStackTrace();
         }
         System.exit(1123);*/
-        Double[][] quantileArray = quantileCalculation(metricColumnArrayFileView);
+
 
         //print the quantile
         /*for(Double[] da:quantileArray){
@@ -280,7 +270,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             System.out.println();
         }
         System.exit(1);*/
-
+        Double[][] quantileArray = quantileCalculation(metricColumnArrayFileView);
         for(int i = 0; i< metricColumnArrayFileView.length; i++){
             for(int j = 0; j< metricColumnArrayFileView[i].size(); j++){
                 Double metric = metricColumnArrayFileView[i].get(j);
@@ -323,16 +313,13 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         //System.out.print("index "+i+": ");
         for(int i=0; i< quantileSize; i++){
             result[i]= temp.get((int)((temp.size()-1) * quantile[i]));
-            //System.out.print(result[j][i]+ ", ");
+
         }
         return result;
     }
 
     public Double[][] quantileCalculation (DoubleColumn[] metrics){
-        /*DoubleColumn[] local = new DoubleColumn[metrics.length]; //= Arrays.copyOf(metrics, metrics.length);
-        for(int i=0; i<metrics.length;i++ ){
-            local[i]=  metrics[i].copy();
-        }*/
+
         int quantileSize= quantile.length;
         Double[][] result = new Double[quantileSize][metrics.length];   //each row is the quantile
         for(int i=0; i<metrics.length; i++){
@@ -343,10 +330,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
                 result[j][i]= temp.get((int)((temp.size()-1) * quantile[j]));
                 //System.out.print(result[j][i]+ ", ");
             }
-            /*result[0][i]= temp.get((int)(temp.size()*0.25+1));
-            result[1][i]= temp.get((int)(temp.size()*0.5+1));
-            result[2][i]= temp.get((int)(temp.size()*0.75+1));*/
-            //System.out.println();
+
         }
 
         return result;
@@ -355,7 +339,6 @@ public class TestReadingStrategy implements TestIReadingStrategy{
     public static void main(String[] args) {
 
         TestReadingStrategy trs = new TestReadingStrategy();
-        //"C:\\Users\\Rongji He\\Desktop\\data\\elisaFinalVersion2.csv"
         String directory = "C:\\Users\\Rongji He\\Desktop\\data\\";
 
         try {
@@ -363,7 +346,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             for(int i=0; i < FileNameEnum.values().length; i++){
                 String file = directory+FileNameEnum.values()[i].name()+"FinalVersion.csv";
                 trs.parseData(file);
-                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC();
+                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC(PBFC_StrategyEnum.past_N_commits);
                 VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
                 vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
                 vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
@@ -376,31 +359,8 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             System.out.println("error!");
             e.printStackTrace();
         }
-        //System.out.println(ts.getTableSortedByFileId().structure());
-        //trs.vectorization();
-        //Table dataTable = DataRepository.getInstance().getTableSortedByFileId();
-        //Plot.show(Histogram.create("Distribution of commit_additions", table, "commit_additions"));
-        //int[][] vec = DataRepository.getInstance().getVectorFileView();
-        //StringColumn fileId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("file_id");
-        //BooleanColumn isBugFixing= DataRepository.getInstance().getTableSortedByFileId().booleanColumn("is_bug_fixing");
-        //StringColumn commitId =DataRepository.getInstance().getTableSortedByFileId().stringColumn("id");
-
-        //buggyVectorSumUp( DataRepository.getInstance());
-        //System.out.println(vec.length);
-        /*for(int i =0; i<vec.length; i++){
-            System.out.print(commitId.get(i)+", \t");
-            System.out.print(fileId.get(i)+ ": ");
-            System.out.print(isBugFixing.get(i)+", \t");
-            for(int j=0 ; j< vec[i].length; j++){
-                System.out.print(vec[i][j]);
-                System.out.print(" ");
-            }
-            System.out.println();
-        }*/
 
 
-
-        //System.out.println(vec.length);
 
 
     }
