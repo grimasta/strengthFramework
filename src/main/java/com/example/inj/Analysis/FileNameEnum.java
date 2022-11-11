@@ -2,30 +2,33 @@ package com.example.inj.Analysis;
 
 public enum FileNameEnum {
     akregator,
-    //amarok,
     ark,
     clazy,
     elisa,
     gwenview,
     juk,
-    //k3b,
-    //kdelibs,
-    //kdevplatform,
     kget,
-    //kmail,
     kmix,
     kolourpaint,
     kompare,
     kontact,
     konversation,
-    //kopete,
-    //korganizer,
-    //kstars,
     ktimetracker,
     ktorrent,
     lokalize,
     marble,
     plasmanm,
     solid,
-    umbrello
+    umbrello,
+    k3b,
+    kmail,
+    kopete,
+    korganizer,
+    kstars,
+    kdevplatform,
+
+
+    //kdelibs,
+    //amarok,
+
 }

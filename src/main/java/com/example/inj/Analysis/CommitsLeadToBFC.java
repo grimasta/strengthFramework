@@ -537,9 +537,9 @@ public class CommitsLeadToBFC {
                 Selection matchCommitId = tableSortedByCommitTime.stringColumn("id").isEqualTo(currentCommitId);
                 Table commitTable = tableSortedByCommitTime.where(matchCommitId);
                 StringColumn fileIdColumn = commitTable.stringColumn("file_id");
-                if(fileIdColumn.size()<buggyFileList.size()){
+                /*if(fileIdColumn.size()<buggyFileList.size()){
                     continue;
-                }
+                }*/
                 if(fileIdColumn.asList().containsAll(buggyFileList)) {
                     counter++;
                     for(Row row: commitTable){
@@ -587,6 +587,7 @@ public class CommitsLeadToBFC {
     }
 
     public static void main(String[] args) {
+
         TestReadingStrategy trs = new TestReadingStrategy();
         try {
 

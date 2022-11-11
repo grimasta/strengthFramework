@@ -91,6 +91,14 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             }
         }
 
+        /*if(fileName.contains(FileNameEnum.amarok.name())   //|| fileName.contains(FileNameEnum.kdelibs.name())
+                ){
+            StringColumn stringColumn = tableSortedByFileId.textColumn("id").asStringColumn();
+            stringColumn.setName("id");
+            tableSortedByFileId.replaceColumn("id", stringColumn);
+        }*/
+
+
         StringColumn uniqueId = StringColumn.create("uniqueId");
         StringColumn commitId= tableSortedByFileId.stringColumn("id");
         for(String id: commitId ){
@@ -346,9 +354,9 @@ public class TestReadingStrategy implements TestIReadingStrategy{
             for(int i=0; i < FileNameEnum.values().length; i++){
                 String file = directory+FileNameEnum.values()[i].name()+"FinalVersion.csv";
                 trs.parseData(file);
-                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC(PBFC_StrategyEnum.past_N_commits);
+                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC(PBFC_StrategyEnum.all_BFC_File_showed_up);
                 VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
-                vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
+                //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
                 vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
                 vcp.vectorCombinations(ProbabilityStrategyEnum.transition_ALL,3,FileNameEnum.values()[i].name());
 

@@ -641,7 +641,7 @@ public class VectorConcurrentlyUp {
 
 
         }
-        return new int[]{extremeOccurrenceCount, notExtremeOccurrenceCount, BFCSize};
+        return new int[]{extremeOccurrenceCount, BFCSize - extremeOccurrenceCount , BFCSize};
 
     }
 
