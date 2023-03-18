@@ -1,6 +1,7 @@
 package com.example.inj.Analysis;
 
 public enum FileNameEnum {
+
     akregator,
     ark,
     clazy,
@@ -26,7 +27,6 @@ public enum FileNameEnum {
     korganizer,
     kstars,
     kdevplatform,
-
 
     //kdelibs,
     //amarok,

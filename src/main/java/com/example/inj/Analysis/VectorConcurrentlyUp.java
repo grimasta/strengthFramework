@@ -10,7 +10,9 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
 import tech.tablesaw.selection.Selection;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -63,17 +65,64 @@ public class VectorConcurrentlyUp {
             }
         }
 
-        for(int i=0; i<size; i++){
+
+        System.out.println(new HashSet(metricToBeRemoved));
+        return;
+        /*for(int i=0; i<size; i++){
             if(metricToBeRemoved.contains(i)){
                 continue;
             }
             vectorIndex.add(i+1);
             vectorIndex.add(-(i+1));
         }
-
+        populatedExtremeValueMetricMap();*/
     }
 
 
+    public void coverage(String file,String projName, int maxSize){
+        Table table = Table.read().csv(file);
+
+        Table result = Table.create();
+        int largest = 0;
+        for(Row row: table){
+            if(row.isMissing(projName)){
+                continue;
+            }
+
+            Sets.SetView<Integer> temp = Sets.intersection(extremeValueMetric.get(row.getInt("Position_1")),
+                    extremeValueMetric.get(row.getInt("Position_2")));
+            Set<Integer> two = new LinkedHashSet<>();
+            temp.copyInto(two);
+            temp = Sets.intersection(two,extremeValueMetric.get(row.getInt("Position_3")));
+            Set<Integer> index = new LinkedHashSet<>();
+            temp.copyInto(index);
+            String columnName = Integer.toString(row.getInt("Position_1"))+ ','+
+                    row.getInt("Position_2")+','+
+                    row.getInt("Position_3");
+
+            Set<Integer> predictedCommitIndex = new LinkedHashSet<>();
+            for(Integer i : index){
+                int position = 1;
+                for(Map.Entry<Set<String>, Set<Integer>> entry : cltBFC.getCommitsPriorBFC().entrySet()){
+                    if(entry.getValue().contains(i)){
+                        predictedCommitIndex.add(position);
+                    }
+                    position++;
+                }
+            }
+
+
+            DoubleColumn dc = DoubleColumn.create(columnName,predictedCommitIndex);
+            for(int i =  cltBFC.getBFCPFileMap().size() - dc.size(); i>=1 ; i--){
+                dc.append(-2);
+            }
+
+
+            result.addColumns(dc);
+        }
+        result.write().csv(projName+".csv");
+        //System.out.println(largest);
+    }
     public void populatedExtremeValueMetricMap(){
         extremeValueMetric = new LinkedHashMap<>();
         extremeValueMetricBFC = new LinkedHashMap<>();
@@ -508,88 +557,31 @@ public class VectorConcurrentlyUp {
 
     }
 
-    // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
-    private int[] conditionalProbabilityBFC2( Integer... vectorIndexes){
-
-        int vectorLength = vectorIndexes.length;
-        int[] quantile = new int[vectorLength];
-        int[] realVectorIndexes = new int[vectorLength];
-        for(int i = 0; i<vectorLength; i++){
-            quantile[i] = (vectorIndexes[i] > 0) ? 3: 0;
-            realVectorIndexes[i] = (vectorIndexes[i] > 0) ? vectorIndexes[i]-1 : -vectorIndexes[i]-1;
-        }
-
-        int overallBFCCounter = 0;
-        int BFCSize = cltBFC.getCommitsPriorBFC().size();
-        //int commitSize = cltBFC.getCommitsLeadToCommitS3().size()
-        double majorityThreshold = 0.4;
-        for(var entry: cltBFC.getBFCFileMap().entrySet()){
-            int pBFCSize = entry.getValue().size();
-            //int[] BFCCounter = new int[vectorLength];
-            int BFCCounter= 0;
-
-            for(String pBFC: entry.getValue()){
-                Selection matchCommitId = dataRepository.getTableSortedByCommitTime().stringColumn("id").isEqualTo(pBFC);
-                Table pBFCTable= dataRepository.getTableSortedByCommitTime().where(matchCommitId);
-                //int rowCounter=0;
-                int rowSize=pBFCTable.rowCount();
-
-                int[] rowCounter = new int[vectorLength];
-
-                for(Row row: pBFCTable){
-
-                    int rowIndex = row.getInt("Index");
-                    for(int i=0 ; i<vectorLength; i++){
-                        if(vector[rowIndex][realVectorIndexes[i]] == quantile[i]){
-                            rowCounter[i]++;
-                        }
-                    }
-
-                }
-
-                boolean all = true;
-                for(int i=0 ; i<vectorLength; i++){
-                    if(rowCounter[i]/1.0/rowSize < majorityThreshold){
-                        all = false;
-                        break;
-
-                    }
-                }
-
-                if(all){
-                    BFCCounter++;
-                }
-            }
-//            if(BFCCounter + otherBFCCounter + oppositeBFCCounter + nonBFCCounter!= pBFCSize){
-//                System.out.println("BFCCounter:         " + BFCCounter);
-//                System.out.println("nonIndexBFCCounter: " + otherBFCCounter);
-//                System.out.println("oppositeBFCCounter: " + oppositeBFCCounter);
-//                System.out.println("nonBFCCounter     : " + nonBFCCounter);
-//                System.out.println("pBFCSize:           " + pBFCSize);
-//                System.exit(1234556);
-//            }
-            if(BFCCounter/1.0/pBFCSize >= majorityThreshold){
-                overallBFCCounter++;
-            }
-
-        }
-
-        //print
-        /*if(overallBFCCounter>0) {
-            System.out.print("P( ");
-            for(int i=0 ; i<vectorLength; i++){
-                System.out.print(vectorIndexes[i]);
-                if(i!= vectorLength-1)
-                    System.out.print(", ");
-            }
-            System.out.print(" | BFC ) = ");
-            System.out.print(overallBFCCounter + " / " + BFCSize + " = " + overallBFCCounter/1.0/BFCSize);
-            System.out.println();
-
+    private void vectorCombinationsSanityCheck(int size){
+        int count = 0;
+        /*try {
+            FileWriter fw = new FileWriter(new File("./result.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }*/
+        for(Set<Integer> set: Sets.combinations(vectorIndex, size)){
 
-        return new int[]{overallBFCCounter, BFCSize};
+            sanityCheck(set.toArray(new Integer[0]));
+
+
+            /*if(result > 0){
+                System.out.println(result);
+                for(Integer index : set){
+                    System.out.print(index + " ");
+                }
+                System.out.println("\n--------");
+
+            }*/
+
+        }
     }
+    // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
+
 
     // P( BFC | v=U ) =  P( v=U | BFC )* P(BFC) / P( v=U )
     private int[] given_BFC_Found_Pattern(ProbabilityStrategyEnum ps, Integer... vectorIndexes){
@@ -726,7 +718,7 @@ public class VectorConcurrentlyUp {
 
             case transition:
             case transition_ALL:
-                populatedExtremeValueMetricMap();
+                //populatedExtremeValueMetricMap();
                 for(int i= 0; i<size*4; i=i+4 ){
                     header.createCell(i).setCellValue("Position_"+ (i/4+1));
                     header.createCell(i+1).setCellValue("Occurrence_"+ (i/4+1));
@@ -738,7 +730,7 @@ public class VectorConcurrentlyUp {
                 header.createCell(header.getLastCellNum()).setCellValue("Probability_BFC_Given_Pattern_Occurred");
                 break;
             case transition_BFC:
-                populatedExtremeValueMetricMap();
+                //populatedExtremeValueMetricMap();
                 for(int i= 0; i<size*4; i=i+4 ){
                     header.createCell(i).setCellValue("Position_"+ (i/4+1));
                     header.createCell(i+1).setCellValue("Occurrence_"+ (i/4+1));
@@ -826,6 +818,9 @@ public class VectorConcurrentlyUp {
                         rowID++;
                         int count = 0;
                         for(Integer i : current){
+                            /*if(Collections.frequency(cltBFC.getCommitsLeadToBFC_indexRepresentation(),i) >= cltBFC.getCommitsPriorBFC().size()*0.3){
+                                count++;
+                            }*/
                             if(cltBFC.getCommitsLeadToBFC_indexRepresentation().contains(i)){
                                 count++;
                             }
@@ -889,7 +884,7 @@ public class VectorConcurrentlyUp {
         FileOutputStream fileOut = null;
 
         try {
-            fileOut= new FileOutputStream("results\\"+fileName+"_"+ps+".xlsx" );
+            fileOut= new FileOutputStream("results\\"+fileName+"_"+ps+"size"+size+".xlsx" );
             wb.write(fileOut);
             fileOut.close();
             wb.close();
@@ -898,29 +893,7 @@ public class VectorConcurrentlyUp {
             e.printStackTrace();
         }
     }
-    private void vectorCombinationsSanityCheck(int size){
-        int count = 0;
-        /*try {
-            FileWriter fw = new FileWriter(new File("./result.txt"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        for(Set<Integer> set: Sets.combinations(vectorIndex, size)){
 
-            sanityCheck(set.toArray(new Integer[0]));
-
-
-            /*if(result > 0){
-                System.out.println(result);
-                for(Integer index : set){
-                    System.out.print(index + " ");
-                }
-                System.out.println("\n--------");
-
-            }*/
-
-        }
-    }
 
     public static void main(String[] args) {
 

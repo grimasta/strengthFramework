@@ -37,3 +37,6 @@ build/
 
 #Ignore all xlsx files
 *.txt
+
+#Ignore all csv files
+*.csv

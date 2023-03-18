@@ -10,6 +10,10 @@ import tech.tablesaw.selection.Selection;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -46,6 +50,8 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
 
         for(int i=0; i<tableSortedByFileId.structure().rowCount(); i++){
             String columnName = tableSortedByFileId.structure().stringColumn("Column Name").get(i);
@@ -99,13 +105,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         }*/
 
 
-        StringColumn uniqueId = StringColumn.create("uniqueId");
-        StringColumn commitId= tableSortedByFileId.stringColumn("id");
-        for(String id: commitId ){
-            if(!uniqueId.contains(id)){
-                uniqueId.append(id);
-            }
-        }
+
         /*System.out.println(tableSortedByFileId.structure());
         System.exit(123);*/
         //System.out.println(tableSortedByFileId.columnNames());
@@ -119,6 +119,16 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         tableSortedByCommitTime = tableSortedByFileId.copy().sortOn("committed_at");
         tableSortedByCommitTime.removeColumns("Index");
         tableSortedByCommitTime.addColumns(IntColumn.indexColumn("Index", tableSortedByCommitTime.rowCount(), 0));
+
+        StringColumn uniqueId = StringColumn.create("uniqueId");
+        StringColumn commitId= tableSortedByCommitTime.stringColumn("id");
+        for(String id: commitId ){
+            if(!uniqueId.contains(id)){
+                uniqueId.append(id);
+            }
+        }
+
+
         commitMetricCategorization();
         tableSortedByFileId = null;
         tableSortedByFileId = tableSortedByCommitTime.copy().sortOn("file_id");
@@ -138,6 +148,7 @@ public class TestReadingStrategy implements TestIReadingStrategy{
         dataRepository.setBFCRatio(BFCCount/1.0/uniqueId.size());
 
         /*System.out.println(tableSortedByCommitTime.structure());
+        System.out.println(fileName+": "+ BFCCount/1.0/uniqueId.size());
         */
 
         dataRepository.setTableSortedByFileId(tableSortedByFileId);
@@ -346,20 +357,35 @@ public class TestReadingStrategy implements TestIReadingStrategy{
 
     public static void main(String[] args) {
 
+
+
         TestReadingStrategy trs = new TestReadingStrategy();
         String directory = "C:\\Users\\Rongji He\\Desktop\\data\\";
 
+
+        int[] maxSize ={
+                3384, 2177, 1573, 1100, 3006, 2330, 3091,
+                2376, 1848, 566, 3152, 4055, 908, 3065,
+                1968, 9990, 2302, 1774, 13248, 6995, 21831,
+                29778, 11055, 8494, 12810
+        };
         try {
 
             for(int i=0; i < FileNameEnum.values().length; i++){
                 String file = directory+FileNameEnum.values()[i].name()+"FinalVersion.csv";
                 trs.parseData(file);
-                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC(PBFC_StrategyEnum.all_BFC_File_showed_up);
-                VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
-                //vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
-                vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
-                vcp.vectorCombinations(ProbabilityStrategyEnum.transition_ALL,3,FileNameEnum.values()[i].name());
 
+//                CommitsLeadToBFC cltBFC =new CommitsLeadToBFC(PBFC_StrategyEnum.all_BFC_File_showed_up);
+//                VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(cltBFC);
+                System.out.print(FileNameEnum.values()[i].name()+" ");
+                VectorConcurrentlyUp vcp = new VectorConcurrentlyUp(null);
+
+//                String file2 = "C:\\Users\\Rongji He\\Desktop\\strengthFramework-masterB2\\strengthFramework\\results\\best\\res3.csv";
+//                vcp.coverage(file2,FileNameEnum.values()[i].name(),maxSize[i]);
+//                vcp.vectorCombinations(ProbabilityStrategyEnum.ALL,3,FileNameEnum.values()[i].name());
+//                vcp.vectorCombinations(ProbabilityStrategyEnum.BFC,3,FileNameEnum.values()[i].name());
+//                vcp.vectorCombinations(ProbabilityStrategyEnum.transition_ALL,2,FileNameEnum.values()[i].name());
+//                System.exit(223344879);
             }
 
 
